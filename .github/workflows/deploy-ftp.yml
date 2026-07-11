@@ -1,4 +1,4 @@
-name: Deploy to FTP (Automático)
+name: Deploy to FTP (Actualización Normal)
 
 on:
   push:
@@ -13,17 +13,18 @@ jobs:
       - name: 📥 Get latest code
         uses: actions/checkout@v4
 
-      - name: 📂 Sync files to Hosting (Automático)
+      - name: 📂 Sync files (Solo archivos modificados)
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # protocol: ftps          # Descomenta si usas FTPS
+          # protocol: ftps           # Descomenta si usas FTPS
           local-dir: ./
-          server-dir: ./htdocs/     # ← Cambia a htdocs como dijiste
+          server-dir: ./htdocs/      # Cambiado a htdocs como tú usas
           exclude: |
             .git/
             .github/
             README.md
             .gitignore
+            .env
