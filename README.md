@@ -16,11 +16,11 @@ Un sistema completo, moderno, compacto y responsivo desarrollado en PHP 8.2+ con
 ## 🛠️ Instalación en Laragon / XAMPP
 
 1. **Clonar / Copiar archivos**:
-   Copia todos los archivos del proyecto dentro de la carpeta pública de tu servidor (ej: `C:\laragon\www\dukes_cakes_venta\`).
+   Copia todos los archivos del proyecto dentro de la carpeta pública de tu servidor (ej: `C:\laragon\www\ventaPOS\`).
 
 2. **Base de Datos**:
    - Inicia MySQL/MariaDB.
-   - Crea la base de datos `dukes_cakes_venta`.
+   - Crea la base de datos `ventaPOS`.
    - Importa el archivo `database/database.sql`.
 
 3. **Configuración (`.env`)**:
@@ -28,7 +28,7 @@ Un sistema completo, moderno, compacto y responsivo desarrollado en PHP 8.2+ con
    ```env
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_NAME=dukes_cakes_venta
+   DB_NAME=ventaPOS
    DB_USER=root
    DB_PASS=
    SESSION_LIFETIME=1800
@@ -36,7 +36,7 @@ Un sistema completo, moderno, compacto y responsivo desarrollado en PHP 8.2+ con
 
 4. **Virtual Host (Opcional pero Recomendado)**:
    Apunta la raíz de tu servidor virtual a la carpeta `/public`.
-   - En Laragon: Si la carpeta es `dukes_cakes_venta`, Laragon generará automáticamente `http://dukes_cakes_venta.test` que apunta a `/public`.
+   - En Laragon: Si la carpeta es `ventaPOS`, Laragon generará automáticamente `http://ventaPOS.test` que apunta a `/public`.
 
 ---
 
