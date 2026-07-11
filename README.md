@@ -1,4 +1,4 @@
-# 🍔 Duke's Cakes POS — Sistema de Punto de Venta para Comida Rápida
+# 🍔 Sistema de Punto de Venta para Comida Rápida
 
 Un sistema completo, moderno, compacto y responsivo desarrollado en PHP 8.2+ con arquitectura MVC simple (sin frameworks ni dependencias externas pesadas).
 
