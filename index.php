@@ -8,13 +8,16 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 
-// 1. PSR-4 Autoloader
+// 1. PSR-4 Autoloader (case-insensitive folder names for Linux/InfinityFree compatibility)
 spl_autoload_register(function ($class) {
     $base_dir = __DIR__ . '/';
 
-    // Translate namespaces to file paths
     if (strpos($class, 'App\\') === 0) {
-        $file = $base_dir . 'app/' . str_replace('\\', '/', substr($class, 4)) . '.php';
+        // App\Controllers\Foo → app/controllers/Foo.php  (lowercase subfolder for Linux)
+        $relative = str_replace('\\', '/', substr($class, 4));
+        $parts    = explode('/', $relative, 2);
+        $parts[0] = strtolower($parts[0]); // Controllers→controllers, Models→models, etc.
+        $file = $base_dir . 'app/' . implode('/', $parts) . '.php';
     } elseif (strpos($class, 'Core\\') === 0) {
         $file = $base_dir . 'core/' . str_replace('\\', '/', substr($class, 5)) . '.php';
     } else {
