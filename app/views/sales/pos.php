@@ -1,0 +1,410 @@
+<?php
+$trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
+?>
+<!– ══════════════════════════════════════════════════
+    POS — Full-screen kiosk layout
+    Layout: [Category Rail | Product Grid] [Cart Panel]
+══════════════════════════════════════════════════ –>
+
+<style>
+    /* Hide the main footer on POS for full-screen feel */
+    body > footer { display: none !important; }
+    /* Hide main padding wrapper on POS */
+    body > main { padding: 0 !important; max-width: 100% !important; }
+
+    /* Category rail active pill */
+    .cat-pill.active {
+        background: #E07B39;
+        color: #fff;
+        border-color: #E07B39;
+        box-shadow: 0 4px 12px rgba(224,123,57,.35);
+    }
+
+    /* Product card img zoom on hover */
+    .prod-img { transition: transform .45s cubic-bezier(.16,1,.3,1); }
+    .prod-card:hover .prod-img { transform: scale(1.08); }
+
+    /* Cart item row */
+    @keyframes rowIn {
+        from { opacity:0; transform: translateX(12px); }
+        to   { opacity:1; transform: translateX(0); }
+    }
+    .cart-row { animation: rowIn .22s ease both; }
+
+    /* Ripple on product tap */
+    @keyframes ripple {
+        from { transform: scale(0); opacity: .45; }
+        to   { transform: scale(3); opacity: 0; }
+    }
+    .ripple-fx {
+        position:absolute; border-radius:50%;
+        background: rgba(224,123,57,.55);
+        width: 60px; height: 60px;
+        pointer-events:none;
+        animation: ripple .5s linear forwards;
+    }
+
+    /* Checkout modal slide-up */
+    @keyframes slideUp {
+        from { opacity:0; transform: translateY(32px) scale(.97); }
+        to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+    .modal-panel { animation: slideUp .32s cubic-bezier(.16,1,.3,1) both; }
+
+    /* Receipt pop */
+    @keyframes popIn {
+        0%  { opacity:0; transform: scale(.8); }
+        70% { transform: scale(1.03); }
+        100%{ opacity:1; transform: scale(1); }
+    }
+    .receipt-panel { animation: popIn .38s cubic-bezier(.16,1,.3,1) both; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin .7s linear infinite; }
+</style>
+
+<?php
+// Detect screen context — PHP can only know route, JS will handle UI
+?>
+
+<!-- ── Root wrapper: full viewport minus the top navbar ────────────── -->
+<div id="pos-root"
+     class="flex h-[calc(100vh-4rem)] bg-cream overflow-hidden">
+
+    <!-- ══════════════════════════════════════════════════════════
+         LEFT ZONE — Category sidebar + Product grid
+    ══════════════════════════════════════════════════════════ -->
+    <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
+
+        <!-- ── Top bar: Search + Category pills ─────────────── -->
+        <div class="shrink-0 bg-white border-b border-cream-dark px-4 py-3 space-y-3">
+
+            <!-- Search -->
+            <div class="relative">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-coffee-light pointer-events-none"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input id="pos-search"
+                       type="text" oninput="posFilter()"
+                       placeholder="Buscar producto o código…"
+                       class="w-full pl-10 pr-4 py-2.5 bg-cream rounded-xl border border-cream-dark text-sm
+                              text-coffee-dark placeholder-coffee-light/60 focus:outline-none focus:ring-2
+                              focus:ring-accent/50 focus:border-accent transition">
+            </div>
+
+            <!-- Category pills (horizontal scroll) -->
+            <div class="flex gap-2 overflow-x-auto pb-0.5 custom-scrollbar snap-x">
+                <button id="cat-all"
+                        onclick="posSelectCat(null)"
+                        class="cat-pill active snap-start shrink-0 flex items-center gap-1.5
+                               px-4 py-2 rounded-full text-xs font-bold border border-transparent
+                               transition-all duration-200 whitespace-nowrap">
+                    🍽️ Todos
+                </button>
+                <?php foreach ($categories as $cat): ?>
+                <button id="cat-<?= $cat['id'] ?>"
+                        onclick="posSelectCat(<?= $cat['id'] ?>)"
+                        class="cat-pill snap-start shrink-0 flex items-center gap-1.5
+                               px-4 py-2 rounded-full text-xs font-bold bg-white border border-cream-dark
+                               text-coffee-dark hover:border-accent/60 hover:text-accent
+                               transition-all duration-200 whitespace-nowrap">
+                    <?= e($cat['icon']) ?> <?= e($cat['name']) ?>
+                </button>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- ── Product grid ──────────────────────────────────── -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-4">
+
+            <!-- Grid -->
+            <div id="pos-grid"
+                 class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            </div>
+
+            <!-- Empty state -->
+            <div id="pos-empty"
+                 class="hidden flex-col items-center justify-center h-full py-24 text-center gap-3">
+                <div class="w-20 h-20 rounded-2xl bg-cream-dark flex items-center justify-center text-4xl">🍟</div>
+                <p class="font-bold text-coffee-medium">Sin resultados</p>
+                <p class="text-xs text-coffee-light">Intenta buscar con otro término o categoría.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         RIGHT ZONE — Order cart
+         Desktop: visible sidebar
+         Mobile: fixed bottom sheet (slide-up)
+    ══════════════════════════════════════════════════════════ -->
+    <!-- Desktop sidebar -->
+    <div id="cart-desktop"
+         class="hidden lg:flex flex-col w-[340px] xl:w-[380px] shrink-0
+                bg-white border-l border-cream-dark overflow-hidden">
+        <!-- Cart header -->
+        <div class="shrink-0 px-5 py-4 border-b border-cream-dark flex items-center justify-between bg-coffee-dark text-white">
+            <div class="flex items-center gap-2.5">
+                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <span class="font-heading font-extrabold text-sm tracking-wide">Orden de Compra</span>
+            </div>
+        </div>
+        <!-- Cart items -->
+        <div id="cart-items-desktop" class="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2"></div>
+        <!-- Totals & actions -->
+        <div class="shrink-0 border-t border-cream-dark bg-cream/40 px-4 py-4 space-y-3">
+            <div class="space-y-1.5 text-sm">
+                <div class="flex justify-between text-coffee-light">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal" class="font-semibold text-coffee-dark">Bs. 0.00</span>
+                </div>
+                <div class="flex justify-between font-extrabold text-base border-t border-cream-dark pt-2 mt-1">
+                    <span class="text-coffee-dark">Total</span>
+                    <span id="cart-total" class="text-accent-dark font-heading text-lg">Bs. 0.00</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+                <button onclick="posClearCart()"
+                        class="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-cream-dark bg-white hover:bg-cream text-coffee-medium text-xs font-bold transition-all active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Vaciar
+                </button>
+                <button onclick="openCheckout()"
+                        class="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-accent hover:bg-accent-dark text-white text-xs font-extrabold transition-all shadow-md shadow-accent/20 active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V5a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Cobrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ────────────────────────────────────────────────────── -->
+    <!-- Mobile: floating FAB + bottom sheet -->
+    <!-- ────────────────────────────────────────────────────── -->
+
+    <!-- FAB trigger (only on mobile) -->
+    <button id="mob-cart-fab"
+            onclick="openMobCart()"
+            class="lg:hidden fixed bottom-5 right-5 z-50
+                   flex items-center gap-2 bg-accent hover:bg-accent-dark text-white
+                   font-bold px-5 py-3.5 rounded-full shadow-2xl shadow-accent/30
+                   transition-all duration-200 active:scale-95">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <span>Ver Orden</span>
+        <span id="mob-fab-badge"
+              class="bg-white text-accent font-heading font-extrabold text-[11px]
+                     w-5 h-5 rounded-full flex items-center justify-center">0</span>
+    </button>
+
+    <!-- Mobile backdrop -->
+    <div id="mob-cart-back"
+         onclick="closeMobCart()"
+         class="lg:hidden hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm">
+    </div>
+
+    <div id="mob-cart-sheet"
+         class="lg:hidden fixed bottom-0 left-0 right-0 z-[61]
+                h-[85dvh] bg-white rounded-t-3xl shadow-2xl flex flex-col
+                translate-y-full transition-transform duration-400 ease-[cubic-bezier(.32,0,.67,0)]">
+        <!-- Drag handle -->
+        <div class="flex justify-center pt-3 pb-1 shrink-0">
+            <div class="w-10 h-1 rounded-full bg-cream-dark"></div>
+        </div>
+        <!-- Cart header -->
+        <div class="shrink-0 px-5 py-3.5 border-b border-cream-dark flex items-center justify-between bg-coffee-dark text-white">
+            <div class="flex items-center gap-2.5">
+                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <span class="font-heading font-extrabold text-sm tracking-wide">Orden de Compra</span>
+            </div>
+            <button onclick="closeMobCart()"
+                    class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <!-- Cart items -->
+        <div id="cart-items-mobile" class="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2"></div>
+        <!-- Totals & actions -->
+        <div class="shrink-0 border-t border-cream-dark bg-cream/40 px-4 py-4 space-y-3">
+            <div class="space-y-1.5 text-sm">
+                <div class="flex justify-between text-coffee-light">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal-mob" class="font-semibold text-coffee-dark">Bs. 0.00</span>
+                </div>
+                <div class="flex justify-between font-extrabold text-base border-t border-cream-dark pt-2 mt-1">
+                    <span class="text-coffee-dark">Total</span>
+                    <span id="cart-total-mob" class="text-accent-dark font-heading text-lg">Bs. 0.00</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+                <button onclick="posClearCart()"
+                        class="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-cream-dark bg-white hover:bg-cream text-coffee-medium text-xs font-bold transition-all active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Vaciar
+                </button>
+                <button onclick="openCheckout()"
+                        class="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-accent hover:bg-accent-dark text-white text-xs font-extrabold transition-all shadow-md shadow-accent/20 active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V5a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Cobrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CHECKOUT MODAL
+══════════════════════════════════════════════════════════ -->
+<div id="checkout-modal"
+     class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="absolute inset-0 bg-coffee-dark/60 backdrop-blur-sm" onclick="closeCheckout()"></div>
+
+    <div class="modal-panel relative z-10 w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-coffee-dark to-coffee-medium text-white px-5 py-4 flex items-center justify-between">
+            <div>
+                <h4 class="font-heading font-extrabold text-base">Confirmar Cobro</h4>
+                <p class="text-white/60 text-[10px] mt-0.5">Ingresa el monto recibido</p>
+            </div>
+            <button onclick="closeCheckout()"
+                    class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-5 space-y-4">
+            <!-- Total bubble -->
+            <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-accent/20 p-4 text-center">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-accent-dark block mb-1">Total a Cobrar</span>
+                <span id="ck-total" class="text-4xl font-heading font-extrabold text-coffee-dark">Bs. 0.00</span>
+            </div>
+
+            <!-- Input -->
+            <div>
+                <label class="text-xs font-bold text-coffee-dark block mb-1.5">Pago recibido con:</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm text-coffee-medium">Bs.</span>
+                    <input id="ck-pay" type="number" oninput="ckCalcChange()" step="0.01" min="0" placeholder="0.00"
+                           class="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-cream-dark focus:outline-none
+                                  focus:border-accent font-extrabold text-2xl text-coffee-dark bg-cream/40 transition">
+                </div>
+            </div>
+
+            <!-- Quick bills -->
+            <div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-coffee-light mb-2">Billetes rápidos:</p>
+                <div class="grid grid-cols-4 gap-2">
+                    <?php foreach ([5, 10, 20, 50, 100, 200] as $b): ?>
+                    <button onclick="ckSetBill(<?= $b ?>)"
+                            class="py-2.5 rounded-xl text-xs font-extrabold bg-cream hover:bg-cream-dark
+                                   border border-cream-dark hover:border-accent hover:text-accent
+                                   text-coffee-dark transition-all active:scale-95">
+                        <?= $b ?>
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Change -->
+            <div class="flex justify-between items-center rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-3">
+                <span class="text-sm font-semibold text-emerald-900">Cambio a dar:</span>
+                <span id="ck-change" class="text-xl font-extrabold text-emerald-700 font-heading">Bs. 0.00</span>
+            </div>
+
+            <!-- Submit -->
+            <button id="ck-btn" onclick="ckSubmit()"
+                    class="w-full bg-accent hover:bg-accent-dark active:scale-95 text-white font-heading font-extrabold
+                           py-4 rounded-xl shadow-lg shadow-accent/25 transition-all text-sm flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Completar Venta
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TICKET / RECEIPT MODAL
+══════════════════════════════════════════════════════════ -->
+<div id="receipt-modal"
+     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-coffee-dark/70 backdrop-blur-sm" onclick="closeReceipt()"></div>
+    <div class="receipt-panel relative z-10 w-full max-w-xs bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+        <!-- Top gradient header -->
+        <div class="bg-gradient-to-br from-accent to-accent-dark p-5 text-center text-white">
+            <div class="w-14 h-14 mx-auto rounded-full bg-white/20 border border-white/30
+                        flex items-center justify-center text-3xl mb-2 shadow-lg">🧾</div>
+            <h4 class="font-heading font-extrabold text-lg">¡Venta Registrada!</h4>
+            <p class="text-white/70 text-xs mt-1">Gracias por tu preferencia</p>
+        </div>
+
+        <!-- Zigzag divider top -->
+        <div class="h-3" style="background: repeating-linear-gradient(90deg,#fff 0,#fff 8px,#E07B39 8px,#E07B39 16px);"></div>
+
+        <!-- Body -->
+        <div class="px-5 py-4 space-y-1.5 font-mono text-xs text-coffee-dark">
+            <div class="flex justify-between text-coffee-light">
+                <span>Fecha:</span><span id="tkt-date" class="font-semibold text-coffee-dark"></span>
+            </div>
+            <div class="flex justify-between text-coffee-light">
+                <span>Ticket N°:</span><span id="tkt-id" class="font-extrabold text-accent"></span>
+            </div>
+            <div class="border-t border-dashed border-coffee-medium/20 my-2"></div>
+            <div id="tkt-items" class="space-y-1"></div>
+            <div class="border-t border-dashed border-coffee-medium/20 my-2"></div>
+            <div class="flex justify-between font-bold text-sm">
+                <span>TOTAL</span><span id="tkt-total"></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-coffee-light">Recibido</span><span id="tkt-paid"></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-coffee-light">Cambio</span>
+                <span id="tkt-change" class="font-bold text-emerald-600"></span>
+            </div>
+        </div>
+
+        <!-- Zigzag divider bottom -->
+        <div class="h-3" style="background: repeating-linear-gradient(90deg,#fff 0,#fff 8px,#F5E6D3 8px,#F5E6D3 16px);"></div>
+
+        <div class="px-5 pb-5 pt-2">
+            <button onclick="closeReceipt()"
+                    class="w-full bg-coffee-dark hover:bg-coffee-medium text-white font-heading font-bold
+                           py-3 rounded-xl transition-all active:scale-95 text-sm">
+                Nueva Venta 🍔
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── JS Data ─────────────────────────────────────────────── -->
+<script>
+    const POS_PRODUCTS  = <?= json_encode(array_values($products)) ?>;
+    const POS_BASE      = '<?= BASE_URL ?>';
+    const POS_TRACK_RM  = <?= $trackRawMaterials ?>;
+</script>
+<script src="<?= BASE_URL ?>/assets/app.js"></script>

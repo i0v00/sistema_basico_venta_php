@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Do not rewrite direct file access or folders
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite everything else to the root level index.php
+RewriteRule ^(.*)$ index.php [L,QSA]
