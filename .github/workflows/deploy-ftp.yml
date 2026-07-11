@@ -20,4 +20,4 @@ jobs:
           # protocol: ftps        # Descomenta si usas FTPS
           local-dir: ./
           server-dir: ./htdocs/
-          dangerous-clean-slate: true     # ← Esto elimina todo antes de subir
+          dangerous-clean-slate: true     
