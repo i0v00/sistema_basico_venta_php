@@ -10,7 +10,6 @@
     RewriteRule ^(app|core|database)/ - [F,L]
     RewriteRule ^env\.php$ - [F,L]
     RewriteRule ^\.env$ - [F,L]
-    RewriteRule ^install\.php$ - [F,L]
 
     # ── Archivos y carpetas que existen físicamente → servir directamente ──
     RewriteCond %{REQUEST_FILENAME} -f [OR]
