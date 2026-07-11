@@ -3,6 +3,11 @@
  * Restaurant POS - Entry Point & Router (Root Level)
  */
 
+// ── DEBUG TEMPORAL: mostrar errores en lugar de 500 ──
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+
 // 1. PSR-4 Autoloader
 spl_autoload_register(function ($class) {
     $base_dir = __DIR__ . '/';
@@ -26,7 +31,6 @@ require_once __DIR__ . '/env.php';
 require_once __DIR__ . '/core/helpers.php';
 
 // 3. Request Path parsing & Subfolder detection (must happen before session/auth)
-$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 // Detect if we are running in a subdirectory (e.g. /dukes_cakes_venta/)
@@ -34,13 +38,18 @@ $scriptName = $_SERVER['SCRIPT_NAME']; // E.g. /dukes_cakes_venta/index.php
 $basePath = dirname($scriptName); // E.g. /dukes_cakes_venta
 $basePath = ($basePath === '/' || $basePath === '\\') ? '' : $basePath;
 
-// Strip base path from request URI to match routes correctly
-if ($basePath && strpos($requestUri, $basePath) === 0) {
-    $requestUri = substr($requestUri, strlen($basePath));
+// Prefer $_GET['url'] (passed by .htaccess on InfinityFree: index.php?url=$1)
+// Fall back to REQUEST_URI (used on local/Laragon)
+if (isset($_GET['url'])) {
+    $requestUri = '/' . trim($_GET['url'], '/');
+} else {
+    $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    // Strip base path from request URI to match routes correctly
+    if ($basePath && strpos($requestUri, $basePath) === 0) {
+        $requestUri = substr($requestUri, strlen($basePath));
+    }
+    $requestUri = '/' . trim($requestUri, '/');
 }
-
-// Ensure it starts with / and has no trailing slash (unless it is just /)
-$requestUri = '/' . trim($requestUri, '/');
 
 // Global base URL definition for assets (must be defined before Auth::initSession)
 define('BASE_URL', $basePath);
