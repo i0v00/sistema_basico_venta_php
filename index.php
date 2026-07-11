@@ -25,11 +25,7 @@ spl_autoload_register(function ($class) {
 require_once __DIR__ . '/env.php';
 require_once __DIR__ . '/core/helpers.php';
 
-// 3. Initialize Session
-use Core\Auth;
-Auth::initSession();
-
-// 4. Request Path parsing & Subfolder detection
+// 3. Request Path parsing & Subfolder detection (must happen before session/auth)
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
@@ -46,8 +42,12 @@ if ($basePath && strpos($requestUri, $basePath) === 0) {
 // Ensure it starts with / and has no trailing slash (unless it is just /)
 $requestUri = '/' . trim($requestUri, '/');
 
-// Global base URL definition for assets
+// Global base URL definition for assets (must be defined before Auth::initSession)
 define('BASE_URL', $basePath);
+
+// 4. Initialize Session (after BASE_URL is defined so redirect() works)
+use Core\Auth;
+Auth::initSession();
 
 // Simple Routing Map
 $routes = [
