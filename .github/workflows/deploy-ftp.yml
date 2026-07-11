@@ -1,7 +1,9 @@
-name: Deploy Full Reset (Eliminar y Subir Todo)
+name: Deploy to FTP (Automático)
 
 on:
-  workflow_dispatch:  # Solo se ejecuta manualmente (no en cada push)
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -11,17 +13,17 @@ jobs:
       - name: 📥 Get latest code
         uses: actions/checkout@v4
 
-      - name: 🗑️ Full Reset + Deploy (Eliminar todo y subir)
+      - name: 📂 Sync files to Hosting (Automático)
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           # protocol: ftps          # Descomenta si usas FTPS
-          # port: 21                # Cambia si usas otro puerto
-          local-dir: ./             # Carpeta que quieres subir (raíz del proyecto)
-          server-dir: ./public_html/ # ← Cambia esto según tu hosting
-          # exclude:                # Archivos que NO quieres subir
-          #   - .git/
-          #   - .github/
-          #   - node_modules/
+          local-dir: ./
+          server-dir: ./htdocs/     # ← Cambia a htdocs como dijiste
+          exclude: |
+            .git/
+            .github/
+            README.md
+            .gitignore
