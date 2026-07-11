@@ -1,4 +1,5 @@
 RewriteEngine On
+RewriteBase /
 
 # Do not rewrite direct file access or folders
 RewriteCond %{REQUEST_FILENAME} !-f
