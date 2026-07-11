@@ -1,9 +1,54 @@
-Options +FollowSymLinks -MultiViews
-RewriteEngine On
+# ============================================================
+# .htaccess — Duke's Cakes Venta (Optimizado InfinityFree)
+# ============================================================
 
-# Do not rewrite direct file access or folders
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+<IfModule mod_rewrite.c>
+    Options +FollowSymLinks -MultiViews
+    RewriteEngine On
 
-# Rewrite everything else to index.php (relative, works in both root and subdirectory)
-RewriteRule ^ index.php [L]
+    # ── Seguridad: bloquear acceso directo a carpetas y archivos sensibles ──
+    RewriteRule ^(app|core|database)/ - [F,L]
+    RewriteRule ^env\.php$ - [F,L]
+    RewriteRule ^\.env$ - [F,L]
+    RewriteRule ^install\.php$ - [F,L]
+
+    # ── Archivos y carpetas que existen físicamente → servir directamente ──
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # ── Todo lo demás → front controller ──
+    RewriteRule ^ index.php [L]
+
+</IfModule>
+
+# ── Páginas de error ──
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php
+
+# ── Cache de assets ──
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/* "access plus 6 months"
+    ExpiresByType image/webp "access plus 6 months"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+# ── Compresión ──
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+</IfModule>
+
+# ── Headers de seguridad ──
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Ocultar versión de PHP
+<IfModule mod_php.c>
+    php_flag expose_php Off
+</IfModule>
