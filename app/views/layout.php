@@ -3,6 +3,9 @@ use Core\Auth;
 $isLoggedIn = Auth::check();
 $currentUser = Auth::user();
 $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Helper function to check links visibility based on role
+$userRole = Auth::role();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -118,29 +121,55 @@ $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
                 <!-- Desktop Nav Items -->
                 <div class="hidden md:flex items-center space-x-4">
+                    <?php if ($userRole === 'admin'): ?>
                     <a href="<?= BASE_URL ?>/" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= $currentUri === BASE_URL . '/' || $currentUri === BASE_URL ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
                         📊 Dashboard
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
                     <a href="<?= BASE_URL ?>/pos" class="px-4 py-2 bg-accent hover:bg-accent-dark text-white rounded-lg text-sm font-bold transition flex items-center gap-1 shadow-sm">
                         🛒 POS Venta
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($userRole === 'admin' || $userRole === 'caja' || $userRole === 'cocinero'): ?>
+                    <a href="<?= BASE_URL ?>/orders" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= strpos($currentUri, BASE_URL . '/orders') === 0 ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
+                        📋 Pedidos
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if ($userRole === 'admin'): ?>
                     <a href="<?= BASE_URL ?>/products" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= strpos($currentUri, BASE_URL . '/products') === 0 ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
                         🍔 Productos
                     </a>
                     <a href="<?= BASE_URL ?>/raw-materials" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= strpos($currentUri, BASE_URL . '/raw-materials') === 0 ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
                         📦 Inventario
                     </a>
+                    <a href="<?= BASE_URL ?>/users" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= strpos($currentUri, BASE_URL . '/users') === 0 ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
+                        👤 Usuarios
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
                     <a href="<?= BASE_URL ?>/sales/history" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= $currentUri === BASE_URL . '/sales/history' ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
                         📜 Historial
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($userRole === 'admin'): ?>
                     <a href="<?= BASE_URL ?>/settings" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= $currentUri === BASE_URL . '/settings' ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
                         ⚙️ Config
                     </a>
+                    <?php endif; ?>
                 </div>
 
-                <!-- Admin user profile & logout -->
+                <!-- User profile & logout -->
                 <div class="hidden md:flex items-center space-x-4 border-l border-coffee-medium pl-4">
-                    <span class="text-xs text-cream-dark">Hola, <strong class="text-white"><?= e($currentUser['username']) ?></strong></span>
+                    <div class="flex flex-col text-right">
+                        <span class="text-xs text-cream-dark">Hola, <strong class="text-white"><?= e($currentUser['full_name']) ?></strong></span>
+                        <span class="text-[10px] text-accent font-bold uppercase tracking-wider"><?= e($userRole) ?></span>
+                    </div>
                     <a href="<?= BASE_URL ?>/logout" class="text-xs bg-red-800 hover:bg-red-700 px-3 py-1.5 rounded-lg transition font-medium">
                         Salir 🚪
                     </a>
@@ -148,7 +177,10 @@ $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
                 <!-- Mobile Menu Button with animated icon -->
                 <div class="flex md:hidden items-center gap-3">
-                    <span class="text-[10px] text-cream-dark/70"><?= e($currentUser['username']) ?></span>
+                    <div class="flex flex-col text-right">
+                        <span class="text-[10px] text-cream-dark/90"><?= e($currentUser['username']) ?></span>
+                        <span class="text-[9px] text-accent font-bold uppercase tracking-wider"><?= e($userRole) ?></span>
+                    </div>
                     <button id="mobile-menu-btn" type="button"
                             class="relative w-10 h-10 rounded-xl bg-coffee-medium/30 hover:bg-coffee-medium/60 flex items-center justify-center transition-all duration-200 focus:outline-none active:scale-90">
                         <!-- Hamburger lines → animated to X -->
@@ -177,14 +209,28 @@ $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                 <!-- Nav links -->
                 <div class="px-3 pt-3 pb-2 space-y-1">
                     <?php
-                    $mobileLinks = [
-                        ['/'              , '📊', 'Dashboard'          , false],
-                        ['/pos'           , '🛒', 'Registrar Venta'    , true ],
-                        ['/products'      , '🍔', 'Productos'          , false],
-                        ['/raw-materials' , '📦', 'Inventario'         , false],
-                        ['/sales/history' , '📜', 'Historial de Ventas', false],
-                        ['/settings'      , '⚙️', 'Configuración'      , false],
-                    ];
+                    $mobileLinks = [];
+                    if ($userRole === 'admin') {
+                        $mobileLinks[] = ['/'              , '📊', 'Dashboard'          , false];
+                    }
+                    if ($userRole === 'admin' || $userRole === 'caja') {
+                        $mobileLinks[] = ['/pos'           , '🛒', 'Registrar Venta'    , true ];
+                    }
+                    if ($userRole === 'admin' || $userRole === 'caja' || $userRole === 'cocinero') {
+                        $mobileLinks[] = ['/orders'        , '📋', 'Pedidos'            , false];
+                    }
+                    if ($userRole === 'admin') {
+                        $mobileLinks[] = ['/products'      , '🍔', 'Productos'          , false];
+                        $mobileLinks[] = ['/raw-materials' , '📦', 'Inventario'         , false];
+                        $mobileLinks[] = ['/users'         , '👤', 'Usuarios'           , false];
+                    }
+                    if ($userRole === 'admin' || $userRole === 'caja') {
+                        $mobileLinks[] = ['/sales/history' , '📜', 'Historial de Ventas', false];
+                    }
+                    if ($userRole === 'admin') {
+                        $mobileLinks[] = ['/settings'      , '⚙️', 'Configuración'      , false];
+                    }
+
                     foreach ($mobileLinks as [$path, $icon, $label, $isPrimary]):
                         $isActive = ($path === '/')
                             ? ($currentUri === BASE_URL.'/' || $currentUri === BASE_URL)
@@ -211,7 +257,7 @@ $currentUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                 <div class="px-4 py-3 border-t border-white/10 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-7 h-7 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-xs">👤</div>
-                        <span class="text-xs text-cream-dark/70">Sesión: <strong class="text-white"><?= e($currentUser['username']) ?></strong></span>
+                        <span class="text-xs text-cream-dark/70">Sesión: <strong class="text-white"><?= e($currentUser['full_name']) ?></strong></span>
                     </div>
                     <a href="<?= BASE_URL ?>/logout"
                        class="text-xs bg-red-900/80 hover:bg-red-700 border border-red-700/40 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1">

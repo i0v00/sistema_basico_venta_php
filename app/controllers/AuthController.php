@@ -7,7 +7,7 @@ use Core\Database;
 class AuthController {
     public function showLogin() {
         if (Auth::check()) {
-            redirect('/');
+            self::redirectByRole();
         }
         view('auth/login');
     }
@@ -22,9 +22,9 @@ class AuthController {
         }
 
         if (Auth::login($username, $password)) {
-            redirect('/');
+            self::redirectByRole();
         } else {
-            Auth::setFlash('error', 'Credenciales incorrectas.');
+            Auth::setFlash('error', 'Credenciales incorrectas o usuario inactivo.');
             redirect('/login');
         }
     }
@@ -74,5 +74,20 @@ class AuthController {
 
         Auth::setFlash('success', 'Credenciales actualizadas correctamente.');
         redirect('/settings');
+    }
+
+    /**
+     * Redirect user to their role's home screen.
+     */
+    private static function redirectByRole(): void {
+        $role = Auth::role();
+        if ($role === 'cocinero') {
+            redirect('/orders');
+        } elseif ($role === 'caja') {
+            redirect('/pos');
+        } else {
+            // admin and any unknown role → dashboard
+            redirect('/');
+        }
     }
 }

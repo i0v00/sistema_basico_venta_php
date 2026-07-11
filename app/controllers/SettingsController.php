@@ -5,7 +5,8 @@ use Core\Auth;
 
 class SettingsController {
     public function __construct() {
-        Auth::requireLogin();
+        // Only admin should change general settings
+        Auth::requireRole('admin');
     }
 
     public function index() {

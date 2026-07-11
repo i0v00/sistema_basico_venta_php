@@ -78,6 +78,15 @@ $routes = [
         '/sales/history' => [\App\Controllers\SaleController::class, 'history'],
         '/sales/details' => [\App\Controllers\SaleController::class, 'details'],
         '/settings' => [\App\Controllers\SettingsController::class, 'index'],
+        
+        // Users routes
+        '/users' => [\App\Controllers\UserController::class, 'index'],
+        '/users/create' => [\App\Controllers\UserController::class, 'form'],
+        '/users/edit' => [\App\Controllers\UserController::class, 'form'],
+
+        // Orders routes
+        '/orders' => [\App\Controllers\SaleController::class, 'orders'],
+        '/orders/json' => [\App\Controllers\SaleController::class, 'ordersJson'],
     ],
     'POST' => [
         '/login' => [\App\Controllers\AuthController::class, 'login'],
@@ -90,6 +99,13 @@ $routes = [
         '/pos/checkout' => [\App\Controllers\SaleController::class, 'checkout'],
         '/settings/save' => [\App\Controllers\SettingsController::class, 'save'],
         '/settings/change-password' => [\App\Controllers\AuthController::class, 'changePassword'],
+
+        // Users CRUD save & delete
+        '/users/save' => [\App\Controllers\UserController::class, 'save'],
+        '/users/delete' => [\App\Controllers\UserController::class, 'delete'],
+
+        // Orders status update
+        '/orders/status' => [\App\Controllers\SaleController::class, 'updateOrderStatus'],
     ]
 ];
 

@@ -22,14 +22,16 @@ class Auth {
  
     public static function login($username, $password) {
         $db = Database::getConnection();
-        $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt = $db->prepare("SELECT * FROM users WHERE username = ? AND active = 1");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
  
         if ($user && password_verify($password, $user['password'])) {
             session_regenerate_id(true);
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['username']  = $user['username'];
+            $_SESSION['full_name'] = $user['full_name'] ?? $user['username'];
+            $_SESSION['role']      = $user['role'] ?? 'caja';
             $_SESSION['last_activity'] = time();
             return true;
         }
@@ -59,11 +61,56 @@ class Auth {
     public static function user() {
         if (self::check()) {
             return [
-                'id' => $_SESSION['user_id'],
-                'username' => $_SESSION['username']
+                'id'        => $_SESSION['user_id'],
+                'username'  => $_SESSION['username'],
+                'full_name' => $_SESSION['full_name'] ?? $_SESSION['username'],
+                'role'      => $_SESSION['role'] ?? 'caja',
             ];
         }
         return null;
+    }
+
+    /**
+     * Returns the current user's role or null if not logged in.
+     */
+    public static function role(): ?string {
+        if (!self::check()) return null;
+        return $_SESSION['role'] ?? 'caja';
+    }
+
+    /**
+     * Checks if the current user has one of the allowed roles.
+     * Admin always passes.
+     *
+     * @param string|array $roles  e.g. 'caja' or ['caja','cocinero']
+     */
+    public static function hasRole($roles): bool {
+        $currentRole = self::role();
+        if ($currentRole === null) return false;
+        if ($currentRole === 'admin') return true; // admin tiene acceso total
+        if (is_string($roles)) $roles = [$roles];
+        return in_array($currentRole, $roles, true);
+    }
+
+    /**
+     * Requires login AND one of the given roles. Redirects otherwise.
+     *
+     * @param string|array $roles
+     */
+    public static function requireRole($roles): void {
+        self::requireLogin();
+        if (!self::hasRole($roles)) {
+            self::setFlash('error', 'No tienes permiso para acceder a esa sección.');
+            // Redirect to the appropriate home for the user's role
+            $role = self::role();
+            if ($role === 'cocinero') {
+                redirect('/orders');
+            } elseif ($role === 'caja') {
+                redirect('/pos');
+            } else {
+                redirect('/');
+            }
+        }
     }
  
     public static function requireLogin() {

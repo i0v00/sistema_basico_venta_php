@@ -7,7 +7,7 @@ use App\Models\Product;
 use Exception;
 
 class Sale {
-    public static function createSale($cartItems) {
+    public static function createSale($cartItems, int $cashierId = 0) {
         if (empty($cartItems)) {
             throw new Exception("El carrito está vacío.");
         }
@@ -39,13 +39,17 @@ class Sale {
                 $itemsCount += $item['quantity'];
             }
 
-            // 2. Insert into sales
-            $stmt = $db->prepare("INSERT INTO sales (total, items_count) VALUES (?, ?)");
-            $stmt->execute([$total, $itemsCount]);
+            // 2. Insert into sales (with cashier_id and status)
+            $stmt = $db->prepare(
+                "INSERT INTO sales (total, items_count, cashier_id, status) VALUES (?, ?, ?, 'pendiente')"
+            );
+            $stmt->execute([$total, $itemsCount, $cashierId ?: null]);
             $saleId = $db->lastInsertId();
 
             // 3. Insert details and deduct materials
-            $detailStmt = $db->prepare("INSERT INTO sale_details (sale_id, product_id, price, quantity) VALUES (?, ?, ?, ?)");
+            $detailStmt = $db->prepare(
+                "INSERT INTO sale_details (sale_id, product_id, price, quantity) VALUES (?, ?, ?, ?)"
+            );
             foreach ($cartItems as $item) {
                 $detailStmt->execute([
                     $saleId,
@@ -72,21 +76,97 @@ class Sale {
         }
     }
 
+    /**
+     * Get active orders for the orders screen.
+     * Returns today's orders with items and cashier info.
+     * Optionally filter by status.
+     */
+    public static function getActiveOrders(?string $status = null): array {
+        $db = Database::getConnection();
+
+        $where = "WHERE DATE(s.sale_date) = CURDATE()";
+        $params = [];
+
+        if ($status && in_array($status, ['pendiente', 'entregado'], true)) {
+            $where .= " AND s.status = ?";
+            $params[] = $status;
+        }
+
+        $stmt = $db->prepare("
+            SELECT 
+                s.id,
+                s.sale_date,
+                s.total,
+                s.items_count,
+                s.status,
+                u.username  AS cashier_username,
+                u.full_name AS cashier_name
+            FROM sales s
+            LEFT JOIN users u ON s.cashier_id = u.id
+            {$where}
+            ORDER BY s.sale_date DESC
+        ");
+        $stmt->execute($params);
+        $orders = $stmt->fetchAll();
+
+        // Attach items to each order
+        if (!empty($orders)) {
+            $ids = array_column($orders, 'id');
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+
+            $itemStmt = $db->prepare("
+                SELECT sd.sale_id, p.name AS product_name, c.icon AS product_icon,
+                       sd.quantity, sd.price
+                FROM sale_details sd
+                JOIN products p ON sd.product_id = p.id
+                JOIN categories c ON p.category_id = c.id
+                WHERE sd.sale_id IN ({$placeholders})
+                ORDER BY sd.id ASC
+            ");
+            $itemStmt->execute($ids);
+            $allItems = $itemStmt->fetchAll();
+
+            // Group items by sale_id
+            $itemsMap = [];
+            foreach ($allItems as $item) {
+                $itemsMap[$item['sale_id']][] = $item;
+            }
+
+            foreach ($orders as &$order) {
+                $order['items'] = $itemsMap[$order['id']] ?? [];
+            }
+            unset($order);
+        }
+
+        return $orders;
+    }
+
+    /**
+     * Update the status of an order.
+     */
+    public static function updateStatus(int $saleId, string $status): bool {
+        if (!in_array($status, ['pendiente', 'entregado'], true)) return false;
+        $db = Database::getConnection();
+        $stmt = $db->prepare("UPDATE sales SET status = ? WHERE id = ?");
+        $stmt->execute([$status, $saleId]);
+        return $stmt->rowCount() > 0;
+    }
+
     public static function history($startDate = null, $endDate = null) {
         $db = Database::getConnection();
-        $query = "SELECT * FROM sales WHERE 1=1";
+        $query = "SELECT s.*, u.username AS cashier_username FROM sales s LEFT JOIN users u ON s.cashier_id = u.id WHERE 1=1";
         $params = [];
 
         if (!empty($startDate)) {
-            $query .= " AND DATE(sale_date) >= ?";
+            $query .= " AND DATE(s.sale_date) >= ?";
             $params[] = $startDate;
         }
         if (!empty($endDate)) {
-            $query .= " AND DATE(sale_date) <= ?";
+            $query .= " AND DATE(s.sale_date) <= ?";
             $params[] = $endDate;
         }
 
-        $query .= " ORDER BY sale_date DESC";
+        $query .= " ORDER BY s.sale_date DESC";
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll();
@@ -116,12 +196,12 @@ class Sale {
         $month = $db->query("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE MONTH(sale_date) = MONTH(NOW()) AND YEAR(sale_date) = YEAR(NOW())")->fetch();
 
         return [
-            'day_revenue' => $day['revenue'] ?? 0.00,
-            'day_count' => $day['count'] ?? 0,
-            'week_revenue' => $week['revenue'] ?? 0.00,
-            'week_count' => $week['count'] ?? 0,
+            'day_revenue'   => $day['revenue'] ?? 0.00,
+            'day_count'     => $day['count'] ?? 0,
+            'week_revenue'  => $week['revenue'] ?? 0.00,
+            'week_count'    => $week['count'] ?? 0,
             'month_revenue' => $month['revenue'] ?? 0.00,
-            'month_count' => $month['count'] ?? 0,
+            'month_count'   => $month['count'] ?? 0,
         ];
     }
 

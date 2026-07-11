@@ -12,9 +12,10 @@ class SaleController {
     }
 
     /**
-     * Show POS main screen
+     * Show POS main screen (caja + admin only)
      */
     public function pos() {
+        Auth::requireRole(['caja']);
         $categories = Product::getCategories();
         
         // Fetch only active products
@@ -27,8 +28,8 @@ class SaleController {
         $selectedCategoryId = $_GET['category_id'] ?? ($categories[0]['id'] ?? null);
 
         view('sales/pos', [
-            'categories' => $categories,
-            'products' => $products,
+            'categories'         => $categories,
+            'products'           => $products,
             'selectedCategoryId' => $selectedCategoryId
         ]);
     }
@@ -37,6 +38,7 @@ class SaleController {
      * Handle checkout (called via AJAX)
      */
     public function checkout() {
+        Auth::requireRole(['caja']);
         header('Content-Type: application/json');
 
         // Check raw input
@@ -52,8 +54,11 @@ class SaleController {
         }
 
         try {
+            $user   = Auth::user();
+            $cashierId = $user ? (int)$user['id'] : 0;
+
             // Process the sale
-            $saleId = Sale::createSale($data['items']);
+            $saleId = Sale::createSale($data['items'], $cashierId);
             
             echo json_encode([
                 'success' => true,
@@ -70,18 +75,73 @@ class SaleController {
     }
 
     /**
+     * Show the live orders screen (caja + cocinero + admin)
+     */
+    public function orders() {
+        Auth::requireRole(['caja', 'cocinero']);
+        view('sales/orders', []);
+    }
+
+    /**
+     * JSON endpoint for polling active orders (today)
+     */
+    public function ordersJson() {
+        Auth::requireRole(['caja', 'cocinero']);
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+
+        $status = $_GET['status'] ?? null;
+        if ($status === 'all') $status = null;
+
+        $orders = Sale::getActiveOrders($status);
+
+        echo json_encode([
+            'success'   => true,
+            'orders'    => $orders,
+            'timestamp' => time(),
+        ]);
+        exit;
+    }
+
+    /**
+     * Update an order's status via AJAX POST
+     */
+    public function updateOrderStatus() {
+        Auth::requireRole(['caja', 'cocinero']);
+        header('Content-Type: application/json');
+
+        $input  = file_get_contents('php://input');
+        $data   = json_decode($input, true);
+        $saleId = (int)($data['sale_id'] ?? 0);
+        $status = $data['status'] ?? '';
+
+        if (!$saleId || !in_array($status, ['pendiente', 'entregado'], true)) {
+            echo json_encode(['success' => false, 'message' => 'Datos inválidos.']);
+            exit;
+        }
+
+        $ok = Sale::updateStatus($saleId, $status);
+        echo json_encode([
+            'success' => $ok,
+            'message' => $ok ? 'Estado actualizado.' : 'No se pudo actualizar.',
+        ]);
+        exit;
+    }
+
+    /**
      * Show sales history
      */
     public function history() {
+        Auth::requireRole(['caja']);
         $startDate = $_GET['start_date'] ?? date('Y-m-01');
-        $endDate = $_GET['end_date'] ?? date('Y-m-d');
+        $endDate   = $_GET['end_date'] ?? date('Y-m-d');
         
         $sales = Sale::history($startDate, $endDate);
 
         view('sales/history', [
-            'sales' => $sales,
+            'sales'     => $sales,
             'startDate' => $startDate,
-            'endDate' => $endDate
+            'endDate'   => $endDate
         ]);
     }
 

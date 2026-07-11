@@ -7,7 +7,7 @@ use App\Models\RawMaterial;
 
 class DashboardController {
     public function __construct() {
-        Auth::requireLogin();
+        Auth::requireRole('admin');
     }
 
     public function index() {
