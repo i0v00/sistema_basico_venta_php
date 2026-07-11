@@ -1,9 +1,9 @@
+Options +FollowSymLinks -MultiViews
 RewriteEngine On
-RewriteBase /
 
 # Do not rewrite direct file access or folders
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Rewrite everything else to the root level index.php
-RewriteRule ^(.*)$ index.php [L,QSA]
+# Rewrite everything else to index.php (relative, works in both root and subdirectory)
+RewriteRule ^ index.php [L]
