@@ -150,8 +150,15 @@ class SaleController {
         Auth::requireRole(['caja']);
         $saleDate = $_POST['sale_date'] ?? null;
         $itemsRaw = $_POST['items'] ?? [];
+        
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
 
         if (empty($saleDate) || empty($itemsRaw)) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Por favor complete todos los datos del pedido.']);
+                exit;
+            }
             setFlash('error', 'Por favor complete todos los datos del pedido.');
             redirect('/sales/create-manual');
         }
@@ -173,6 +180,11 @@ class SaleController {
         }
 
         if (empty($cartItems)) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Debe agregar al menos un producto con cantidad mayor a 0.']);
+                exit;
+            }
             setFlash('error', 'Debe agregar al menos un producto con cantidad mayor a 0.');
             redirect('/sales/create-manual');
         }
@@ -183,9 +195,21 @@ class SaleController {
 
             // Save sale with custom date and status finalizado so it doesn't clutter live active orders screen
             Sale::createSale($cartItems, $cashierId, $saleDate, 'finalizado');
+            
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => 'Pedido histórico registrado correctamente.']);
+                exit;
+            }
+            
             setFlash('success', 'Pedido histórico registrado correctamente.');
             redirect('/sales/history');
         } catch (Exception $e) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Error al guardar: ' . $e->getMessage()]);
+                exit;
+            }
             setFlash('error', 'Error al guardar: ' . $e->getMessage());
             redirect('/sales/create-manual');
         }

@@ -13,7 +13,10 @@
     </div>
 
     <!-- Main Form -->
-    <form action="<?= BASE_URL ?>/sales/save-manual" method="POST" class="bg-white p-6 rounded-2xl border border-cream-dark shadow-sm space-y-6">
+    <form id="manual-sale-form" action="<?= BASE_URL ?>/sales/save-manual" method="POST" class="bg-white p-6 rounded-2xl border border-cream-dark shadow-sm space-y-6">
+        <!-- Dynamic Alert Container -->
+        <div id="alert-container" class="hidden"></div>
+
         <!-- Date Selector -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -203,5 +206,48 @@
     // Add first row on load
     document.addEventListener('DOMContentLoaded', () => {
         addRow();
+
+        // AJAX Form Submission
+        document.getElementById('manual-sale-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const formData = new FormData(form);
+            const alertContainer = document.getElementById('alert-container');
+            
+            alertContainer.classList.add('hidden');
+            alertContainer.className = 'hidden';
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alertContainer.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block";
+                    alertContainer.innerText = data.message;
+                    
+                    // Clear products
+                    document.getElementById('items-container').innerHTML = '';
+                    addRow();
+                    calculateGrandTotal();
+                } else {
+                    alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block";
+                    alertContainer.innerText = data.message;
+                }
+                alertContainer.classList.remove('hidden');
+                alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            })
+            .catch(err => {
+                alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block";
+                alertContainer.innerText = 'Error de red o conexión al servidor.';
+                alertContainer.classList.remove('hidden');
+                alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+        });
     });
 </script>
