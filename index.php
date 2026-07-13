@@ -3,6 +3,9 @@
  * Restaurant POS - Entry Point & Router (Root Level)
  */
 
+// Set timezone to Bolivia (UTC-4)
+date_default_timezone_set('America/La_Paz');
+
 // ── DEBUG TEMPORAL: mostrar errores en lugar de 500 ──
 error_reporting(E_ALL);
 ini_set('display_errors', '1');

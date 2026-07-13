@@ -25,6 +25,8 @@ class Database {
 
             try {
                 self::$instance = new PDO($dsn, $user, $pass, $options);
+                // Set timezone to Bolivia (UTC-4)
+                self::$instance->exec("SET time_zone = '-04:00'");
                 // Proactively run migration check for 'deleted' column
                 try {
                     $stmt = self::$instance->query("SHOW COLUMNS FROM sales LIKE 'deleted'");
