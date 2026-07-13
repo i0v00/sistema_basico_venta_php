@@ -25,6 +25,15 @@ class Database {
 
             try {
                 self::$instance = new PDO($dsn, $user, $pass, $options);
+                // Proactively run migration check for 'deleted' column
+                try {
+                    $stmt = self::$instance->query("SHOW COLUMNS FROM sales LIKE 'deleted'");
+                    if ($stmt->rowCount() == 0) {
+                        self::$instance->exec("ALTER TABLE sales ADD COLUMN deleted TINYINT(1) NOT NULL DEFAULT 0");
+                    }
+                } catch (\Exception $e) {
+                    // Ignore schema upgrade error if table doesn't exist yet
+                }
             } catch (PDOException $e) {
                 // If there's an error, print a clean styled error message
                 die("<div style='font-family:sans-serif;padding:20px;background:#FFF8F0;color:#3D1C02;border:1px solid #E07B39;border-radius:8px;max-width:500px;margin:50px auto;'>

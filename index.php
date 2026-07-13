@@ -87,6 +87,8 @@ $routes = [
         // Orders routes
         '/orders' => [\App\Controllers\SaleController::class, 'orders'],
         '/orders/json' => [\App\Controllers\SaleController::class, 'ordersJson'],
+        '/sales/create-manual' => [\App\Controllers\SaleController::class, 'createManualForm'],
+        '/sales/daily-report' => [\App\Controllers\SaleController::class, 'dailyReport'],
     ],
     'POST' => [
         '/login' => [\App\Controllers\AuthController::class, 'login'],
@@ -99,6 +101,8 @@ $routes = [
         '/pos/checkout' => [\App\Controllers\SaleController::class, 'checkout'],
         '/settings/save' => [\App\Controllers\SettingsController::class, 'save'],
         '/settings/change-password' => [\App\Controllers\AuthController::class, 'changePassword'],
+        '/sales/save-manual' => [\App\Controllers\SaleController::class, 'saveManual'],
+        '/sales/delete' => [\App\Controllers\SaleController::class, 'deleteSale'],
 
         // Users CRUD save & delete
         '/users/save' => [\App\Controllers\UserController::class, 'save'],

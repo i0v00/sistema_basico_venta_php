@@ -50,6 +50,22 @@ if (!function_exists('view')) {
     }
 }
 
+if (!function_exists('viewRaw')) {
+    /**
+     * Render a view file directly, WITHOUT the layout wrapper.
+     * Used for standalone/printable pages.
+     */
+    function viewRaw($name, $data = []) {
+        extract($data);
+        $viewFile = __DIR__ . '/../app/views/' . $name . '.php';
+        if (file_exists($viewFile)) {
+            include $viewFile;
+        } else {
+            die("Vista [$name] no encontrada en: $viewFile");
+        }
+    }
+}
+
 if (!function_exists('getSetting')) {
     function getSetting($key, $default = null) {
         try {
@@ -69,5 +85,17 @@ if (!function_exists('setSetting')) {
         $db = Database::getConnection();
         $stmt = $db->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
         $stmt->execute([$key, $value, $value]);
+    }
+}
+
+if (!function_exists('setFlash')) {
+    function setFlash($key, $message) {
+        \Core\Auth::setFlash($key, $message);
+    }
+}
+
+if (!function_exists('getFlash')) {
+    function getFlash($key) {
+        return \Core\Auth::getFlash($key);
     }
 }

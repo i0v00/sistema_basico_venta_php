@@ -7,7 +7,7 @@ use App\Models\Product;
 use Exception;
 
 class Sale {
-    public static function createSale($cartItems, int $cashierId = 0) {
+    public static function createSale($cartItems, int $cashierId = 0, ?string $saleDate = null, string $status = 'pendiente') {
         if (empty($cartItems)) {
             throw new Exception("El carrito está vacío.");
         }
@@ -39,11 +39,18 @@ class Sale {
                 $itemsCount += $item['quantity'];
             }
 
-            // 2. Insert into sales (with cashier_id and status)
-            $stmt = $db->prepare(
-                "INSERT INTO sales (total, items_count, cashier_id, status) VALUES (?, ?, ?, 'pendiente')"
-            );
-            $stmt->execute([$total, $itemsCount, $cashierId ?: null]);
+            // 2. Insert into sales (with cashier_id, status and optional sale_date)
+            if ($saleDate) {
+                $stmt = $db->prepare(
+                    "INSERT INTO sales (total, items_count, cashier_id, status, sale_date) VALUES (?, ?, ?, ?, ?)"
+                );
+                $stmt->execute([$total, $itemsCount, $cashierId ?: null, $status, $saleDate]);
+            } else {
+                $stmt = $db->prepare(
+                    "INSERT INTO sales (total, items_count, cashier_id, status) VALUES (?, ?, ?, ?)"
+                );
+                $stmt->execute([$total, $itemsCount, $cashierId ?: null, $status]);
+            }
             $saleId = $db->lastInsertId();
 
             // 3. Insert details and deduct materials
@@ -84,10 +91,10 @@ class Sale {
     public static function getActiveOrders(?string $status = null): array {
         $db = Database::getConnection();
 
-        $where = "WHERE DATE(s.sale_date) = CURDATE()";
+        $where = "WHERE DATE(s.sale_date) = CURDATE() AND s.deleted = 0";
         $params = [];
 
-        if ($status && in_array($status, ['pendiente', 'entregado'], true)) {
+        if ($status && in_array($status, ['pendiente', 'entregado', 'finalizado'], true)) {
             $where .= " AND s.status = ?";
             $params[] = $status;
         }
@@ -145,16 +152,66 @@ class Sale {
      * Update the status of an order.
      */
     public static function updateStatus(int $saleId, string $status): bool {
-        if (!in_array($status, ['pendiente', 'entregado'], true)) return false;
+        if (!in_array($status, ['pendiente', 'entregado', 'finalizado'], true)) return false;
         $db = Database::getConnection();
         $stmt = $db->prepare("UPDATE sales SET status = ? WHERE id = ?");
         $stmt->execute([$status, $saleId]);
         return $stmt->rowCount() > 0;
     }
 
+    /**
+     * Logical deletion of a sale, restoring stock if needed.
+     */
+    public static function delete(int $saleId): bool {
+        $db = Database::getConnection();
+        $db->beginTransaction();
+        try {
+            // Get current sale state
+            $stmt = $db->prepare("SELECT deleted, total FROM sales WHERE id = ?");
+            $stmt->execute([$saleId]);
+            $sale = $stmt->fetch();
+            if (!$sale || (int)$sale['deleted'] === 1) {
+                $db->rollBack();
+                return false;
+            }
+
+            // Mark as deleted logically
+            $stmt = $db->prepare("UPDATE sales SET deleted = 1 WHERE id = ?");
+            $stmt->execute([$saleId]);
+
+            // Restore inventory if track_raw_materials is enabled
+            $trackMaterials = (getSetting('track_raw_materials', '0') === '1');
+            if ($trackMaterials) {
+                $details = self::getDetails($saleId);
+                foreach ($details as $item) {
+                    $prodStmt = $db->prepare("SELECT use_recipe FROM products WHERE id = ?");
+                    $prodStmt->execute([$item['product_id']]);
+                    $prod = $prodStmt->fetch();
+                    if ($prod && $prod['use_recipe']) {
+                        // Restore raw materials
+                        $recipeStmt = $db->prepare("SELECT raw_material_id, quantity FROM recipes WHERE product_id = ?");
+                        $recipeStmt->execute([$item['product_id']]);
+                        $recipes = $recipeStmt->fetchAll();
+                        foreach ($recipes as $recipe) {
+                            $restoreQty = $recipe['quantity'] * $item['quantity'];
+                            $updateRm = $db->prepare("UPDATE raw_materials SET current_stock = current_stock + ? WHERE id = ?");
+                            $updateRm->execute([$restoreQty, $recipe['raw_material_id']]);
+                        }
+                    }
+                }
+            }
+
+            $db->commit();
+            return true;
+        } catch (Exception $e) {
+            $db->rollBack();
+            return false;
+        }
+    }
+
     public static function history($startDate = null, $endDate = null) {
         $db = Database::getConnection();
-        $query = "SELECT s.*, u.username AS cashier_username FROM sales s LEFT JOIN users u ON s.cashier_id = u.id WHERE 1=1";
+        $query = "SELECT s.*, u.username AS cashier_username FROM sales s LEFT JOIN users u ON s.cashier_id = u.id WHERE s.deleted = 0";
         $params = [];
 
         if (!empty($startDate)) {
@@ -189,11 +246,11 @@ class Sale {
         $db = Database::getConnection();
         
         // Day stats
-        $day = $db->query("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE DATE(sale_date) = CURDATE()")->fetch();
+        $day = $db->query("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE DATE(sale_date) = CURDATE() AND deleted = 0")->fetch();
         // Week stats (last 7 days)
-        $week = $db->query("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE sale_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetch();
+        $week = $db->query("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE sale_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND deleted = 0")->fetch();
         // Month stats (current month)
-        $month = $db->query("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE MONTH(sale_date) = MONTH(NOW()) AND YEAR(sale_date) = YEAR(NOW())")->fetch();
+        $month = $db->query("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE MONTH(sale_date) = MONTH(NOW()) AND YEAR(sale_date) = YEAR(NOW()) AND deleted = 0")->fetch();
 
         return [
             'day_revenue'   => $day['revenue'] ?? 0.00,
@@ -211,7 +268,7 @@ class Sale {
         $stmt = $db->query("
             SELECT DATE(sale_date) as date, SUM(total) as total 
             FROM sales 
-            WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            WHERE sale_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND deleted = 0
             GROUP BY DATE(sale_date) 
             ORDER BY DATE(sale_date) ASC
         ");
@@ -224,10 +281,104 @@ class Sale {
             SELECT p.name, SUM(sd.quantity) as qty 
             FROM sale_details sd 
             JOIN products p ON sd.product_id = p.id 
+            JOIN sales s ON sd.sale_id = s.id
+            WHERE s.deleted = 0
             GROUP BY sd.product_id 
             ORDER BY qty DESC 
             LIMIT 5
         ");
         return $stmt->fetchAll();
+    }
+
+    public static function getStatsForDate(string $date): array {
+        $db = Database::getConnection();
+        
+        // Day stats
+        $dayStmt = $db->prepare("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE DATE(sale_date) = ? AND deleted = 0");
+        $dayStmt->execute([$date]);
+        $day = $dayStmt->fetch();
+
+        // Week stats (last 7 days from selected date)
+        $weekStmt = $db->prepare("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE DATE(sale_date) >= DATE_SUB(?, INTERVAL 6 DAY) AND DATE(sale_date) <= ? AND deleted = 0");
+        $weekStmt->execute([$date, $date]);
+        $week = $weekStmt->fetch();
+
+        // Month stats (month of selected date)
+        $monthStmt = $db->prepare("SELECT SUM(total) as revenue, COUNT(*) as count FROM sales WHERE MONTH(sale_date) = MONTH(?) AND YEAR(sale_date) = YEAR(?) AND deleted = 0");
+        $monthStmt->execute([$date, $date]);
+        $month = $monthStmt->fetch();
+
+        return [
+            'day_revenue'   => $day['revenue'] ?? 0.00,
+            'day_count'     => $day['count'] ?? 0,
+            'week_revenue'  => $week['revenue'] ?? 0.00,
+            'week_count'    => $week['count'] ?? 0,
+            'month_revenue' => $month['revenue'] ?? 0.00,
+            'month_count'   => $month['count'] ?? 0,
+        ];
+    }
+
+    public static function getSalesChartDataForDate(string $date): array {
+        $db = Database::getConnection();
+        // Last 7 days daily totals relative to selected date
+        $stmt = $db->prepare("
+            SELECT DATE(sale_date) as date, SUM(total) as total 
+            FROM sales 
+            WHERE DATE(sale_date) >= DATE_SUB(?, INTERVAL 6 DAY) AND DATE(sale_date) <= ? AND deleted = 0
+            GROUP BY DATE(sale_date) 
+            ORDER BY DATE(sale_date) ASC
+        ");
+        $stmt->execute([$date, $date]);
+        return $stmt->fetchAll();
+    }
+
+    public static function getTopProductsForDate(string $date): array {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("
+            SELECT p.name, SUM(sd.quantity) as qty 
+            FROM sale_details sd 
+            JOIN products p ON sd.product_id = p.id 
+            JOIN sales s ON sd.sale_id = s.id
+            WHERE s.deleted = 0 AND DATE(s.sale_date) = ?
+            GROUP BY sd.product_id 
+            ORDER BY qty DESC 
+            LIMIT 5
+        ");
+        $stmt->execute([$date]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get full sales detail for a specific date (for the daily report).
+     * Returns each sale with its items, cashier name, time and total.
+     */
+    public static function getDailySalesDetail(string $date): array {
+        $db = Database::getConnection();
+
+        // Get all sales for that day
+        $salesStmt = $db->prepare("
+            SELECT s.id, s.total, s.items_count, s.status, s.sale_date,
+                   u.full_name as cashier_name
+            FROM sales s
+            LEFT JOIN users u ON s.cashier_id = u.id
+            WHERE DATE(s.sale_date) = ? AND s.deleted = 0
+            ORDER BY s.sale_date ASC
+        ");
+        $salesStmt->execute([$date]);
+        $sales = $salesStmt->fetchAll();
+
+        // For each sale, get its details
+        foreach ($sales as &$sale) {
+            $detailStmt = $db->prepare("
+                SELECT sd.quantity, sd.price, p.name as product_name
+                FROM sale_details sd
+                JOIN products p ON sd.product_id = p.id
+                WHERE sd.sale_id = ?
+                ORDER BY p.name ASC
+            ");
+            $detailStmt->execute([$sale['id']]);
+            $sale['items'] = $detailStmt->fetchAll();
+        }
+        return $sales;
     }
 }

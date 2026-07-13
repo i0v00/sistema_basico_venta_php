@@ -1,5 +1,5 @@
 -- Script de Migración para Base de Datos (Sistema de Roles y Pedidos en Vivo)
--- Duke's Cakes POS
+-- Duke's Fast Food POS
 
 -- 1. Modificar tabla de usuarios para añadir columnas de rol, nombre completo y estado activo
 ALTER TABLE `users` 

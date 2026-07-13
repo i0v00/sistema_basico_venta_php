@@ -11,7 +11,9 @@ class DashboardController {
     }
 
     public function index() {
-        $stats = Sale::getStats();
+        $selectedDate = $_GET['date'] ?? date('Y-m-d');
+        
+        $stats = Sale::getStatsForDate($selectedDate);
         
         // Fetch low stock items
         $allMaterials = RawMaterial::all();
@@ -20,14 +22,15 @@ class DashboardController {
         });
 
         // Charts data
-        $chartSales = Sale::getSalesChartData();
-        $topProducts = Sale::getTopProducts();
+        $chartSales = Sale::getSalesChartDataForDate($selectedDate);
+        $topProducts = Sale::getTopProductsForDate($selectedDate);
 
         view('dashboard', [
             'stats' => $stats,
             'lowStockMaterials' => $lowStockMaterials,
             'chartSales' => $chartSales,
-            'topProducts' => $topProducts
+            'topProducts' => $topProducts,
+            'selectedDate' => $selectedDate
         ]);
     }
 }

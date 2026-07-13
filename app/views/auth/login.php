@@ -3,7 +3,7 @@
         <div class="text-center">
             <span class="text-7xl inline-block animate-bounce mb-3 drop-shadow-md">🍔</span>
             <h2 class="font-heading font-extrabold text-4xl text-coffee-dark tracking-tight">
-                Duke's Cakes
+                Duke's Fast Food
             </h2>
             <div class="w-16 h-1 bg-accent mx-auto mt-3 rounded-full"></div>
             <p class="mt-3 text-sm text-coffee-light">

@@ -5,6 +5,17 @@
         <p class="text-coffee-light">Consulta y revisa las transacciones registradas por el restaurante</p>
     </div>
 
+    <?php if ($flash = getFlash('success')): ?>
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm font-semibold">
+            <?= e($flash) ?>
+        </div>
+    <?php endif; ?>
+    <?php if ($flash = getFlash('error')): ?>
+        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-semibold">
+            <?= e($flash) ?>
+        </div>
+    <?php endif; ?>
+
     <!-- Date Filters -->
     <div class="bg-white p-4 rounded-2xl border border-cream-dark shadow-sm">
         <form method="GET" action="<?= BASE_URL ?>/sales/history" class="flex flex-col sm:flex-row gap-4 items-center">
@@ -53,18 +64,25 @@
                                 <td class="p-4 text-center font-semibold text-coffee-medium"><?= (int)$sale['items_count'] ?></td>
                                 <td class="p-4 text-right font-extrabold text-coffee-dark"><?= formatMoney($sale['total']) ?></td>
                                 <td class="p-4 pr-6">
-                                    <div class="text-center">
+                                    <div class="text-center flex justify-center items-center gap-2">
                                         <button onclick="loadSaleDetails(<?= $sale['id'] ?>, '<?= date('d/m/Y H:i', strtotime($sale['sale_date'])) ?>', '<?= formatMoney($sale['total']) ?>')" 
-                                                class="bg-coffee-medium/10 hover:bg-coffee-medium/20 text-coffee-dark text-xs font-bold px-4 py-2 rounded-lg transition duration-200">
-                                            🔍 Ver Detalle
-                                        </button>
-                                    </div>
-                                </td>
+                                                 class="bg-coffee-medium/10 hover:bg-coffee-medium/20 text-coffee-dark text-xs font-bold px-4 py-2 rounded-lg transition duration-200">
+                                             🔍 Ver Detalle
+                                         </button>
+                                         <?php if (\Core\Auth::role() === 'admin'): ?>
+                                         <form method="POST" action="<?= BASE_URL ?>/sales/delete" class="inline" onsubmit="return confirm('¿Está seguro de que desea eliminar este pedido lógicamente?');">
+                                             <input type="hidden" name="sale_id" value="<?= $sale['id'] ?>">
+                                             <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-2 rounded-lg transition duration-200">
+                                                 ❌ Eliminar
+                                             </button>
+                                         </form>
+                                         <?php endif; ?>
+                                     </div>
+                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            </div>
         <?php endif; ?>
     </div>
 </div>

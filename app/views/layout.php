@@ -12,7 +12,7 @@ $userRole = Auth::role();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dukes Cakes POS</title>
+    <title>Dukes Fast Food POS</title>
     <!-- Outfit & Inter Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,6 +48,24 @@ $userRole = Auth::role();
         }
     </script>
     <style>
+        /* ── Prevent ALL horizontal scroll on mobile ────────────── */
+        html {
+            overflow-x: clip !important;
+        }
+        body {
+            max-width: 100vw;
+            overflow-x: clip !important;
+        }
+        /* Every block-level element is capped at 100% width */
+        *, *::before, *::after {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        /* Re-allow internal horizontal scroll for tables and code blocks */
+        .overflow-x-auto, [class*="overflow-x-auto"] {
+            max-width: 100% !important;
+            overflow-x: auto !important;
+        }
         /* ── Scrollbar ─────────────────── */
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #FFF8F0; }
@@ -105,102 +123,97 @@ $userRole = Auth::role();
 <body class="bg-cream min-h-screen text-slate-800 flex flex-col font-sans">
 
     <?php if ($isLoggedIn && $name !== 'auth/login'): ?>
-    <!-- Top Navigation Bar -->
-    <nav class="bg-coffee-dark text-white sticky top-0 z-40 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Brand & Logo -->
-                <div class="flex items-center">
-                    <a href="<?= BASE_URL ?>/" class="flex items-center space-x-2">
-                        <span class="text-2xl">🍔</span>
-                        <span class="font-heading font-extrabold text-xl tracking-tight text-white">
-                            DUKE'S <span class="text-accent">CAKES</span>
-                        </span>
-                    </a>
-                </div>
+    <!-- Top Navigation Bar (Single Row Desktop Layout) -->
+    <header class="bg-coffee-dark border-b border-coffee-medium/20 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+            
+            <!-- Left: Brand / Logo -->
+            <a href="<?= BASE_URL ?>/" class="flex items-center space-x-2.5 group shrink-0">
+                <span class="text-2xl transition-transform duration-300 group-hover:scale-110">🍔</span>
+                <span class="font-heading font-extrabold text-lg tracking-tight text-white">
+                    DUKE'S <span class="text-accent bg-accent/10 px-2 py-0.5 rounded-lg border border-accent/20">Fast Food</span>
+                </span>
+            </a>
 
-                <!-- Desktop Nav Items -->
-                <div class="hidden md:flex items-center space-x-4">
-                    <?php if ($userRole === 'admin'): ?>
-                    <a href="<?= BASE_URL ?>/" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= $currentUri === BASE_URL . '/' || $currentUri === BASE_URL ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
-                        📊 Dashboard
-                    </a>
-                    <?php endif; ?>
+            <!-- Center: Navigation Tabs (Desktop only) -->
+            <nav class="hidden lg:flex items-center space-x-2">
+                <?php if ($userRole === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/' || $currentUri === BASE_URL ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    📊 Dashboard
+                </a>
+                <?php endif; ?>
 
-                    <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
-                    <a href="<?= BASE_URL ?>/pos" class="px-4 py-2 bg-accent hover:bg-accent-dark text-white rounded-lg text-sm font-bold transition flex items-center gap-1 shadow-sm">
-                        🛒 POS Venta
-                    </a>
-                    <?php endif; ?>
+                <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
+                <a href="<?= BASE_URL ?>/pos" class="px-4 py-2 bg-accent hover:bg-accent-dark text-white rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm active:scale-95">
+                    🛒 POS Venta
+                </a>
+                <a href="<?= BASE_URL ?>/sales/create-manual" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/sales/create-manual' ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    📅 Pedido Histórico
+                </a>
+                <?php endif; ?>
 
-                    <?php if ($userRole === 'admin' || $userRole === 'caja' || $userRole === 'cocinero'): ?>
-                    <a href="<?= BASE_URL ?>/orders" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= strpos($currentUri, BASE_URL . '/orders') === 0 ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
-                        📋 Pedidos
-                    </a>
-                    <?php endif; ?>
+                <?php if ($userRole === 'admin' || $userRole === 'caja' || $userRole === 'cocinero'): ?>
+                <a href="<?= BASE_URL ?>/orders" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/orders') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    📋 Pedidos
+                </a>
+                <?php endif; ?>
 
-                    <?php if ($userRole === 'admin'): ?>
-                    <a href="<?= BASE_URL ?>/products" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= strpos($currentUri, BASE_URL . '/products') === 0 ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
-                        🍔 Productos
-                    </a>
-                    <a href="<?= BASE_URL ?>/raw-materials" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= strpos($currentUri, BASE_URL . '/raw-materials') === 0 ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
-                        📦 Inventario
-                    </a>
-                    <a href="<?= BASE_URL ?>/users" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= strpos($currentUri, BASE_URL . '/users') === 0 ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
-                        👤 Usuarios
-                    </a>
-                    <?php endif; ?>
+                <?php if ($userRole === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/products" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/products') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    🍔 Productos
+                </a>
+                <a href="<?= BASE_URL ?>/raw-materials" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/raw-materials') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    📦 Insumos
+                </a>
+                <a href="<?= BASE_URL ?>/users" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/users') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    👤 Usuarios
+                </a>
+                <?php endif; ?>
 
-                    <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
-                    <a href="<?= BASE_URL ?>/sales/history" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= $currentUri === BASE_URL . '/sales/history' ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
-                        📜 Historial
-                    </a>
-                    <?php endif; ?>
+                <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
+                <a href="<?= BASE_URL ?>/sales/history" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/sales/history' ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    📜 Historial
+                </a>
+                <?php endif; ?>
 
-                    <?php if ($userRole === 'admin'): ?>
-                    <a href="<?= BASE_URL ?>/settings" class="px-3 py-2 rounded-lg text-sm font-medium transition <?= $currentUri === BASE_URL . '/settings' ? 'bg-coffee-medium text-white' : 'text-cream-dark hover:bg-coffee-medium/40 hover:text-white' ?>">
-                        ⚙️ Config
-                    </a>
-                    <?php endif; ?>
-                </div>
+                <?php if ($userRole === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/settings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/settings' ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    ⚙️ Config
+                </a>
+                <?php endif; ?>
+            </nav>
 
-                <!-- User profile & logout -->
-                <div class="hidden md:flex items-center space-x-4 border-l border-coffee-medium pl-4">
+            <!-- Right: Profile, Role & Logout Action (Desktop) or Hamburger (Mobile) -->
+            <div class="flex items-center gap-4 shrink-0">
+                <!-- User Profile info & Logout -->
+                <div class="hidden lg:flex items-center space-x-3">
                     <div class="flex flex-col text-right">
-                        <span class="text-xs text-cream-dark">Hola, <strong class="text-white"><?= e($currentUser['full_name']) ?></strong></span>
-                        <span class="text-[10px] text-accent font-bold uppercase tracking-wider"><?= e($userRole) ?></span>
+                        <span class="text-xs text-cream-dark/80">Hola, <strong class="text-white"><?= e($currentUser['full_name']) ?></strong></span>
+                        <span class="text-[9px] text-accent font-bold uppercase tracking-wider bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20 w-max ml-auto mt-0.5"><?= e($userRole) ?></span>
                     </div>
-                    <a href="<?= BASE_URL ?>/logout" class="text-xs bg-red-800 hover:bg-red-700 px-3 py-1.5 rounded-lg transition font-medium">
+                    <a href="<?= BASE_URL ?>/logout" class="text-xs bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/20 px-3.5 py-2 rounded-xl transition-all font-bold active:scale-95">
                         Salir 🚪
                     </a>
                 </div>
 
-                <!-- Mobile Menu Button with animated icon -->
-                <div class="flex md:hidden items-center gap-3">
-                    <div class="flex flex-col text-right">
-                        <span class="text-[10px] text-cream-dark/90"><?= e($currentUser['username']) ?></span>
-                        <span class="text-[9px] text-accent font-bold uppercase tracking-wider"><?= e($userRole) ?></span>
-                    </div>
-                    <button id="mobile-menu-btn" type="button"
-                            class="relative w-10 h-10 rounded-xl bg-coffee-medium/30 hover:bg-coffee-medium/60 flex items-center justify-center transition-all duration-200 focus:outline-none active:scale-90">
-                        <!-- Hamburger lines → animated to X -->
-                        <span id="ham-line-1" class="absolute w-5 h-0.5 bg-white rounded-full transition-all duration-300" style="top:14px"></span>
-                        <span id="ham-line-2" class="absolute w-5 h-0.5 bg-white rounded-full transition-all duration-300" style="top:19px"></span>
-                        <span id="ham-line-3" class="absolute w-4 h-0.5 bg-white/60 rounded-full transition-all duration-300" style="top:24px;left:12px"></span>
-                    </button>
-                </div>
+                <!-- Mobile Menu Button (lg:hidden) - shifted slightly left -->
+                <button id="mobile-menu-btn" type="button"
+                        class="lg:hidden relative w-11 h-11 rounded-xl bg-white/5 border border-white/10 hover:bg-white/15 flex items-center justify-center transition-all duration-200 focus:outline-none active:scale-95 mr-1">
+                    <span id="ham-line-1" class="absolute w-6 h-[2px] bg-white rounded-full transition-all duration-300" style="top:14px; left:10px"></span>
+                    <span id="ham-line-2" class="absolute w-6 h-[2px] bg-white rounded-full transition-all duration-300" style="top:20px; left:10px"></span>
+                    <span id="ham-line-3" class="absolute w-6 h-[2px] bg-white rounded-full transition-all duration-300" style="top:26px; left:10px"></span>
+                </button>
             </div>
         </div>
 
-        <!-- Mobile Overlay Menu (fixed, does NOT push content) -->
-        <!-- Backdrop -->
+        <!-- Mobile Overlay Menu Backdrop -->
         <div id="mobile-backdrop"
-             class="fixed inset-0 z-[45] bg-black/50 backdrop-blur-[2px] hidden md:hidden"
+             class="fixed inset-0 z-[45] bg-black/40 backdrop-blur-[2px] hidden lg:hidden"
              onclick="closeMobileMenu()"></div>
 
-        <!-- Slide-down panel -->
+        <!-- Slide-down panel (Mobile only) -->
         <div id="mobile-menu"
-             class="fixed top-16 left-0 right-0 z-[46] md:hidden
+             class="fixed top-16 left-0 right-0 z-[46] lg:hidden
                     -translate-y-4 opacity-0 pointer-events-none
                     transition-all duration-300 ease-out">
             <div class="mx-3 mt-1 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
@@ -214,18 +227,19 @@ $userRole = Auth::role();
                         $mobileLinks[] = ['/'              , '📊', 'Dashboard'          , false];
                     }
                     if ($userRole === 'admin' || $userRole === 'caja') {
-                        $mobileLinks[] = ['/pos'           , '🛒', 'Registrar Venta'    , true ];
+                        $mobileLinks[] = ['/pos'           , '🛒', 'Registrar Venta (POS)', true ];
+                        $mobileLinks[] = ['/sales/create-manual' , '📅', 'Pedido Histórico', false];
                     }
                     if ($userRole === 'admin' || $userRole === 'caja' || $userRole === 'cocinero') {
-                        $mobileLinks[] = ['/orders'        , '📋', 'Pedidos'            , false];
+                        $mobileLinks[] = ['/orders'        , '📋', 'Preparación Pedidos', false];
                     }
                     if ($userRole === 'admin') {
-                        $mobileLinks[] = ['/products'      , '🍔', 'Productos'          , false];
-                        $mobileLinks[] = ['/raw-materials' , '📦', 'Inventario'         , false];
-                        $mobileLinks[] = ['/users'         , '👤', 'Usuarios'           , false];
+                        $mobileLinks[] = ['/products'      , '🍔', 'Gestión Productos'  , false];
+                        $mobileLinks[] = ['/raw-materials' , '📦', 'Inventario Insumos' , false];
+                        $mobileLinks[] = ['/users'         , '👤', 'Control Usuarios'   , false];
                     }
                     if ($userRole === 'admin' || $userRole === 'caja') {
-                        $mobileLinks[] = ['/sales/history' , '📜', 'Historial de Ventas', false];
+                        $mobileLinks[] = ['/sales/history' , '📜', 'Historial Ventas'  , false];
                     }
                     if ($userRole === 'admin') {
                         $mobileLinks[] = ['/settings'      , '⚙️', 'Configuración'      , false];
@@ -257,16 +271,16 @@ $userRole = Auth::role();
                 <div class="px-4 py-3 border-t border-white/10 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-7 h-7 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-xs">👤</div>
-                        <span class="text-xs text-cream-dark/70">Sesión: <strong class="text-white"><?= e($currentUser['full_name']) ?></strong></span>
+                        <span class="text-xs text-cream-dark/70">Sesión: <strong class="text-white"><?= e($currentUser['username']) ?></strong></span>
                     </div>
                     <a href="<?= BASE_URL ?>/logout"
-                       class="text-xs bg-red-900/80 hover:bg-red-700 border border-red-700/40 px-3 py-1.5 rounded-lg text-white font-medium transition flex items-center gap-1">
+                       class="text-xs bg-red-900/80 hover:bg-red-700 border border-red-700/40 px-3.5 py-2 rounded-xl text-white font-bold transition flex items-center gap-1 active:scale-95">
                         Salir 🚪
                     </a>
                 </div>
             </div>
         </div>
-    </nav>
+    </header>
     <?php endif; ?>
 
     <!-- Main Content Container -->
@@ -299,7 +313,7 @@ $userRole = Auth::role();
 
     <!-- Footer -->
     <footer class="bg-coffee-dark/5 border-t border-coffee-dark/10 py-6 text-center text-xs text-coffee-medium">
-        <p>&copy; <?= date('Y') ?> Duke's Cakes POS. Todos los derechos reservados. Diseñado con ❤️ para Comida Rápida.</p>
+        <p>&copy; <?= date('Y') ?> Duke's Fast Food POS. Todos los derechos reservados. Diseñado con ❤️ para Comida Rápida.</p>
     </footer>
 
     <!-- Global Javascript -->
@@ -320,7 +334,7 @@ $userRole = Auth::role();
                 menu.classList.add('-translate-y-4', 'opacity-0', 'pointer-events-none');
                 back.classList.add('hidden');
                 if (line1) { line1.style.top='14px'; line1.style.transform=''; }
-                if (line2) { line2.style.top='19px'; line2.style.transform=''; }
+                if (line2) { line2.style.top='20px'; line2.style.transform=''; }
                 if (line3) { line3.style.opacity='1'; line3.style.transform=''; }
             };
 
@@ -329,8 +343,8 @@ $userRole = Auth::role();
                 back.classList.remove('hidden');
                 menu.classList.remove('-translate-y-4', 'opacity-0', 'pointer-events-none');
                 menu.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
-                if (line1) { line1.style.top='19px'; line1.style.transform='rotate(45deg)'; }
-                if (line2) { line2.style.top='19px'; line2.style.transform='rotate(-45deg)'; }
+                if (line1) { line1.style.top='20px'; line1.style.transform='rotate(45deg)'; }
+                if (line2) { line2.style.top='20px'; line2.style.transform='rotate(-45deg)'; }
                 if (line3) { line3.style.opacity='0'; line3.style.transform='scaleX(0)'; }
             }
 

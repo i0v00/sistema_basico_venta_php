@@ -115,7 +115,7 @@ class SaleController {
         $saleId = (int)($data['sale_id'] ?? 0);
         $status = $data['status'] ?? '';
 
-        if (!$saleId || !in_array($status, ['pendiente', 'entregado'], true)) {
+        if (!$saleId || !in_array($status, ['pendiente', 'entregado', 'finalizado'], true)) {
             echo json_encode(['success' => false, 'message' => 'Datos inválidos.']);
             exit;
         }
@@ -126,6 +126,88 @@ class SaleController {
             'message' => $ok ? 'Estado actualizado.' : 'No se pudo actualizar.',
         ]);
         exit;
+    }
+
+    /**
+     * Show manual order form
+     */
+    public function createManualForm() {
+        Auth::requireRole(['caja']);
+        $products = Product::all();
+        // filter active products
+        $products = array_filter($products, function($p) {
+            return (int)$p['active'] === 1;
+        });
+        view('sales/create_manual', [
+            'products' => $products
+        ]);
+    }
+
+    /**
+     * Save manual order
+     */
+    public function saveManual() {
+        Auth::requireRole(['caja']);
+        $saleDate = $_POST['sale_date'] ?? null;
+        $itemsRaw = $_POST['items'] ?? [];
+
+        if (empty($saleDate) || empty($itemsRaw)) {
+            setFlash('error', 'Por favor complete todos los datos del pedido.');
+            redirect('/sales/create-manual');
+        }
+
+        // Format items from form to cartItems format
+        $cartItems = [];
+        foreach ($itemsRaw as $productId => $qty) {
+            $qty = (int)$qty;
+            if ($qty <= 0) continue;
+
+            $product = Product::find($productId);
+            if ($product) {
+                $cartItems[] = [
+                    'id' => (int)$product['id'],
+                    'price' => (float)$product['price'],
+                    'quantity' => $qty
+                ];
+            }
+        }
+
+        if (empty($cartItems)) {
+            setFlash('error', 'Debe agregar al menos un producto con cantidad mayor a 0.');
+            redirect('/sales/create-manual');
+        }
+
+        try {
+            $user = Auth::user();
+            $cashierId = $user ? (int)$user['id'] : 0;
+
+            // Save sale with custom date and status finalizado so it doesn't clutter live active orders screen
+            Sale::createSale($cartItems, $cashierId, $saleDate, 'finalizado');
+            setFlash('success', 'Pedido histórico registrado correctamente.');
+            redirect('/sales/history');
+        } catch (Exception $e) {
+            setFlash('error', 'Error al guardar: ' . $e->getMessage());
+            redirect('/sales/create-manual');
+        }
+    }
+
+    /**
+     * Soft delete an order
+     */
+    public function deleteSale() {
+        Auth::requireRole(['admin']);
+        $saleId = (int)($_POST['sale_id'] ?? 0);
+        if ($saleId <= 0) {
+            setFlash('error', 'ID de pedido inválido.');
+            redirect('/sales/history');
+        }
+
+        if (Sale::delete($saleId)) {
+            setFlash('success', 'Pedido eliminado lógicamente de los registros.');
+        } else {
+            setFlash('error', 'No se pudo eliminar el pedido.');
+        }
+        redirect('/sales/history');
     }
 
     /**
@@ -163,5 +245,24 @@ class SaleController {
             'details' => $details
         ]);
         exit;
+    }
+
+    /**
+     * Generate a printable daily sales report
+     */
+    public function dailyReport() {
+        Auth::requireRole(['caja']);
+        $date = $_GET['date'] ?? date('Y-m-d');
+
+        $stats       = Sale::getStatsForDate($date);
+        $topProducts = Sale::getTopProductsForDate($date);
+        $sales       = Sale::getDailySalesDetail($date);
+
+        viewRaw('sales/daily_report', [
+            'date'        => $date,
+            'stats'       => $stats,
+            'topProducts' => $topProducts,
+            'sales'       => $sales,
+        ]);
     }
 }

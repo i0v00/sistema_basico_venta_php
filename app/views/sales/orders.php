@@ -24,6 +24,9 @@
             <button id="filter-entregado" onclick="changeFilter('entregado')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-coffee-medium hover:bg-cream-dark/55">
                 Entregados ✅
             </button>
+            <button id="filter-finalizado" onclick="changeFilter('finalizado')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-coffee-medium hover:bg-cream-dark/55">
+                Finalizados 🔒
+            </button>
         </div>
     </div>
 
@@ -83,48 +86,77 @@
             const timeStr = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
             
             const isPend = order.status === 'pendiente';
-            const statusClass = isPend 
-                ? 'bg-amber-100 text-amber-800 border-amber-300' 
-                : 'bg-emerald-100 text-emerald-800 border-emerald-300';
-            const statusLabel = isPend ? '🟡 PENDIENTE' : '✅ ENTREGADO';
+            const isEntregado = order.status === 'entregado';
+            const isFinalizado = order.status === 'finalizado';
+
+            let statusClass = '';
+            let statusLabel = '';
+            let cardBorder = '';
+            if (isPend) {
+                statusClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                statusLabel = '🟡 PENDIENTE';
+                cardBorder = 'border-amber-300 shadow-md ring-2 ring-amber-300/30';
+            } else if (isEntregado) {
+                statusClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                statusLabel = '✅ ENTREGADO';
+                cardBorder = 'border-emerald-300 shadow-sm';
+            } else if (isFinalizado) {
+                statusClass = 'bg-blue-100 text-blue-800 border-blue-300';
+                statusLabel = '🔒 FINALIZADO';
+                cardBorder = 'border-cream-dark shadow-sm opacity-70';
+            }
             
             const orderCard = document.createElement('div');
-            orderCard.className = `bg-white rounded-2xl border ${isPend ? 'border-amber-300 shadow-md ring-2 ring-amber-300/30' : 'border-cream-dark shadow-sm'} overflow-hidden transition-all duration-300 flex flex-col justify-between`;
+            orderCard.className = `bg-white rounded-2xl border ${cardBorder} overflow-hidden transition-all duration-300 flex flex-col justify-between`;
             orderCard.id = `order-${order.id}`;
 
-            // Build items list
+            // Build items list with larger fonts & "unid."
             let itemsHtml = '';
             order.items.forEach(item => {
                 itemsHtml += `
-                    <div class="flex justify-between items-center py-2.5 border-b border-cream/50 last:border-0 text-sm">
-                        <div class="flex items-center gap-2">
-                            <span class="text-lg">${item.product_icon || '🍔'}</span>
-                            <span class="font-bold text-coffee-dark">${item.quantity}x</span>
-                            <span class="text-slate-700 font-medium">${item.product_name}</span>
+                    <div class="flex justify-between items-center py-3 border-b border-cream/50 last:border-0 text-lg">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">${item.product_icon || '🍔'}</span>
+                            <span class="font-extrabold text-coffee-dark">${item.quantity}unid.</span>
+                            <span class="text-slate-800 font-bold">${item.product_name}</span>
                         </div>
                     </div>
                 `;
             });
 
             // Action button based on state
-            const actionBtn = isPend 
-                ? `<button onclick="updateStatus(${order.id}, 'entregado')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-3.5 px-4 rounded-xl text-sm transition shadow-sm active:scale-95 flex items-center justify-center gap-1.5">
+            let actionBtn = '';
+            if (isPend) {
+                actionBtn = `<button onclick="updateStatus(${order.id}, 'entregado')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-3.5 px-4 rounded-xl text-base transition shadow-sm active:scale-95 flex items-center justify-center gap-1.5">
                        ✅ Listo / Entregar
-                   </button>`
-                : `<button onclick="updateStatus(${order.id}, 'pendiente')" class="w-full bg-cream-dark hover:bg-cream-dark/80 text-coffee-dark font-bold py-3.5 px-4 rounded-xl text-sm transition active:scale-95 flex items-center justify-center gap-1.5">
-                       🔄 Regresar a Pendientes
                    </button>`;
+            } else if (isEntregado) {
+                actionBtn = `
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button onclick="updateStatus(${order.id}, 'finalizado')" class="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-extrabold py-3.5 px-2 rounded-xl text-base transition shadow-sm active:scale-95 flex items-center justify-center gap-1">
+                            🔒 Finalizar
+                        </button>
+                        <button onclick="updateStatus(${order.id}, 'pendiente')" class="flex-1 bg-cream-dark hover:bg-cream-dark/80 text-coffee-dark font-bold py-3.5 px-2 rounded-xl text-base transition active:scale-95 flex items-center justify-center gap-1">
+                            🔄 Regresar
+                        </button>
+                    </div>
+                `;
+            } else if (isFinalizado) {
+                actionBtn = `<div class="text-center py-3 text-coffee-medium font-extrabold text-sm bg-coffee-dark/5 rounded-xl border border-cream-dark">
+                    🔒 Pedido Finalizado
+                </div>`;
+            }
 
             orderCard.innerHTML = `
                 <!-- Top Header -->
                 <div class="p-4 bg-coffee-dark/5 border-b border-cream-dark flex justify-between items-center">
                     <div>
                         <span class="text-xs text-coffee-light font-bold">PEDIDO</span>
-                        <div class="font-heading font-extrabold text-xl text-coffee-dark">#${order.id}</div>
+                        <div class="font-heading font-extrabold text-2xl text-coffee-dark">#${order.id}</div>
                     </div>
                     <div class="text-right">
-                        <span class="text-xs text-coffee-light block font-semibold">${timeStr}</span>
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border ${statusClass}">${statusLabel}</span>
+                        <span class="text-sm text-coffee-light block font-semibold">${timeStr}</span>
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${statusClass}">${statusLabel}</span>
                     </div>
                 </div>
 
@@ -137,7 +169,7 @@
                 <div class="p-4 bg-cream/10 border-t border-cream-dark space-y-3">
                     <div class="flex justify-between items-center text-xs text-coffee-light">
                         <span>Cajero: <strong>${order.cashier_name || order.cashier_username || 'Sistema'}</strong></span>
-                        <span class="text-sm font-bold text-coffee-dark">Total: Bs. ${parseFloat(order.total).toFixed(2)}</span>
+                        <span class="text-base font-extrabold text-coffee-dark">Total: Bs. ${parseFloat(order.total).toFixed(2)}</span>
                     </div>
                     <div>
                         ${actionBtn}
@@ -180,7 +212,7 @@
         previousOrdersCount = -1; // Reset flash checking
         
         // Update filter tabs UI
-        ['all', 'pendiente', 'entregado'].forEach(f => {
+        ['all', 'pendiente', 'entregado', 'finalizado'].forEach(f => {
             const btn = document.getElementById(`filter-${f}`);
             if (f === filter) {
                 btn.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-coffee-dark text-white shadow-sm";

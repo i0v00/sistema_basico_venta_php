@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════
-//  Duke's Cakes — POS Engine v3
+//  Duke's Fast Food — POS Engine v3
 //  Uses POS_PRODUCTS, POS_BASE, POS_TRACK_RM from the page
 // ═══════════════════════════════════════════════════════════
 
 // ── State ────────────────────────────────────────────────────
-let posCart     = [];
-let posCatId    = null;     // null = all
+let posCart = [];
+let posCatId = null;     // null = all
 let mobCartOpen = false;
 
 // ── Boot ─────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ function posSelectCat(catId) {
 function posFilter() { posRenderGrid(); }
 
 function posRenderGrid() {
-    const grid  = document.getElementById('pos-grid');
+    const grid = document.getElementById('pos-grid');
     const empty = document.getElementById('pos-empty');
     if (!grid) return;
 
@@ -134,7 +134,7 @@ function posAddToCart(productId, ev, cardEl) {
         const ripple = document.createElement('span');
         ripple.className = 'ripple-fx';
         ripple.style.left = (ev.clientX - rect.left - 30) + 'px';
-        ripple.style.top  = (ev.clientY - rect.top  - 30) + 'px';
+        ripple.style.top = (ev.clientY - rect.top - 30) + 'px';
         cardEl.appendChild(ripple);
         setTimeout(() => ripple.remove(), 520);
     }
@@ -150,11 +150,11 @@ function posAddToCart(productId, ev, cardEl) {
         existing.quantity++;
     } else {
         posCart.push({
-            id:       product.id,
-            name:     product.name,
-            price:    parseFloat(product.price),
+            id: product.id,
+            name: product.name,
+            price: parseFloat(product.price),
             quantity: 1,
-            icon:     product.category_icon,
+            icon: product.category_icon,
         });
     }
 
@@ -193,7 +193,7 @@ function posRenderCart() {
     ];
 
     const total = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
-    const fmt   = 'Bs. ' + total.toFixed(2);
+    const fmt = 'Bs. ' + total.toFixed(2);
     const count = posCart.reduce((s, i) => s + i.quantity, 0);
 
     targets.forEach(tgt => {
@@ -264,7 +264,7 @@ function posRenderCart() {
 function openMobCart() {
     mobCartOpen = true;
     const sheet = document.getElementById('mob-cart-sheet');
-    const back  = document.getElementById('mob-cart-back');
+    const back = document.getElementById('mob-cart-back');
     if (!sheet) return;
     back?.classList.remove('hidden');
     sheet.classList.remove('translate-y-full');
@@ -274,7 +274,7 @@ function openMobCart() {
 function closeMobCart() {
     mobCartOpen = false;
     const sheet = document.getElementById('mob-cart-sheet');
-    const back  = document.getElementById('mob-cart-back');
+    const back = document.getElementById('mob-cart-back');
     sheet?.classList.add('translate-y-full');
     sheet?.classList.remove('translate-y-0');
     back?.classList.add('hidden');
@@ -287,8 +287,8 @@ function closeMobCart() {
 function openCheckout() {
     if (!posCart.length) { posToast('Agrega al menos un producto.', 'warn'); return; }
     const total = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
-    document.getElementById('ck-total').textContent  = 'Bs. ' + total.toFixed(2);
-    document.getElementById('ck-pay').value          = '';
+    document.getElementById('ck-total').textContent = 'Bs. ' + total.toFixed(2);
+    document.getElementById('ck-pay').value = '';
     document.getElementById('ck-change').textContent = 'Bs. 0.00';
     document.getElementById('checkout-modal').classList.remove('hidden');
 }
@@ -303,15 +303,15 @@ function ckSetBill(amount) {
 }
 
 function ckCalcChange() {
-    const total  = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
-    const paid   = parseFloat(document.getElementById('ck-pay').value) || 0;
+    const total = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
+    const paid = parseFloat(document.getElementById('ck-pay').value) || 0;
     const change = Math.max(0, paid - total);
     document.getElementById('ck-change').textContent = 'Bs. ' + change.toFixed(2);
 }
 
 function ckSubmit() {
-    const total  = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
-    const paid   = parseFloat(document.getElementById('ck-pay').value) || 0;
+    const total = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
+    const paid = parseFloat(document.getElementById('ck-pay').value) || 0;
 
     if (paid > 0 && paid < total) { posToast('El pago es menor al total.', 'warn'); return; }
 
@@ -323,30 +323,30 @@ function ckSubmit() {
     </svg> Procesando…`;
 
     fetch(POS_BASE + '/pos/checkout', {
-        method:  'POST',
-        headers: {'Content-Type': 'application/json'},
-        body:    JSON.stringify({ items: posCart })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: posCart })
     })
-    .then(r => r.json())
-    .then(data => {
-        btn.disabled = false;
-        btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Completar Venta`;
-        if (data.success) {
-            closeCheckout();
-            posShowReceipt(data.sale_id, total, paid || total);
-        } else {
-            posToast('Error: ' + data.message, 'error');
-        }
-    })
-    .catch(() => {
-        btn.disabled = false;
-        btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            if (data.success) {
+                closeCheckout();
+                posShowReceipt(data.sale_id, total, paid || total);
+            } else {
+                posToast('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Completar Venta`;
-        posToast('Error de conexión.', 'error');
-    });
+            posToast('Error de conexión.', 'error');
+        });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -354,14 +354,14 @@ function ckSubmit() {
 // ═══════════════════════════════════════════════════════════
 
 function posShowReceipt(saleId, total, paid) {
-    const now   = new Date();
-    const dStr  = now.toLocaleDateString('es-BO') + ' ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const now = new Date();
+    const dStr = now.toLocaleDateString('es-BO') + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const change = Math.max(0, paid - total);
 
-    document.getElementById('tkt-date').textContent   = dStr;
-    document.getElementById('tkt-id').textContent     = '#' + saleId;
-    document.getElementById('tkt-total').textContent  = 'Bs. ' + total.toFixed(2);
-    document.getElementById('tkt-paid').textContent   = 'Bs. ' + paid.toFixed(2);
+    document.getElementById('tkt-date').textContent = dStr;
+    document.getElementById('tkt-id').textContent = '#' + saleId;
+    document.getElementById('tkt-total').textContent = 'Bs. ' + total.toFixed(2);
+    document.getElementById('tkt-paid').textContent = 'Bs. ' + paid.toFixed(2);
     document.getElementById('tkt-change').textContent = 'Bs. ' + change.toFixed(2);
 
     const container = document.getElementById('tkt-items');
@@ -390,15 +390,15 @@ function closeReceipt() {
 function posToast(msg, type = 'info') {
     document.getElementById('pos-toast-el')?.remove();
     const colors = { warn: '#D97706', error: '#DC2626', info: '#3D1C02' };
-    const icons  = { warn: '⚠️', error: '❌', info: 'ℹ️' };
+    const icons = { warn: '⚠️', error: '❌', info: 'ℹ️' };
     const t = document.createElement('div');
     t.id = 'pos-toast-el';
     t.style.cssText = `position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
-        z-index:999;background:${colors[type]||colors.info};color:#fff;
+        z-index:999;background:${colors[type] || colors.info};color:#fff;
         padding:10px 20px;border-radius:14px;font-size:12px;font-weight:700;
         display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);
         transition:opacity .3s,transform .3s;white-space:nowrap;`;
-    t.innerHTML = `<span>${icons[type]||icons.info}</span>${msg}`;
+    t.innerHTML = `<span>${icons[type] || icons.info}</span>${msg}`;
     document.body.appendChild(t);
-    setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(8px)'; setTimeout(()=>t.remove(),350); }, 3000);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(8px)'; setTimeout(() => t.remove(), 350); }, 3000);
 }

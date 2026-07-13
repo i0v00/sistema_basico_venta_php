@@ -1,5 +1,5 @@
 -- SQL script for Restaurant POS Database (Clean Version)
--- Duke's Cakes POS
+-- Duke's Fast Food POS
 
 CREATE DATABASE IF NOT EXISTS `dukes_cakes_venta` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `dukes_cakes_venta`;
