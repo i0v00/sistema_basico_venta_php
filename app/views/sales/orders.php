@@ -49,26 +49,26 @@
      onclick="closeOrderModal(event)">
 
     <div id="order-modal"
-         class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
-         style="max-height: 90vh; transform: scale(0.95); opacity: 0; transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;">
+         class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+         style="max-height: 88vh; transform: scale(0.95); opacity: 0; transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;">
 
         <!-- Modal Header (gradient) -->
-        <div id="modal-header" class="relative p-6 pb-5" style="background: linear-gradient(135deg, #3D1C02 0%, #7B4F2E 100%);">
+        <div id="modal-header" class="relative px-5 py-4" style="background: linear-gradient(135deg, #3D1C02 0%, #7B4F2E 100%);">
             <!-- Close button -->
-            <button onclick="closeOrderModal()" class="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center text-lg font-bold transition-all active:scale-90">
+            <button onclick="closeOrderModal()" class="absolute top-3 right-3 w-7 h-7 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center text-sm font-bold transition-all active:scale-90">
                 ✕
             </button>
 
-            <div class="flex items-start gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center text-3xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-xl flex-shrink-0">
                     🧾
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-white/70 text-xs font-bold uppercase tracking-widest">Detalle del Pedido</p>
-                    <h2 id="modal-order-id" class="font-heading font-extrabold text-3xl text-white leading-tight">#—</h2>
-                    <div class="flex items-center gap-2 mt-1 flex-wrap">
-                        <span id="modal-time" class="text-white/80 text-xs font-semibold">—</span>
-                        <span id="modal-status-badge" class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border"></span>
+                    <p class="text-white/60 text-[10px] font-bold uppercase tracking-widest">Detalle del Pedido</p>
+                    <h2 id="modal-order-id" class="font-heading font-extrabold text-xl text-white leading-tight">#—</h2>
+                    <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span id="modal-time" class="text-white/75 text-[11px] font-semibold">—</span>
+                        <span id="modal-status-badge" class="inline-block px-2 py-0.5 rounded-full text-[10px] font-extrabold border"></span>
                     </div>
                 </div>
             </div>
@@ -78,35 +78,35 @@
         <div class="flex-1 overflow-y-auto custom-scrollbar">
 
             <!-- Cashier + total strip -->
-            <div class="px-6 py-3 border-b border-cream-dark flex items-center justify-between bg-cream/60">
-                <div class="flex items-center gap-2 text-sm text-coffee-medium">
-                    <span class="text-lg">👤</span>
+            <div class="px-5 py-2.5 border-b border-cream-dark flex items-center justify-between bg-cream/60">
+                <div class="flex items-center gap-1.5 text-xs text-coffee-medium">
+                    <span class="text-base">👤</span>
                     <span class="font-semibold">Cajero:</span>
                     <span id="modal-cashier" class="font-extrabold text-coffee-dark">—</span>
                 </div>
                 <div class="text-right">
-                    <span class="text-xs text-coffee-light font-semibold block">Total</span>
-                    <span id="modal-total" class="font-heading font-extrabold text-xl text-coffee-dark">Bs. —</span>
+                    <span class="text-[10px] text-coffee-light font-semibold block">Total</span>
+                    <span id="modal-total" class="font-heading font-extrabold text-base text-coffee-dark">Bs. —</span>
                 </div>
             </div>
 
             <!-- Items list -->
-            <div class="px-6 pt-4 pb-2">
-                <p class="text-[11px] font-bold text-coffee-light uppercase tracking-widest mb-3">Productos del pedido</p>
-                <div id="modal-items" class="space-y-2">
+            <div class="px-5 pt-3 pb-2">
+                <p class="text-[10px] font-bold text-coffee-light uppercase tracking-widest mb-2">Productos del pedido</p>
+                <div id="modal-items" class="space-y-1.5">
                     <!-- Injected by JS -->
                 </div>
             </div>
 
             <!-- Notes if any -->
-            <div id="modal-notes-wrap" class="px-6 pb-4 hidden">
-                <p class="text-[11px] font-bold text-coffee-light uppercase tracking-widest mb-1 mt-3">Notas</p>
-                <p id="modal-notes" class="text-sm text-coffee-dark bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 font-medium"></p>
+            <div id="modal-notes-wrap" class="px-5 pb-3 hidden">
+                <p class="text-[10px] font-bold text-coffee-light uppercase tracking-widest mb-1 mt-2">Notas</p>
+                <p id="modal-notes" class="text-xs text-coffee-dark bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 font-medium"></p>
             </div>
         </div>
 
         <!-- Modal Footer Actions -->
-        <div id="modal-actions" class="p-5 border-t border-cream-dark bg-cream/30 space-y-2.5">
+        <div id="modal-actions" class="px-5 py-3.5 border-t border-cream-dark bg-cream/30 space-y-2">
             <!-- Injected by JS depending on status -->
         </div>
     </div>
@@ -337,19 +337,19 @@
             subtotal += lineTotal;
             const hasPrice = item.unit_price && parseFloat(item.unit_price) > 0;
             itemsContainer.innerHTML += `
-                <div class="flex items-center gap-3 p-3 rounded-xl ${idx % 2 === 0 ? 'bg-cream/60' : 'bg-white'} border border-cream-dark/50">
-                    <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl flex-shrink-0">
+                <div class="flex items-center gap-2.5 p-2.5 rounded-xl ${idx % 2 === 0 ? 'bg-cream/60' : 'bg-white'} border border-cream-dark/50">
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-lg flex-shrink-0">
                         ${item.product_icon || '🍔'}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="font-bold text-coffee-dark text-sm truncate">${item.product_name}</p>
-                        ${hasPrice ? `<p class="text-xs text-coffee-light font-semibold">Bs. ${parseFloat(item.unit_price).toFixed(2)} c/u</p>` : ''}
+                        <p class="font-bold text-coffee-dark text-xs leading-tight">${item.product_name}</p>
+                        ${hasPrice ? `<p class="text-[11px] text-coffee-light font-semibold mt-0.5">Bs. ${parseFloat(item.unit_price).toFixed(2)} c/u</p>` : ''}
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <span class="inline-flex items-center justify-center bg-coffee-dark text-white text-xs font-extrabold rounded-lg px-2.5 py-1 min-w-[2.5rem]">
+                        <span class="inline-flex items-center justify-center bg-coffee-dark text-white text-[11px] font-extrabold rounded-md px-2 py-0.5 min-w-[2rem]">
                             ×${item.quantity}
                         </span>
-                        ${hasPrice ? `<p class="text-xs font-bold text-coffee-medium mt-1">Bs. ${lineTotal.toFixed(2)}</p>` : ''}
+                        ${hasPrice ? `<p class="text-[11px] font-bold text-coffee-medium mt-0.5">Bs. ${lineTotal.toFixed(2)}</p>` : ''}
                     </div>
                 </div>
             `;
@@ -357,13 +357,13 @@
 
         // Summary row
         itemsContainer.innerHTML += `
-            <div class="mt-3 pt-3 border-t-2 border-coffee-dark/10 flex items-center justify-between">
+            <div class="mt-2.5 pt-2.5 border-t-2 border-coffee-dark/10 flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-coffee-light font-semibold">${order.items.length} producto${order.items.length !== 1 ? 's' : ''} · ${order.items.reduce((a,b)=>a+parseInt(b.quantity||1),0)} unidades</p>
+                    <p class="text-[11px] text-coffee-light font-semibold">${order.items.length} producto${order.items.length !== 1 ? 's' : ''} · ${order.items.reduce((a,b)=>a+parseInt(b.quantity||1),0)} uds.</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs text-coffee-light font-semibold">Total del pedido</p>
-                    <p class="font-heading font-extrabold text-xl text-coffee-dark">Bs. ${parseFloat(order.total).toFixed(2)}</p>
+                    <p class="text-[10px] text-coffee-light font-semibold">Total</p>
+                    <p class="font-heading font-extrabold text-base text-coffee-dark">Bs. ${parseFloat(order.total).toFixed(2)}</p>
                 </div>
             </div>
         `;
@@ -381,20 +381,20 @@
         const actionsEl = document.getElementById('modal-actions');
         let footerHtml = '';
         if (isPend) {
-            footerHtml = `<button onclick="updateStatusFromModal(${order.id}, 'entregado')" class="w-full bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-extrabold py-3.5 rounded-xl text-base transition shadow-md flex items-center justify-center gap-2">
+            footerHtml = `<button onclick="updateStatusFromModal(${order.id}, 'entregado')" class="w-full bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-extrabold py-3 rounded-xl text-sm transition shadow-md flex items-center justify-center gap-2">
                 ✅ Marcar como Entregado
             </button>`;
         } else if (isEntregado) {
             footerHtml = `
-                <button onclick="updateStatusFromModal(${order.id}, 'finalizado')" class="w-full bg-blue-700 hover:bg-blue-800 active:scale-95 text-white font-extrabold py-3.5 rounded-xl text-base transition shadow-md flex items-center justify-center gap-2">
+                <button onclick="updateStatusFromModal(${order.id}, 'finalizado')" class="w-full bg-blue-700 hover:bg-blue-800 active:scale-95 text-white font-extrabold py-3 rounded-xl text-sm transition shadow-md flex items-center justify-center gap-2">
                     🔒 Finalizar Pedido
                 </button>
-                <button onclick="updateStatusFromModal(${order.id}, 'pendiente')" class="w-full bg-cream-dark hover:bg-cream-dark/80 active:scale-95 text-coffee-dark font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                <button onclick="updateStatusFromModal(${order.id}, 'pendiente')" class="w-full bg-cream-dark hover:bg-cream-dark/80 active:scale-95 text-coffee-dark font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2">
                     🔄 Regresar a Pendiente
                 </button>
             `;
         } else {
-            footerHtml = `<div class="text-center py-3 text-coffee-medium font-extrabold text-sm bg-coffee-dark/5 rounded-xl border border-cream-dark">🔒 Pedido Finalizado — Sin acciones disponibles</div>`;
+            footerHtml = `<div class="text-center py-2.5 text-coffee-medium font-bold text-xs bg-coffee-dark/5 rounded-xl border border-cream-dark">🔒 Pedido Finalizado — Sin acciones disponibles</div>`;
         }
         actionsEl.innerHTML = footerHtml;
 
