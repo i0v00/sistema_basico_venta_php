@@ -177,6 +177,12 @@ $userRole = Auth::role();
                 <?php endif; ?>
 
                 <?php if ($userRole === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/admin-expenses" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/admin-expenses') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    💸 Gastos Admin
+                </a>
+                <a href="<?= BASE_URL ?>/reports" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/reports') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
+                    📈 Reportes
+                </a>
                 <a href="<?= BASE_URL ?>/settings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/settings' ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
                     ⚙️ Config
                 </a>
@@ -242,6 +248,8 @@ $userRole = Auth::role();
                         $mobileLinks[] = ['/sales/history' , '📜', 'Historial Ventas'  , false];
                     }
                     if ($userRole === 'admin') {
+                        $mobileLinks[] = ['/admin-expenses', '💸', 'Gastos Admin', false];
+                        $mobileLinks[] = ['/reports'       , '📈', 'Reportes', false];
                         $mobileLinks[] = ['/settings'      , '⚙️', 'Configuración'      , false];
                     }
 

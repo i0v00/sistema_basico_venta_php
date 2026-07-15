@@ -381,4 +381,12 @@ class Sale {
         }
         return $sales;
     }
+
+    public static function getTotalRevenueForRange($startDate, $endDate) {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT SUM(total) as total FROM sales WHERE DATE(sale_date) >= ? AND DATE(sale_date) <= ? AND deleted = 0");
+        $stmt->execute([$startDate, $endDate]);
+        $row = $stmt->fetch();
+        return (float)($row['total'] ?? 0.00);
+    }
 }

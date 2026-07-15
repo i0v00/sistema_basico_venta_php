@@ -1,7 +1,35 @@
 <!-- Real-time active orders screen (cook & cashier interface) -->
-<div class="space-y-6 animate-slide-up">
-    <!-- Header with live indicator -->
-    <div class="bg-white p-6 rounded-2xl border border-cream-dark shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div id="orders-page-wrapper" class="space-y-6 animate-slide-up">
+    <!-- Fullscreen Header (Hidden by default) -->
+    <div id="fullscreen-header" class="hidden bg-coffee-dark text-white px-6 py-4 items-center justify-between shadow-lg border-b border-coffee-medium/30">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl animate-pulse">🔴</span>
+            <div>
+                <h2 class="font-heading font-extrabold text-2xl uppercase tracking-wider text-accent">MONITOR EN VIVO</h2>
+                <p class="text-xs text-cream-dark/60">Duke's Fast Food POS</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <!-- Count selector -->
+            <div class="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
+                <span class="text-xs font-bold text-cream-dark/80 uppercase tracking-wider">Ver pedidos:</span>
+                <div class="flex gap-1.5" id="fullscreen-count-buttons">
+                    <button onclick="setFullscreenCount(1)" id="fbtn-1" class="w-9 h-9 flex items-center justify-center rounded-xl text-base font-black transition duration-150 hover:bg-white/15 text-white">1</button>
+                    <button onclick="setFullscreenCount(2)" id="fbtn-2" class="w-9 h-9 flex items-center justify-center rounded-xl text-base font-black transition duration-150 hover:bg-white/15 text-white">2</button>
+                    <button onclick="setFullscreenCount(3)" id="fbtn-3" class="w-9 h-9 flex items-center justify-center rounded-xl text-base font-black transition duration-150 hover:bg-white/15 text-white bg-accent shadow-md">3</button>
+                    <button onclick="setFullscreenCount(4)" id="fbtn-4" class="w-9 h-9 flex items-center justify-center rounded-xl text-base font-black transition duration-150 hover:bg-white/15 text-white">4</button>
+                    <button onclick="setFullscreenCount(5)" id="fbtn-5" class="w-9 h-9 flex items-center justify-center rounded-xl text-base font-black transition duration-150 hover:bg-white/15 text-white">5</button>
+                </div>
+            </div>
+            <!-- Exit Fullscreen Button -->
+            <button onclick="exitFullScreen()" class="bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-extrabold px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition duration-150 shadow-md">
+                Salir ✕
+            </button>
+        </div>
+    </div>
+
+    <!-- Normal Header with live indicator -->
+    <div id="normal-header" class="bg-white p-6 rounded-2xl border border-cream-dark shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <div class="flex items-center gap-2">
                 <h1 class="font-heading font-extrabold text-3xl text-coffee-dark">Pedidos del Día</h1>
@@ -13,20 +41,27 @@
             <p class="text-sm text-coffee-light mt-1">Control de pedidos y entregas en tiempo real. Toca un pedido para ver el detalle.</p>
         </div>
         
-        <!-- Filters -->
-        <div class="flex rounded-xl overflow-hidden border border-cream-dark shadow-sm bg-cream/10 p-1 self-start md:self-auto">
-            <button id="filter-all" onclick="changeFilter('all')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-coffee-dark text-white shadow-sm">
-                Todos
+        <div class="flex flex-wrap items-center gap-3 self-start md:self-auto">
+            <!-- Fullscreen trigger button -->
+            <button onclick="enterFullScreen()" class="px-5 py-2 bg-coffee-dark hover:bg-coffee-medium text-white rounded-xl text-sm font-bold transition shadow-sm active:scale-95 flex items-center gap-1.5">
+                📺 Pantalla Completa
             </button>
-            <button id="filter-pendiente" onclick="changeFilter('pendiente')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-coffee-medium hover:bg-cream-dark/55">
-                Pendientes 🟡
-            </button>
-            <button id="filter-entregado" onclick="changeFilter('entregado')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-coffee-medium hover:bg-cream-dark/55">
-                Entregados ✅
-            </button>
-            <button id="filter-finalizado" onclick="changeFilter('finalizado')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-coffee-medium hover:bg-cream-dark/55">
-                Finalizados 🔒
-            </button>
+
+            <!-- Filters -->
+            <div class="flex rounded-xl overflow-hidden border border-cream-dark shadow-sm bg-cream/10 p-1">
+                <button id="filter-all" onclick="changeFilter('all')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-coffee-dark text-white shadow-sm">
+                    Todos
+                </button>
+                <button id="filter-pendiente" onclick="changeFilter('pendiente')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-coffee-medium hover:bg-cream-dark/55">
+                    Pendientes 🟡
+                </button>
+                <button id="filter-entregado" onclick="changeFilter('entregado')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-coffee-medium hover:bg-cream-dark/55">
+                    Entregados ✅
+                </button>
+                <button id="filter-finalizado" onclick="changeFilter('finalizado')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-coffee-medium hover:bg-cream-dark/55">
+                    Finalizados 🔒
+                </button>
+            </div>
         </div>
     </div>
 
@@ -112,7 +147,7 @@
     </div>
 </div>
 
-<!-- Modal styles -->
+<!-- Modal styles & Fullscreen layout styles -->
 <style>
     #order-modal-backdrop.modal-visible {
         display: flex !important;
@@ -132,12 +167,196 @@
     .order-card-clickable:active {
         transform: scale(0.98);
     }
+
+    /* Fullscreen Mode Overrides */
+    #orders-page-wrapper.fullscreen-active {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: #FFF8F0 !important;
+        z-index: 9999 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        max-width: 100vw !important;
+    }
+
+    #orders-page-wrapper.fullscreen-active #fullscreen-header {
+        display: flex !important;
+    }
+
+    #orders-page-wrapper.fullscreen-active #normal-header {
+        display: none !important;
+    }
+
+    #orders-page-wrapper.fullscreen-active #orders-container {
+        flex-grow: 1 !important;
+        padding: 24px !important;
+        height: calc(100vh - 80px) !important;
+        overflow-y: auto !important;
+        align-items: stretch !important;
+        display: grid !important;
+        gap: 24px !important;
+    }
+
+    /* Grid layout configurations based on order counts in fullscreen */
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 #orders-container {
+        grid-template-columns: 1fr !important;
+    }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 #orders-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 #orders-container {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    #orders-page-wrapper.fullscreen-active.fs-grid-4 #orders-container {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+    #orders-page-wrapper.fullscreen-active.fs-grid-5 #orders-container {
+        grid-template-columns: repeat(5, 1fr) !important;
+    }
+
+    /* Card customization in fullscreen */
+    #orders-page-wrapper.fullscreen-active .order-card-clickable {
+        height: 100% !important;
+        max-height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        border-width: 3px !important;
+        box-shadow: 0 10px 25px -5px rgba(61,28,2,0.1) !important;
+    }
+
+    #orders-page-wrapper.fullscreen-active .order-card-clickable .flex-grow {
+        max-height: none !important;
+        overflow-y: auto !important;
+    }
+
+    /* Typography scaling for remote legibility */
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 .order-card-clickable { font-size: 1.8rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 .text-2xl { font-size: 3.8rem !important; line-height: 1 !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 .text-lg { font-size: 2.2rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 .text-xl { font-size: 2.8rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 .text-xs { font-size: 1.4rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 .text-sm { font-size: 1.6rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 .text-base { font-size: 2rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 .font-heading { font-size: 4rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-1 button { font-size: 1.8rem !important; padding: 22px !important; }
+
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 .order-card-clickable { font-size: 1.4rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 .text-2xl { font-size: 2.8rem !important; line-height: 1 !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 .text-lg { font-size: 1.8rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 .text-xl { font-size: 2.2rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 .text-xs { font-size: 1.1rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 .text-sm { font-size: 1.3rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 .text-base { font-size: 1.5rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 .font-heading { font-size: 3rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-2 button { font-size: 1.4rem !important; padding: 16px !important; }
+
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 .order-card-clickable { font-size: 1.1rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 .text-2xl { font-size: 2.2rem !important; line-height: 1 !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 .text-lg { font-size: 1.4rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 .text-xl { font-size: 1.8rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 .text-xs { font-size: 0.95rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 .text-sm { font-size: 1.05rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 .text-base { font-size: 1.15rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 .font-heading { font-size: 2.4rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-3 button { font-size: 1.1rem !important; padding: 12px !important; }
+
+    #orders-page-wrapper.fullscreen-active.fs-grid-4 .order-card-clickable { font-size: 0.95rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-4 .text-2xl { font-size: 1.8rem !important; line-height: 1 !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-4 .text-lg { font-size: 1.2rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-4 .text-xl { font-size: 1.5rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-4 .font-heading { font-size: 1.9rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-4 button { font-size: 1rem !important; padding: 10px !important; }
+
+    #orders-page-wrapper.fullscreen-active.fs-grid-5 .order-card-clickable { font-size: 0.85rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-5 .text-2xl { font-size: 1.5rem !important; line-height: 1 !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-5 .text-lg { font-size: 1.1rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-5 .text-xl { font-size: 1.3rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-5 .font-heading { font-size: 1.6rem !important; }
+    #orders-page-wrapper.fullscreen-active.fs-grid-5 button { font-size: 0.9rem !important; padding: 8px !important; }
 </style>
 
 <script>
     let currentFilter = 'all';
     let previousOrdersCount = -1;
     let allOrders = []; // store locally for modal lookup
+    let isFullscreenMode = false;
+    let fullscreenCount = 3;
+
+    function enterFullScreen() {
+        const wrapper = document.getElementById('orders-page-wrapper');
+        if (wrapper.requestFullscreen) {
+            wrapper.requestFullscreen();
+        } else if (wrapper.webkitRequestFullscreen) {
+            wrapper.webkitRequestFullscreen();
+        } else if (wrapper.msRequestFullscreen) {
+            wrapper.msRequestFullscreen();
+        }
+    }
+
+    function exitFullScreen() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+
+    function setFullscreenCount(count) {
+        fullscreenCount = count;
+        const wrapper = document.getElementById('orders-page-wrapper');
+        // Remove all grid classes
+        for (let i = 1; i <= 5; i++) {
+            wrapper.classList.remove(`fs-grid-${i}`);
+        }
+        wrapper.classList.add(`fs-grid-${count}`);
+
+        // Update active class on count buttons
+        for (let i = 1; i <= 5; i++) {
+            const btn = document.getElementById(`fbtn-${i}`);
+            if (btn) {
+                if (i === count) {
+                    btn.className = "w-9 h-9 flex items-center justify-center rounded-xl text-base font-black transition duration-150 text-white bg-accent shadow-md";
+                } else {
+                    btn.className = "w-9 h-9 flex items-center justify-center rounded-xl text-base font-black transition duration-150 hover:bg-white/15 text-white";
+                }
+            }
+        }
+
+        renderOrders(allOrders);
+    }
+
+    // Monitor fullscreen change events
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    function handleFullscreenChange() {
+        const wrapper = document.getElementById('orders-page-wrapper');
+        const isFS = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        
+        if (isFS) {
+            isFullscreenMode = true;
+            wrapper.classList.add('fullscreen-active');
+            setFullscreenCount(fullscreenCount);
+        } else {
+            isFullscreenMode = false;
+            wrapper.classList.remove('fullscreen-active');
+            for (let i = 1; i <= 5; i++) {
+                wrapper.classList.remove(`fs-grid-${i}`);
+            }
+            renderOrders(allOrders);
+        }
+    }
 
     // Fetch and render orders from API
     async function loadOrders() {
@@ -158,7 +377,13 @@
     function renderOrders(orders) {
         const container = document.getElementById('orders-container');
         
-        if (!orders || orders.length === 0) {
+        let displayOrders = orders;
+        if (isFullscreenMode) {
+            // Only show 'pendiente' status orders and slice
+            displayOrders = orders.filter(o => o.status === 'pendiente').slice(0, fullscreenCount);
+        }
+
+        if (!displayOrders || displayOrders.length === 0) {
             container.innerHTML = `
                 <div class="col-span-full bg-white p-12 text-center rounded-2xl border border-cream-dark shadow-sm text-coffee-light">
                     <span class="text-5xl block mb-3">🍽️</span>
@@ -177,7 +402,7 @@
 
         container.innerHTML = '';
         
-        orders.forEach(order => {
+        displayOrders.forEach(order => {
             const dateObj = new Date(order.sale_date);
             const timeStr = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
             

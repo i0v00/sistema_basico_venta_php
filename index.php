@@ -92,6 +92,11 @@ $routes = [
         '/orders/json' => [\App\Controllers\SaleController::class, 'ordersJson'],
         '/sales/create-manual' => [\App\Controllers\SaleController::class, 'createManualForm'],
         '/sales/daily-report' => [\App\Controllers\SaleController::class, 'dailyReport'],
+
+        // Administrative Expenses & Reports routes
+        '/admin-expenses' => [\App\Controllers\AdminExpenseController::class, 'index'],
+        '/reports' => [\App\Controllers\AdminExpenseController::class, 'reports'],
+        '/reports/print' => [\App\Controllers\AdminExpenseController::class, 'printReport'],
     ],
     'POST' => [
         '/login' => [\App\Controllers\AuthController::class, 'login'],
@@ -113,6 +118,12 @@ $routes = [
 
         // Orders status update
         '/orders/status' => [\App\Controllers\SaleController::class, 'updateOrderStatus'],
+
+        // Admin Expenses CRUD
+        '/admin-expenses/product/save' => [\App\Controllers\AdminExpenseController::class, 'saveProduct'],
+        '/admin-expenses/product/delete' => [\App\Controllers\AdminExpenseController::class, 'deleteProduct'],
+        '/admin-expenses/save' => [\App\Controllers\AdminExpenseController::class, 'saveExpense'],
+        '/admin-expenses/delete' => [\App\Controllers\AdminExpenseController::class, 'deleteExpense'],
     ]
 ];
 
