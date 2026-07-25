@@ -7,9 +7,13 @@ use App\Models\Product;
 use Exception;
 
 class Sale {
-    public static function createSale($cartItems, int $cashierId = 0, ?string $saleDate = null, string $status = 'pendiente') {
+    public static function createSale($cartItems, int $cashierId = 0, ?string $saleDate = null, string $status = 'pendiente', ?string $paymentMethod = null) {
         if (empty($cartItems)) {
             throw new Exception("El carrito está vacío.");
+        }
+
+        if (empty($paymentMethod) || !in_array($paymentMethod, ['efectivo', 'qr'], true)) {
+            throw new Exception("Debes elegir un método de pago obligatorio (Efectivo o QR).");
         }
 
         $db = Database::getConnection();
@@ -39,17 +43,17 @@ class Sale {
                 $itemsCount += $item['quantity'];
             }
 
-            // 2. Insert into sales (with cashier_id, status and optional sale_date)
+            // 2. Insert into sales
             if ($saleDate) {
                 $stmt = $db->prepare(
-                    "INSERT INTO sales (total, items_count, cashier_id, status, sale_date) VALUES (?, ?, ?, ?, ?)"
+                    "INSERT INTO sales (total, items_count, cashier_id, status, payment_method, sale_date) VALUES (?, ?, ?, ?, ?, ?)"
                 );
-                $stmt->execute([$total, $itemsCount, $cashierId ?: null, $status, $saleDate]);
+                $stmt->execute([$total, $itemsCount, $cashierId ?: null, $status, $paymentMethod, $saleDate]);
             } else {
                 $stmt = $db->prepare(
-                    "INSERT INTO sales (total, items_count, cashier_id, status) VALUES (?, ?, ?, ?)"
+                    "INSERT INTO sales (total, items_count, cashier_id, status, payment_method) VALUES (?, ?, ?, ?, ?)"
                 );
-                $stmt->execute([$total, $itemsCount, $cashierId ?: null, $status]);
+                $stmt->execute([$total, $itemsCount, $cashierId ?: null, $status, $paymentMethod]);
             }
             $saleId = $db->lastInsertId();
 
@@ -229,6 +233,14 @@ class Sale {
         return $stmt->fetchAll();
     }
 
+    public static function findById(int $saleId): ?array {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM sales WHERE id = ?");
+        $stmt->execute([$saleId]);
+        $sale = $stmt->fetch();
+        return $sale ?: null;
+    }
+
     public static function getDetails($saleId) {
         $db = Database::getConnection();
         $stmt = $db->prepare("
@@ -382,11 +394,41 @@ class Sale {
         return $sales;
     }
 
+    public static function updatePaymentMethod(int $saleId, string $paymentMethod): bool {
+        if (!in_array($paymentMethod, ['efectivo', 'qr'], true)) return false;
+        $db = Database::getConnection();
+        $stmt = $db->prepare("UPDATE sales SET payment_method = ? WHERE id = ?");
+        return $stmt->execute([$paymentMethod, $saleId]);
+    }
+
     public static function getTotalRevenueForRange($startDate, $endDate) {
         $db = Database::getConnection();
         $stmt = $db->prepare("SELECT SUM(total) as total FROM sales WHERE DATE(sale_date) >= ? AND DATE(sale_date) <= ? AND deleted = 0");
         $stmt->execute([$startDate, $endDate]);
         $row = $stmt->fetch();
         return (float)($row['total'] ?? 0.00);
+    }
+
+    public static function getRevenueByPaymentMethodForRange($startDate, $endDate) {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("
+            SELECT payment_method, SUM(total) as total 
+            FROM sales 
+            WHERE DATE(sale_date) >= ? AND DATE(sale_date) <= ? AND deleted = 0 
+            GROUP BY payment_method
+        ");
+        $stmt->execute([$startDate, $endDate]);
+        $rows = $stmt->fetchAll();
+
+        $result = ['efectivo' => 0.00, 'qr' => 0.00, 'sin_especificar' => 0.00];
+        foreach ($rows as $row) {
+            $pm = strtolower($row['payment_method'] ?? '');
+            if (isset($result[$pm])) {
+                $result[$pm] = (float)$row['total'];
+            } else {
+                $result['sin_especificar'] += (float)$row['total'];
+            }
+        }
+        return $result;
     }
 }

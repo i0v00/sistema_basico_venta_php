@@ -24,7 +24,7 @@ ON DUPLICATE KEY UPDATE `role`='admin';
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(50) NOT NULL,
-  `icon` VARCHAR(20) NOT NULL
+  `icon` VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. Products Table
@@ -47,11 +47,33 @@ CREATE TABLE IF NOT EXISTS `raw_materials` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
   `unit` VARCHAR(20) NOT NULL,
+  `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `current_stock` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `min_stock` DECIMAL(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 5. Recipes Table (Recetas por producto)
+-- 5. Compras Table (Compras de Materia Prima)
+CREATE TABLE IF NOT EXISTS `compras` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `raw_material_id` INT NOT NULL,
+  `cantidad` DECIMAL(10,2) NOT NULL,
+  `precio_unitario` DECIMAL(10,2) NOT NULL,
+  `total` DECIMAL(10,2) NOT NULL,
+  `fecha` DATE NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`raw_material_id`) REFERENCES `raw_materials` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. Gastos Fijos Table
+CREATE TABLE IF NOT EXISTS `gastos_fijos` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `nombre` VARCHAR(100) NOT NULL,
+  `precio` DECIMAL(10,2) NOT NULL,
+  `fecha` DATE NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. Recipes Table (Recetas por producto)
 CREATE TABLE IF NOT EXISTS `recipes` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `product_id` INT NOT NULL,
@@ -61,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `recipes` (
   FOREIGN KEY (`raw_material_id`) REFERENCES `raw_materials` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 6. Sales Table (Ventas)
+-- 8. Sales Table (Ventas)
 CREATE TABLE IF NOT EXISTS `sales` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `sale_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -69,10 +91,12 @@ CREATE TABLE IF NOT EXISTS `sales` (
   `items_count` INT NOT NULL DEFAULT 0,
   `cashier_id` INT NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+  `payment_method` VARCHAR(20) NOT NULL DEFAULT 'efectivo',
+  `deleted` TINYINT(1) NOT NULL DEFAULT 0,
   FOREIGN KEY (`cashier_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 7. Sale Details Table (Detalle de Ventas)
+-- 9. Sale Details Table (Detalle de Ventas)
 CREATE TABLE IF NOT EXISTS `sale_details` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `sale_id` INT NOT NULL,
@@ -83,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `sale_details` (
   FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 8. Settings Table (Configuraciones)
+-- 10. Settings Table (Configuraciones)
 CREATE TABLE IF NOT EXISTS `settings` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `setting_key` VARCHAR(50) NOT NULL UNIQUE,
@@ -94,5 +118,7 @@ INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('track_raw_materials', '0')
 ON DUPLICATE KEY UPDATE `setting_value`=VALUES(`setting_value`);
 
--- Índices de optimización de pedidos en tiempo real
+-- Índices de optimización
 CREATE INDEX `idx_sales_date_status` ON `sales` (`sale_date`, `status`);
+CREATE INDEX `idx_compras_fecha` ON `compras` (`fecha`);
+CREATE INDEX `idx_gastos_fijos_fecha` ON `gastos_fijos` (`fecha`);

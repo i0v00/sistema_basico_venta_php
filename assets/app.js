@@ -7,6 +7,7 @@
 let posCart = [];
 let posCatId = null;     // null = all
 let mobCartOpen = false;
+let selectedPaymentMethod = null; // 'efectivo' | 'qr' | null
 
 // ── Boot ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -284,12 +285,49 @@ function closeMobCart() {
 //  CHECKOUT
 // ═══════════════════════════════════════════════════════════
 
+function setPaymentMethod(method) {
+    selectedPaymentMethod = method;
+    const btnEf = document.getElementById('pm-btn-efectivo');
+    const btnQr = document.getElementById('pm-btn-qr');
+    const cashBox = document.getElementById('cash-details-box');
+
+    // Reset base styles
+    [btnEf, btnQr].forEach(btn => {
+        if (!btn) return;
+        btn.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream text-coffee-dark transition-all";
+    });
+
+    if (method === 'efectivo') {
+        if (btnEf) btnEf.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-extrabold text-sm border-2 border-emerald-600 bg-emerald-600 text-white shadow-md transition-all scale-[1.02]";
+        if (cashBox) cashBox.classList.remove('hidden');
+    } else if (method === 'qr') {
+        if (btnQr) btnQr.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-extrabold text-sm border-2 border-blue-600 bg-blue-600 text-white shadow-md transition-all scale-[1.02]";
+        if (cashBox) cashBox.classList.remove('hidden');
+        // Auto-fill exact amount for QR
+        const total = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
+        const payInput = document.getElementById('ck-pay');
+        if (payInput) {
+            payInput.value = total.toFixed(2);
+            ckCalcChange();
+        }
+    }
+}
+
 function openCheckout() {
     if (!posCart.length) { posToast('Agrega al menos un producto.', 'warn'); return; }
     const total = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
     document.getElementById('ck-total').textContent = 'Bs. ' + total.toFixed(2);
     document.getElementById('ck-pay').value = '';
     document.getElementById('ck-change').textContent = 'Bs. 0.00';
+    
+    // Reset payment method selection
+    selectedPaymentMethod = null;
+    const btnEf = document.getElementById('pm-btn-efectivo');
+    const btnQr = document.getElementById('pm-btn-qr');
+    [btnEf, btnQr].forEach(btn => {
+        if (btn) btn.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream text-coffee-dark transition-all";
+    });
+
     document.getElementById('checkout-modal').classList.remove('hidden');
 }
 
@@ -310,10 +348,26 @@ function ckCalcChange() {
 }
 
 function ckSubmit() {
-    const total = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
-    const paid = parseFloat(document.getElementById('ck-pay').value) || 0;
+    if (!selectedPaymentMethod) {
+        posToast('Debes elegir el tipo de pago (Efectivo o QR).', 'warn');
+        const btnEf = document.getElementById('pm-btn-efectivo');
+        const btnQr = document.getElementById('pm-btn-qr');
+        [btnEf, btnQr].forEach(b => b?.classList.add('animate-bounce'));
+        setTimeout(() => [btnEf, btnQr].forEach(b => b?.classList.remove('animate-bounce')), 1000);
+        return;
+    }
 
-    if (paid > 0 && paid < total) { posToast('El pago es menor al total.', 'warn'); return; }
+    const total = posCart.reduce((s, i) => s + i.price * i.quantity, 0);
+    let paid = parseFloat(document.getElementById('ck-pay').value) || 0;
+
+    if (selectedPaymentMethod === 'qr') {
+        paid = total;
+    }
+
+    if (selectedPaymentMethod === 'efectivo' && paid > 0 && paid < total) {
+        posToast('El pago recibido es menor al total.', 'warn');
+        return;
+    }
 
     const btn = document.getElementById('ck-btn');
     btn.disabled = true;
@@ -325,7 +379,10 @@ function ckSubmit() {
     fetch(POS_BASE + '/pos/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: posCart })
+        body: JSON.stringify({ 
+            items: posCart,
+            payment_method: selectedPaymentMethod 
+        })
     })
         .then(r => r.json())
         .then(data => {
@@ -334,8 +391,9 @@ function ckSubmit() {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Completar Venta`;
             if (data.success) {
+                const pm = selectedPaymentMethod;
                 closeCheckout();
-                posShowReceipt(data.sale_id, total, paid || total);
+                posShowReceipt(data.sale_id, total, paid || total, pm);
             } else {
                 posToast('Error: ' + data.message, 'error');
             }
@@ -353,7 +411,7 @@ function ckSubmit() {
 //  RECEIPT
 // ═══════════════════════════════════════════════════════════
 
-function posShowReceipt(saleId, total, paid) {
+function posShowReceipt(saleId, total, paid, paymentMethod = 'efectivo') {
     const now = new Date();
     const dStr = now.toLocaleDateString('es-BO') + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const change = Math.max(0, paid - total);

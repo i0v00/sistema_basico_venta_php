@@ -40,6 +40,7 @@ class RawMaterialController {
         $id = $_POST['id'] ?? null;
         $name = trim($_POST['name'] ?? '');
         $unit = trim($_POST['unit'] ?? '');
+        $price = (float)($_POST['price'] ?? 0);
         $currentStock = (float)($_POST['current_stock'] ?? 0);
         $minStock = (float)($_POST['min_stock'] ?? 0);
 
@@ -51,6 +52,7 @@ class RawMaterialController {
         $data = [
             'name' => $name,
             'unit' => $unit,
+            'price' => $price,
             'current_stock' => $currentStock,
             'min_stock' => $minStock
         ];

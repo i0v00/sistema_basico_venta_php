@@ -301,36 +301,55 @@ $trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
                 <span id="ck-total" class="text-4xl font-heading font-extrabold text-coffee-dark">Bs. 0.00</span>
             </div>
 
-            <!-- Input -->
+            <!-- Payment Method Selector (REQUIRED) -->
             <div>
-                <label class="text-xs font-bold text-coffee-dark block mb-1.5">Pago recibido con:</label>
-                <div class="relative">
-                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm text-coffee-medium">Bs.</span>
-                    <input id="ck-pay" type="number" oninput="ckCalcChange()" step="0.01" min="0" placeholder="0.00"
-                           class="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-cream-dark focus:outline-none
-                                  focus:border-accent font-extrabold text-2xl text-coffee-dark bg-cream/40 transition">
-                </div>
-            </div>
-
-            <!-- Quick bills -->
-            <div>
-                <p class="text-[10px] font-bold uppercase tracking-widest text-coffee-light mb-2">Billetes rápidos:</p>
-                <div class="grid grid-cols-4 gap-2">
-                    <?php foreach ([5, 10, 20, 50, 100, 200] as $b): ?>
-                    <button onclick="ckSetBill(<?= $b ?>)"
-                            class="py-2.5 rounded-xl text-xs font-extrabold bg-cream hover:bg-cream-dark
-                                   border border-cream-dark hover:border-accent hover:text-accent
-                                   text-coffee-dark transition-all active:scale-95">
-                        <?= $b ?>
+                <label class="text-xs font-bold text-coffee-dark block mb-2 uppercase tracking-wider">
+                    Selecciona Tipo de Pago <span class="text-rose-600">*</span>
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="pm-btn-efectivo" onclick="setPaymentMethod('efectivo')"
+                            class="pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span>💵</span> Efectivo
                     </button>
-                    <?php endforeach; ?>
+                    <button type="button" id="pm-btn-qr" onclick="setPaymentMethod('qr')"
+                            class="pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span>📱</span> Pago QR
+                    </button>
                 </div>
             </div>
 
-            <!-- Change -->
-            <div class="flex justify-between items-center rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-3">
-                <span class="text-sm font-semibold text-emerald-900">Cambio a dar:</span>
-                <span id="ck-change" class="text-xl font-extrabold text-emerald-700 font-heading">Bs. 0.00</span>
+            <!-- Cash Payment Details (Visible when Efectivo selected or default) -->
+            <div id="cash-details-box" class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-coffee-dark block mb-1.5">Pago recibido con:</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm text-coffee-medium">Bs.</span>
+                        <input id="ck-pay" type="number" oninput="ckCalcChange()" step="0.01" min="0" placeholder="0.00"
+                               class="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-cream-dark focus:outline-none
+                                      focus:border-accent font-extrabold text-2xl text-coffee-dark bg-cream/40 transition">
+                    </div>
+                </div>
+
+                <!-- Quick bills -->
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-coffee-light mb-2">Billetes rápidos:</p>
+                    <div class="grid grid-cols-6 gap-1.5">
+                        <?php foreach ([5, 10, 20, 50, 100, 200] as $b): ?>
+                        <button onclick="ckSetBill(<?= $b ?>)"
+                                class="py-2 rounded-lg text-xs font-extrabold bg-cream hover:bg-cream-dark
+                                       border border-cream-dark hover:border-accent hover:text-accent
+                                       text-coffee-dark transition-all active:scale-95">
+                            <?= $b ?>
+                        </button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Change -->
+                <div class="flex justify-between items-center rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-2.5">
+                    <span class="text-xs font-semibold text-emerald-900">Cambio a dar:</span>
+                    <span id="ck-change" class="text-lg font-extrabold text-emerald-700 font-heading">Bs. 0.00</span>
+                </div>
             </div>
 
             <!-- Submit -->
@@ -372,6 +391,9 @@ $trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
             </div>
             <div class="flex justify-between text-coffee-light">
                 <span>Ticket N°:</span><span id="tkt-id" class="font-extrabold text-accent"></span>
+            </div>
+            <div class="flex justify-between text-coffee-light">
+                <span>Pago con:</span><span id="tkt-pm" class="font-extrabold text-coffee-dark"></span>
             </div>
             <div class="border-t border-dashed border-coffee-medium/20 my-2"></div>
             <div id="tkt-items" class="space-y-1"></div>

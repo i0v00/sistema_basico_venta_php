@@ -111,6 +111,7 @@ $routes = [
         '/settings/change-password' => [\App\Controllers\AuthController::class, 'changePassword'],
         '/sales/save-manual' => [\App\Controllers\SaleController::class, 'saveManual'],
         '/sales/delete' => [\App\Controllers\SaleController::class, 'deleteSale'],
+        '/sales/update-payment-method' => [\App\Controllers\SaleController::class, 'updatePaymentMethod'],
 
         // Users CRUD save & delete
         '/users/save' => [\App\Controllers\UserController::class, 'save'],
@@ -119,11 +120,11 @@ $routes = [
         // Orders status update
         '/orders/status' => [\App\Controllers\SaleController::class, 'updateOrderStatus'],
 
-        // Admin Expenses CRUD
-        '/admin-expenses/product/save' => [\App\Controllers\AdminExpenseController::class, 'saveProduct'],
-        '/admin-expenses/product/delete' => [\App\Controllers\AdminExpenseController::class, 'deleteProduct'],
-        '/admin-expenses/save' => [\App\Controllers\AdminExpenseController::class, 'saveExpense'],
-        '/admin-expenses/delete' => [\App\Controllers\AdminExpenseController::class, 'deleteExpense'],
+        // Gastos Fijos & Compras CRUD
+        '/admin-expenses/gasto-fijo/save' => [\App\Controllers\AdminExpenseController::class, 'saveGastoFijo'],
+        '/admin-expenses/gasto-fijo/delete' => [\App\Controllers\AdminExpenseController::class, 'deleteGastoFijo'],
+        '/admin-expenses/compra/save' => [\App\Controllers\AdminExpenseController::class, 'saveCompra'],
+        '/admin-expenses/compra/delete' => [\App\Controllers\AdminExpenseController::class, 'deleteCompra'],
     ]
 ];
 

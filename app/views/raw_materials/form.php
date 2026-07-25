@@ -34,24 +34,30 @@ $isEdit = !empty($rawMaterial);
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <!-- Unit of Measure -->
                 <div>
-                    <label for="unit" class="block text-sm font-semibold text-coffee-dark">Unidad de Medida</label>
-                    <input type="text" id="unit" name="unit" value="<?= $isEdit ? e($rawMaterial['unit']) : '' ?>" placeholder="Ej: un, gr, ml, lonchas" required
+                    <label for="unit" class="block text-sm font-semibold text-coffee-dark">Unidad</label>
+                    <input type="text" id="unit" name="unit" value="<?= $isEdit ? e($rawMaterial['unit']) : '' ?>" placeholder="Ej: un, gr, ml" required
                            class="mt-1 w-full px-4 py-2.5 rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-sm">
                 </div>
 
-                <!-- Current Stock -->
+                <!-- Price -->
                 <div>
-                    <label for="current_stock" class="block text-sm font-semibold text-coffee-dark">Stock Actual</label>
-                    <input type="number" id="current_stock" name="current_stock" step="0.01" min="0" value="<?= $isEdit ? e($rawMaterial['current_stock']) : '0.00' ?>" required
+                    <label for="price" class="block text-sm font-semibold text-coffee-dark">Precio (Bs)</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" value="<?= $isEdit ? e($rawMaterial['price'] ?? '0.00') : '0.00' ?>" required
                            class="mt-1 w-full px-4 py-2.5 rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-sm">
                 </div>
 
-                <!-- Min Stock -->
+                <!-- Stock Min/Current -->
                 <div>
                     <label for="min_stock" class="block text-sm font-semibold text-coffee-dark">Stock Mínimo</label>
                     <input type="number" id="min_stock" name="min_stock" step="0.01" min="0" value="<?= $isEdit ? e($rawMaterial['min_stock']) : '0.00' ?>" required
                            class="mt-1 w-full px-4 py-2.5 rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-sm">
                 </div>
+            </div>
+
+            <div>
+                <label for="current_stock" class="block text-sm font-semibold text-coffee-dark">Stock Actual</label>
+                <input type="number" id="current_stock" name="current_stock" step="0.01" min="0" value="<?= $isEdit ? e($rawMaterial['current_stock']) : '0.00' ?>" required
+                       class="mt-1 w-full px-4 py-2.5 rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-sm">
             </div>
 
             <!-- Submit Button -->

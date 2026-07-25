@@ -51,6 +51,7 @@
                         <tr class="bg-coffee-dark/5 text-coffee-dark border-b border-cream-dark text-xs uppercase font-bold tracking-wider">
                             <th class="p-4 pl-6">N° Ticket</th>
                             <th class="p-4">Fecha y Hora</th>
+                            <th class="p-4 text-center">Método Pago</th>
                             <th class="p-4 text-center">Cantidad Items</th>
                             <th class="p-4 text-right">Total Vendido</th>
                             <th class="p-4 pr-6 text-center">Acción</th>
@@ -58,9 +59,26 @@
                     </thead>
                     <tbody class="divide-y divide-cream-dark text-sm">
                         <?php foreach ($sales as $sale): ?>
+                            <?php 
+                            $pm = strtolower($sale['payment_method'] ?? '');
+                            $isQr = ($pm === 'qr');
+                            $isEf = ($pm === 'efectivo');
+                            $isUnspecified = (!$isQr && !$isEf);
+                            ?>
                             <tr class="hover:bg-cream/10 transition">
                                 <td class="p-4 pl-6 font-bold text-coffee-dark">#<?= $sale['id'] ?></td>
                                 <td class="p-4 text-slate-500 font-medium"><?= date('d/m/Y H:i', strtotime($sale['sale_date'])) ?></td>
+                                <td class="p-4 text-center">
+                                    <?php if ($isUnspecified): ?>
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                            ⚠️ Sin Especificar
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold <?= $isQr ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200' ?>">
+                                            <?= $isQr ? '📱 QR' : '💵 Efectivo' ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="p-4 text-center font-semibold text-coffee-medium"><?= (int)$sale['items_count'] ?></td>
                                 <td class="p-4 text-right font-extrabold text-coffee-dark"><?= formatMoney($sale['total']) ?></td>
                                 <td class="p-4 pr-6">
@@ -101,6 +119,11 @@
                 <span id="details-modal-id" class="font-bold text-coffee-dark">Ticket N°: --</span>
             </div>
 
+            <!-- Payment Method Container -->
+            <div id="details-modal-pm-container" class="bg-slate-50 p-3 rounded-xl border border-cream-dark text-xs flex flex-col gap-2">
+                <!-- Javascript dynamic insert for payment method status or assign form -->
+            </div>
+
             <!-- List items -->
             <div class="border-t border-b border-cream-dark/50 py-3 max-h-60 overflow-y-auto custom-scrollbar space-y-2" id="details-modal-items">
                 <!-- Javascript dynamic insert -->
@@ -123,6 +146,7 @@
     function loadSaleDetails(saleId, dateStr, totalStr) {
         const modal = document.getElementById("details-modal");
         const itemsContainer = document.getElementById("details-modal-items");
+        const pmContainer = document.getElementById("details-modal-pm-container");
         
         document.getElementById("details-modal-title").innerText = `Ticket #${saleId}`;
         document.getElementById("details-modal-date").innerText = `Fecha: ${dateStr}`;
@@ -130,29 +154,81 @@
         document.getElementById("details-modal-total").innerText = totalStr;
 
         itemsContainer.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Cargando detalles...</div>`;
+        pmContainer.innerHTML = `<div class="text-center text-slate-400 py-1 text-xs">Cargando información de pago...</div>`;
         modal.classList.remove("hidden");
 
         // Fetch details from backend api
         fetch(`${window.BASE_URL}/sales/details?id=${saleId}`)
             .then(res => res.json())
             .then(data => {
-                if (data.success && data.details) {
-                    itemsContainer.innerHTML = "";
-                    data.details.forEach(item => {
-                        const div = document.createElement("div");
-                        div.className = "flex justify-between text-xs py-1 border-b border-slate-50 last:border-0";
-                        div.innerHTML = `
-                            <span class="text-coffee-dark font-medium">${item.product_icon} ${item.product_name} <strong class="text-slate-400">x${item.quantity}</strong></span>
-                            <span class="font-bold text-coffee-medium">$${(parseFloat(item.price) * parseInt(item.quantity)).toFixed(2)}</span>
+                if (data.success) {
+                    // Payment Method section
+                    if (data.payment_method === 'efectivo') {
+                        pmContainer.innerHTML = `
+                            <div class="flex justify-between items-center font-semibold">
+                                <span class="text-coffee-light uppercase tracking-wider text-[10px]">Método de Pago:</span>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    💵 Efectivo
+                                </span>
+                            </div>
                         `;
-                        itemsContainer.appendChild(div);
-                    });
+                    } else if (data.payment_method === 'qr') {
+                        pmContainer.innerHTML = `
+                            <div class="flex justify-between items-center font-semibold">
+                                <span class="text-coffee-light uppercase tracking-wider text-[10px]">Método de Pago:</span>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                    📱 QR
+                                </span>
+                            </div>
+                        `;
+                    } else {
+                        const currentUri = encodeURIComponent(window.location.pathname + window.location.search);
+                        pmContainer.innerHTML = `
+                            <div class="flex flex-col gap-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-coffee-light uppercase tracking-wider text-[10px] font-bold">Método de Pago:</span>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                        ⚠️ Sin Especificar (null)
+                                    </span>
+                                </div>
+                                <div class="text-[11px] text-coffee-medium font-medium">Designar método de pago para este ticket:</div>
+                                <form method="POST" action="${window.BASE_URL}/sales/update-payment-method" class="flex gap-2">
+                                    <input type="hidden" name="sale_id" value="${saleId}">
+                                    <input type="hidden" name="redirect_url" value="${window.location.pathname + window.location.search}">
+                                    <button type="submit" name="payment_method" value="efectivo" 
+                                            class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition text-center flex items-center justify-center gap-1 shadow-sm">
+                                        💵 Asignar Efectivo
+                                    </button>
+                                    <button type="submit" name="payment_method" value="qr" 
+                                            class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition text-center flex items-center justify-center gap-1 shadow-sm">
+                                        📱 Asignar QR
+                                    </button>
+                                </form>
+                            </div>
+                        `;
+                    }
+
+                    // Details items section
+                    if (data.details) {
+                        itemsContainer.innerHTML = "";
+                        data.details.forEach(item => {
+                            const div = document.createElement("div");
+                            div.className = "flex justify-between text-xs py-1 border-b border-slate-50 last:border-0";
+                            div.innerHTML = `
+                                <span class="text-coffee-dark font-medium">${item.product_icon} ${item.product_name} <strong class="text-slate-400">x${item.quantity}</strong></span>
+                                <span class="font-bold text-coffee-medium">$${(parseFloat(item.price) * parseInt(item.quantity)).toFixed(2)}</span>
+                            `;
+                            itemsContainer.appendChild(div);
+                        });
+                    }
                 } else {
                     itemsContainer.innerHTML = `<div class="text-center text-rose-600 py-6 text-xs">Error al cargar detalles.</div>`;
+                    pmContainer.innerHTML = `<div class="text-center text-rose-600 py-1 text-xs">Error.</div>`;
                 }
             })
             .catch(err => {
                 itemsContainer.innerHTML = `<div class="text-center text-rose-600 py-6 text-xs">Error de conexión.</div>`;
+                pmContainer.innerHTML = `<div class="text-center text-rose-600 py-1 text-xs">Error de conexión.</div>`;
             });
     }
 

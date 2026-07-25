@@ -28,9 +28,10 @@
                 <!-- Icon/Emoji picker -->
                 <div>
                     <label for="icon" class="block text-sm font-semibold text-coffee-dark">Icono / Emoji</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="text" id="icon" name="icon" value="🍔" required maxlength="5"
-                               class="w-16 px-3 py-2.5 text-center text-xl rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent">
+                    <p class="text-xs text-coffee-light mb-1">Puedes escribir o pegar cualquier emoji/icono desde tu celular.</p>
+                    <div class="flex flex-col sm:flex-row gap-2 mt-1">
+                        <input type="text" id="icon" name="icon" value="🍔" required
+                               class="w-full sm:w-28 px-3 py-2.5 text-center text-xl rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent">
                         <div class="flex-grow flex flex-wrap gap-1.5 p-2 bg-cream rounded-xl border border-cream-dark/50 items-center justify-center">
                             <?php foreach (['🍔', '🥤', '🍦', '🍟', '🍕', '🥗', '🌭', '🧁', '🍩', '🍗', '☕', '🍺'] as $emoji): ?>
                                 <button type="button" onclick="document.getElementById('icon').value = '<?= $emoji ?>'"

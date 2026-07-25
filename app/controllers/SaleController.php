@@ -56,14 +56,24 @@ class SaleController {
         try {
             $user   = Auth::user();
             $cashierId = $user ? (int)$user['id'] : 0;
+            $paymentMethod = $data['payment_method'] ?? null;
+
+            if (empty($paymentMethod) || !in_array($paymentMethod, ['efectivo', 'qr'], true)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Debes seleccionar obligatoriamente un tipo de pago (Efectivo o QR).'
+                ]);
+                exit;
+            }
 
             // Process the sale
-            $saleId = Sale::createSale($data['items'], $cashierId);
+            $saleId = Sale::createSale($data['items'], $cashierId, null, 'pendiente', $paymentMethod);
             
             echo json_encode([
                 'success' => true,
                 'message' => 'Venta registrada con éxito.',
-                'sale_id' => $saleId
+                'sale_id' => $saleId,
+                'payment_method' => $paymentMethod
             ]);
         } catch (Exception $e) {
             echo json_encode([
@@ -72,6 +82,24 @@ class SaleController {
             ]);
         }
         exit;
+    }
+
+    /**
+     * Update payment method for a sale (used when assigning method to unspecified sales)
+     */
+    public function updatePaymentMethod() {
+        Auth::requireRole(['admin', 'caja']);
+        $saleId = (int)($_POST['sale_id'] ?? 0);
+        $paymentMethod = $_POST['payment_method'] ?? '';
+        $redirectUrl = $_POST['redirect_url'] ?? '/reports';
+
+        if ($saleId > 0 && in_array($paymentMethod, ['efectivo', 'qr'], true)) {
+            Sale::updatePaymentMethod($saleId, $paymentMethod);
+            Auth::setFlash('success', "Tipo de pago actualizado a " . ($paymentMethod === 'qr' ? 'QR' : 'Efectivo') . " para la venta #{$saleId}.");
+        } else {
+            Auth::setFlash('error', "No se pudo actualizar el tipo de pago.");
+        }
+        redirect($redirectUrl);
     }
 
     /**
@@ -263,9 +291,15 @@ class SaleController {
             exit;
         }
 
+        $sale = Sale::findById((int)$saleId);
         $details = Sale::getDetails($saleId);
+        
+        $pm = strtolower($sale['payment_method'] ?? '');
+        $validPm = in_array($pm, ['efectivo', 'qr'], true) ? $pm : null;
+
         echo json_encode([
             'success' => true,
+            'payment_method' => $validPm,
             'details' => $details
         ]);
         exit;

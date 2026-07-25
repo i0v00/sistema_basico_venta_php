@@ -40,7 +40,8 @@
                     <thead>
                         <tr class="bg-coffee-dark/5 text-coffee-dark border-b border-cream-dark text-xs uppercase font-bold tracking-wider">
                             <th class="p-4 pl-6">Insumo</th>
-                            <th class="p-4">Unidad de Medida</th>
+                            <th class="p-4">Unidad</th>
+                            <th class="p-4 text-right">Precio Ref.</th>
                             <th class="p-4">Stock Actual</th>
                             <th class="p-4">Stock Mínimo</th>
                             <th class="p-4">Estado Alerta</th>
@@ -55,6 +56,7 @@
                             <tr class="hover:bg-cream/10 transition">
                                 <td class="p-4 pl-6 font-bold text-coffee-dark"><?= e($mat['name']) ?></td>
                                 <td class="p-4 text-coffee-medium"><?= e($mat['unit']) ?></td>
+                                <td class="p-4 text-right font-bold text-coffee-dark"><?= formatMoney($mat['price'] ?? 0) ?></td>
                                 <td class="p-4 font-bold <?= $isLowStock ? 'text-rose-600' : 'text-slate-800' ?>">
                                     <?= number_format($mat['current_stock'], 2) ?>
                                 </td>

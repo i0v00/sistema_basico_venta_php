@@ -3,10 +3,10 @@ namespace App\Models;
 
 use Core\Database;
 
-class AdminExpense {
+class GastoFijo {
     public static function all($startDate = null, $endDate = null) {
         $db = Database::getConnection();
-        $query = "SELECT * FROM gastos_administrativos WHERE 1=1";
+        $query = "SELECT * FROM gastos_fijos WHERE 1=1";
         $params = [];
 
         if ($startDate) {
@@ -26,46 +26,31 @@ class AdminExpense {
 
     public static function find($id) {
         $db = Database::getConnection();
-        $stmt = $db->prepare("SELECT * FROM gastos_administrativos WHERE id = ?");
+        $stmt = $db->prepare("SELECT * FROM gastos_fijos WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
 
     public static function create($data) {
         $db = Database::getConnection();
-        $stmt = $db->prepare("INSERT INTO gastos_administrativos (concepto, cantidad, precio_unitario, total, fecha) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $db->prepare("INSERT INTO gastos_fijos (nombre, precio, fecha) VALUES (?, ?, ?)");
         $stmt->execute([
-            $data['concepto'],
-            $data['cantidad'],
-            $data['precio_unitario'],
-            $data['total'],
+            $data['nombre'],
+            $data['precio'],
             $data['fecha']
         ]);
         return $db->lastInsertId();
     }
 
-    public static function update($id, $data) {
-        $db = Database::getConnection();
-        $stmt = $db->prepare("UPDATE gastos_administrativos SET concepto = ?, cantidad = ?, precio_unitario = ?, total = ?, fecha = ? WHERE id = ?");
-        return $stmt->execute([
-            $data['concepto'],
-            $data['cantidad'],
-            $data['precio_unitario'],
-            $data['total'],
-            $data['fecha'],
-            $id
-        ]);
-    }
-
     public static function delete($id) {
         $db = Database::getConnection();
-        $stmt = $db->prepare("DELETE FROM gastos_administrativos WHERE id = ?");
+        $stmt = $db->prepare("DELETE FROM gastos_fijos WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
-    public static function getTotalExpensesForRange($startDate, $endDate) {
+    public static function getTotalForRange($startDate, $endDate) {
         $db = Database::getConnection();
-        $stmt = $db->prepare("SELECT SUM(total) as total FROM gastos_administrativos WHERE fecha >= ? AND fecha <= ?");
+        $stmt = $db->prepare("SELECT SUM(precio) as total FROM gastos_fijos WHERE fecha >= ? AND fecha <= ?");
         $stmt->execute([$startDate, $endDate]);
         $row = $stmt->fetch();
         return (float)($row['total'] ?? 0.00);

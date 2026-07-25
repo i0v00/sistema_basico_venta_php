@@ -29,10 +29,11 @@ class RawMaterial {
 
     public static function create($data) {
         $db = Database::getConnection();
-        $stmt = $db->prepare("INSERT INTO raw_materials (name, unit, current_stock, min_stock) VALUES (?, ?, ?, ?)");
+        $stmt = $db->prepare("INSERT INTO raw_materials (name, unit, price, current_stock, min_stock) VALUES (?, ?, ?, ?, ?)");
         return $stmt->execute([
             $data['name'],
             $data['unit'],
+            $data['price'] ?? 0.00,
             $data['current_stock'] ?? 0.00,
             $data['min_stock'] ?? 0.00
         ]);
@@ -40,10 +41,11 @@ class RawMaterial {
 
     public static function update($id, $data) {
         $db = Database::getConnection();
-        $stmt = $db->prepare("UPDATE raw_materials SET name = ?, unit = ?, current_stock = ?, min_stock = ? WHERE id = ?");
+        $stmt = $db->prepare("UPDATE raw_materials SET name = ?, unit = ?, price = ?, current_stock = ?, min_stock = ? WHERE id = ?");
         return $stmt->execute([
             $data['name'],
             $data['unit'],
+            $data['price'] ?? 0.00,
             $data['current_stock'],
             $data['min_stock'],
             $id

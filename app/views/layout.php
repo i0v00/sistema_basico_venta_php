@@ -67,6 +67,8 @@ $userRole = Auth::role();
             overflow-x: auto !important;
         }
         /* ── Scrollbar ─────────────────── */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #FFF8F0; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #C5A07A; border-radius: 99px; }
@@ -123,167 +125,262 @@ $userRole = Auth::role();
 <body class="bg-cream min-h-screen text-slate-800 flex flex-col font-sans">
 
     <?php if ($isLoggedIn && $name !== 'auth/login'): ?>
-    <!-- Top Navigation Bar (Single Row Desktop Layout) -->
-    <header class="bg-coffee-dark border-b border-coffee-medium/20 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-            
-            <!-- Left: Brand / Logo -->
-            <a href="<?= BASE_URL ?>/" class="flex items-center space-x-2.5 group shrink-0">
-                <span class="text-2xl transition-transform duration-300 group-hover:scale-110">🍔</span>
-                <span class="font-heading font-extrabold text-lg tracking-tight text-white">
-                    DUKE'S <span class="text-accent bg-accent/10 px-2 py-0.5 rounded-lg border border-accent/20">Fast Food</span>
-                </span>
-            </a>
-
-            <!-- Center: Navigation Tabs (Desktop only) -->
-            <nav class="hidden lg:flex items-center space-x-2">
-                <?php if ($userRole === 'admin'): ?>
-                <a href="<?= BASE_URL ?>/" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/' || $currentUri === BASE_URL ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    📊 Dashboard
-                </a>
-                <?php endif; ?>
-
-                <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
-                <a href="<?= BASE_URL ?>/pos" class="px-4 py-2 bg-accent hover:bg-accent-dark text-white rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm active:scale-95">
-                    🛒 POS Venta
-                </a>
-                <a href="<?= BASE_URL ?>/sales/create-manual" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/sales/create-manual' ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    📅 Pedido Histórico
-                </a>
-                <?php endif; ?>
-
-                <?php if ($userRole === 'admin' || $userRole === 'caja' || $userRole === 'cocinero'): ?>
-                <a href="<?= BASE_URL ?>/orders" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/orders') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    📋 Pedidos
-                </a>
-                <?php endif; ?>
-
-                <?php if ($userRole === 'admin'): ?>
-                <a href="<?= BASE_URL ?>/products" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/products') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    🍔 Productos
-                </a>
-                <a href="<?= BASE_URL ?>/raw-materials" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/raw-materials') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    📦 Insumos
-                </a>
-                <a href="<?= BASE_URL ?>/users" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/users') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    👤 Usuarios
-                </a>
-                <?php endif; ?>
-
-                <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
-                <a href="<?= BASE_URL ?>/sales/history" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/sales/history' ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    📜 Historial
-                </a>
-                <?php endif; ?>
-
-                <?php if ($userRole === 'admin'): ?>
-                <a href="<?= BASE_URL ?>/admin-expenses" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/admin-expenses') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    💸 Gastos Admin
-                </a>
-                <a href="<?= BASE_URL ?>/reports" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= strpos($currentUri, BASE_URL . '/reports') === 0 ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    📈 Reportes
-                </a>
-                <a href="<?= BASE_URL ?>/settings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 <?= $currentUri === BASE_URL . '/settings' ? 'bg-white/15 text-white' : 'text-cream-dark/70 hover:bg-white/5 hover:text-white' ?>">
-                    ⚙️ Config
-                </a>
-                <?php endif; ?>
-            </nav>
-
-            <!-- Right: Profile, Role & Logout Action (Desktop) or Hamburger (Mobile) -->
-            <div class="flex items-center gap-4 shrink-0">
-                <!-- User Profile info & Logout -->
-                <div class="hidden lg:flex items-center space-x-3">
-                    <div class="flex flex-col text-right">
-                        <span class="text-xs text-cream-dark/80">Hola, <strong class="text-white"><?= e($currentUser['full_name']) ?></strong></span>
-                        <span class="text-[9px] text-accent font-bold uppercase tracking-wider bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20 w-max ml-auto mt-0.5"><?= e($userRole) ?></span>
+    <!-- Header Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-[#2B1302] via-[#3D1C02] to-[#2B1302] border-b border-white/10 text-white shadow-xl backdrop-blur-md bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <!-- Left: Brand / Logo -->
+                <a href="<?= BASE_URL ?>/" class="flex items-center gap-3 group shrink-0 py-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-xl">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-xl shadow-lg shadow-accent/20 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300 border border-white/20">
+                        🍔
                     </div>
-                    <a href="<?= BASE_URL ?>/logout" class="text-xs bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/20 px-3.5 py-2 rounded-xl transition-all font-bold active:scale-95">
-                        Salir 🚪
+                    <div class="flex flex-col">
+                        <span class="font-heading font-extrabold text-lg tracking-tight text-white leading-tight flex items-center gap-1.5">
+                            DUKE'S
+                            <span class="text-[10px] font-bold tracking-widest uppercase text-accent bg-accent/15 px-2 py-0.5 rounded-full border border-accent/30">
+                                POS
+                            </span>
+                        </span>
+                        <span class="text-[10px] text-cream-dark/60 font-medium tracking-wider uppercase">Fast Food System</span>
+                    </div>
+                </a>
+
+                <!-- Center/Right Nav Area (Desktop) -->
+                <div class="hidden lg:flex items-center gap-3">
+                    <?php if ($userRole === 'admin' || $userRole === 'caja'): ?>
+                    <!-- POS Venta: Always visible & highlighted -->
+                    <a href="<?= BASE_URL ?>/pos"
+                       class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 shadow-lg shadow-accent/25 active:scale-95 bg-gradient-to-r from-accent to-accent-dark text-white hover:brightness-110 border border-white/20 focus:outline-none focus:ring-2 focus:ring-accent">
+                        <span class="text-sm">🛒</span>
+                        <span>POS Venta</span>
                     </a>
+                    <?php endif; ?>
+
+                    <!-- Categorized Custom Navigation Dropdowns / Comboboxes -->
+                    <?php
+                    // Define categories
+                    $categories = [];
+
+                    // Sales & Orders Category
+                    $salesOps = [];
+                    if ($userRole === 'admin') {
+                        $salesOps[] = ['/'              , '📊', 'Dashboard'         , 'Resumen general de ventas'];
+                    }
+                    if ($userRole === 'admin' || $userRole === 'caja') {
+                        $salesOps[] = ['/sales/create-manual', '📅', 'Pedido Histórico', 'Registro de ventas pasadas'];
+                    }
+                    if ($userRole === 'admin' || $userRole === 'caja' || $userRole === 'cocinero') {
+                        $salesOps[] = ['/orders'        , '📋', 'Pedidos / Cocina'  , 'Gestión de comandas activas'];
+                    }
+                    if ($userRole === 'admin' || $userRole === 'caja') {
+                        $salesOps[] = ['/sales/history' , '📜', 'Historial Ventas'  , 'Consulta de transacciones'];
+                    }
+                    if (!empty($salesOps)) {
+                        $categories[] = ['id' => 'sales', 'title' => 'Ventas y Operación', 'icon' => '🧾', 'items' => $salesOps];
+                    }
+
+                    // Administration & Management Category
+                    if ($userRole === 'admin') {
+                        $adminOps = [
+                            ['/products'     , '🍔', 'Gestión Productos', 'Catálogo, precios y menú'],
+                            ['/raw-materials', '📦', 'Control Insumos'  , 'Stock e inventario'],
+                            ['/users'        , '👤', 'Usuarios'          , 'Permisos y personal'],
+                            ['/admin-expenses', '💸', 'Gastos Admin'    , 'Egresos y operaciones'],
+                            ['/reports'      , '📈', 'Reportes General' , 'Estadísticas e informes'],
+                            ['/settings'     , '⚙️', 'Configuración'     , 'Ajustes del sistema']
+                        ];
+                        $categories[] = ['id' => 'admin', 'title' => 'Gestión & Ajustes', 'icon' => '⚙️', 'items' => $adminOps];
+                    }
+                    ?>
+
+                    <?php foreach ($categories as $cat):
+                        $hasActive = false;
+                        $activeLabel = $cat['title'];
+                        foreach ($cat['items'] as [$path, $icon, $label, $desc]) {
+                            if (($path === '/' && ($currentUri === BASE_URL . '/' || $currentUri === BASE_URL)) ||
+                                ($path !== '/' && strpos($currentUri, BASE_URL . $path) === 0)) {
+                                $hasActive = true;
+                                $activeLabel = $label;
+                                break;
+                            }
+                        }
+                    ?>
+                    <!-- Combobox Dropdown Container -->
+                    <div class="relative dropdown-menu-container group">
+                        <button type="button"
+                                aria-expanded="false"
+                                class="px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all duration-200 border shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/50
+                                       <?= $hasActive
+                                           ? 'bg-gradient-to-r from-white/20 to-white/10 text-white font-bold border-white/30 shadow-inner'
+                                           : 'bg-white/5 text-cream-dark/85 hover:bg-white/12 hover:text-white border-white/10 hover:border-white/20' ?>">
+                            <span class="text-sm opacity-95"><?= $cat['icon'] ?></span>
+                            <span class="tracking-tight"><?= $hasActive ? $activeLabel : $cat['title'] ?></span>
+                            <?php if ($hasActive): ?>
+                            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+                            <?php endif; ?>
+                            <svg class="w-3.5 h-3.5 opacity-60 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Floating Custom Menu Dropdown -->
+                        <div class="absolute top-full left-0 mt-2 w-64 rounded-2xl bg-[#2B1302]/95 backdrop-blur-xl border border-white/15 shadow-2xl p-1.5 opacity-0 invisible translate-y-2 transition-all duration-200 z-50 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:visible group-focus-within:translate-y-0">
+                            <div class="px-3 py-1.5 mb-1 border-b border-white/10 flex items-center justify-between">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-cream-dark/50"><?= $cat['title'] ?></span>
+                                <span class="text-[10px] text-accent font-semibold"><?= count($cat['items']) ?> opciones</span>
+                            </div>
+                            <div class="space-y-0.5">
+                                <?php foreach ($cat['items'] as [$path, $icon, $label, $desc]):
+                                    $isSelected = ($path === '/')
+                                        ? ($currentUri === BASE_URL . '/' || $currentUri === BASE_URL)
+                                        : (strpos($currentUri, BASE_URL . $path) === 0);
+                                ?>
+                                <a href="<?= BASE_URL . $path ?>"
+                                   class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs transition-all duration-150 group/item
+                                          <?= $isSelected
+                                                ? 'bg-gradient-to-r from-accent/25 to-accent/10 text-white font-bold border border-accent/30 shadow-sm'
+                                                : 'text-cream-dark/80 hover:bg-white/10 hover:text-white border border-transparent' ?>">
+                                    <div class="w-7 h-7 rounded-lg flex items-center justify-center text-sm bg-white/5 border border-white/10 group-hover/item:scale-110 transition-transform">
+                                        <?= $icon ?>
+                                    </div>
+                                    <div class="flex flex-col flex-grow">
+                                        <span class="text-xs font-semibold leading-tight"><?= $label ?></span>
+                                        <span class="text-[10px] text-cream-dark/50 group-hover/item:text-cream-dark/75 transition-colors"><?= $desc ?></span>
+                                    </div>
+                                    <?php if ($isSelected): ?>
+                                    <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                                    <?php endif; ?>
+                                </a>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
 
-                <!-- Mobile Menu Button (lg:hidden) - shifted slightly left -->
-                <button id="mobile-menu-btn" type="button"
-                        class="lg:hidden relative w-11 h-11 rounded-xl bg-white/5 border border-white/10 hover:bg-white/15 flex items-center justify-center transition-all duration-200 focus:outline-none active:scale-95 mr-1">
-                    <span id="ham-line-1" class="absolute w-6 h-[2px] bg-white rounded-full transition-all duration-300" style="top:14px; left:10px"></span>
-                    <span id="ham-line-2" class="absolute w-6 h-[2px] bg-white rounded-full transition-all duration-300" style="top:20px; left:10px"></span>
-                    <span id="ham-line-3" class="absolute w-6 h-[2px] bg-white rounded-full transition-all duration-300" style="top:26px; left:10px"></span>
-                </button>
+                <!-- Right: Profile, Role & Logout Action (Desktop) or Hamburger (Mobile) -->
+                <div class="flex items-center gap-3 shrink-0">
+                    <!-- User Profile info & Logout -->
+                    <div class="hidden lg:flex items-center gap-3 pl-2 border-l border-white/10">
+                        <div class="flex flex-col text-right">
+                            <span class="text-xs font-medium text-cream-dark/90 leading-tight">
+                                <?= e($currentUser['full_name']) ?>
+                            </span>
+                            <span class="text-[9px] text-amber-300 font-bold uppercase tracking-wider bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20 w-max ml-auto mt-0.5">
+                                <?= e($userRole) ?>
+                            </span>
+                        </div>
+                        <a href="<?= BASE_URL ?>/logout"
+                           title="Cerrar sesión"
+                           class="text-xs bg-red-500/10 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/20 hover:border-red-600 px-3 py-2 rounded-xl transition-all duration-200 font-semibold flex items-center gap-1.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <span>Salir</span>
+                            <span>🚪</span>
+                        </a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" type="button"
+                            aria-label="Abrir menú de navegación"
+                            class="lg:hidden relative w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 active:bg-white/20 border border-white/10 flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent group">
+                        <div class="w-5 h-4 relative flex flex-col justify-between items-center">
+                            <span id="ham-line-1" class="w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center"></span>
+                            <span id="ham-line-2" class="w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center"></span>
+                            <span id="ham-line-3" class="w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center"></span>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Mobile Overlay Menu Backdrop -->
         <div id="mobile-backdrop"
-             class="fixed inset-0 z-[45] bg-black/40 backdrop-blur-[2px] hidden lg:hidden"
+             class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm hidden lg:hidden transition-opacity duration-300"
              onclick="closeMobileMenu()"></div>
 
-        <!-- Slide-down panel (Mobile only) -->
+        <!-- Mobile Menu Drawer / Panel -->
         <div id="mobile-menu"
-             class="fixed top-16 left-0 right-0 z-[46] lg:hidden
+             class="fixed top-16 left-0 right-0 z-50 lg:hidden max-h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar
                     -translate-y-4 opacity-0 pointer-events-none
                     transition-all duration-300 ease-out">
-            <div class="mx-3 mt-1 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
-                 style="background: linear-gradient(180deg, #2e1502 0%, #3D1C02 100%);">
+            <div class="mx-3 my-2 rounded-2xl overflow-hidden shadow-2xl border border-white/15 backdrop-blur-xl"
+                 style="background: linear-gradient(180deg, #2B1302 0%, #3D1C02 100%);">
+
+                <!-- Mobile User Badge Header -->
+                <div class="px-4 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent text-sm font-bold shadow-inner">
+                            👤
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-white"><?= e($currentUser['full_name']) ?></span>
+                            <span class="text-[10px] text-cream-dark/60">@<?= e($currentUser['username']) ?></span>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-amber-300 font-bold uppercase tracking-wider bg-amber-400/15 px-2.5 py-1 rounded-lg border border-amber-400/30">
+                        <?= e($userRole) ?>
+                    </span>
+                </div>
 
                 <!-- Nav links -->
-                <div class="px-3 pt-3 pb-2 space-y-1">
+                <div class="p-3 space-y-1">
                     <?php
-                    $mobileLinks = [];
+                    // Mobile navigation items
+                    $mobileItems = [];
+                    if ($userRole === 'admin' || $userRole === 'caja') {
+                        $mobileItems[] = ['/pos', '🛒', 'POS Venta', true];
+                    }
                     if ($userRole === 'admin') {
-                        $mobileLinks[] = ['/'              , '📊', 'Dashboard'          , false];
+                        $mobileItems[] = ['/'              , '📊', 'Dashboard'          , false];
                     }
                     if ($userRole === 'admin' || $userRole === 'caja') {
-                        $mobileLinks[] = ['/pos'           , '🛒', 'Registrar Venta (POS)', true ];
-                        $mobileLinks[] = ['/sales/create-manual' , '📅', 'Pedido Histórico', false];
+                        $mobileItems[] = ['/sales/create-manual' , '📅', 'Pedido Histórico', false];
                     }
                     if ($userRole === 'admin' || $userRole === 'caja' || $userRole === 'cocinero') {
-                        $mobileLinks[] = ['/orders'        , '📋', 'Preparación Pedidos', false];
+                        $mobileItems[] = ['/orders'        , '📋', 'Preparación Pedidos', false];
                     }
                     if ($userRole === 'admin') {
-                        $mobileLinks[] = ['/products'      , '🍔', 'Gestión Productos'  , false];
-                        $mobileLinks[] = ['/raw-materials' , '📦', 'Inventario Insumos' , false];
-                        $mobileLinks[] = ['/users'         , '👤', 'Control Usuarios'   , false];
+                        $mobileItems[] = ['/products'      , '🍔', 'Gestión Productos'  , false];
+                        $mobileItems[] = ['/raw-materials' , '📦', 'Inventario Insumos' , false];
+                        $mobileItems[] = ['/users'         , '👤', 'Control Usuarios'   , false];
                     }
                     if ($userRole === 'admin' || $userRole === 'caja') {
-                        $mobileLinks[] = ['/sales/history' , '📜', 'Historial Ventas'  , false];
+                        $mobileItems[] = ['/sales/history' , '📜', 'Historial Ventas'  , false];
                     }
                     if ($userRole === 'admin') {
-                        $mobileLinks[] = ['/admin-expenses', '💸', 'Gastos Admin', false];
-                        $mobileLinks[] = ['/reports'       , '📈', 'Reportes', false];
-                        $mobileLinks[] = ['/settings'      , '⚙️', 'Configuración'      , false];
+                        $mobileItems[] = ['/admin-expenses', '💸', 'Gastos Admin', false];
+                        $mobileItems[] = ['/reports'       , '📈', 'Reportes', false];
+                        $mobileItems[] = ['/settings'      , '⚙️', 'Configuración'      , false];
                     }
 
-                    foreach ($mobileLinks as [$path, $icon, $label, $isPrimary]):
+                    foreach ($mobileItems as [$path, $icon, $label, $isHighlight]):
                         $isActive = ($path === '/')
-                            ? ($currentUri === BASE_URL.'/' || $currentUri === BASE_URL)
-                            : (strpos($currentUri, BASE_URL.$path) === 0);
+                            ? ($currentUri === BASE_URL . '/' || $currentUri === BASE_URL)
+                            : (strpos($currentUri, BASE_URL . $path) === 0);
                     ?>
                     <a href="<?= BASE_URL . $path ?>"
                        onclick="closeMobileMenu()"
-                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 active:scale-[0.98]
-                              <?= $isPrimary
-                                    ? 'bg-accent text-white shadow-md'
+                       class="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition-all duration-150 active:scale-[0.98]
+                              <?= $isHighlight
+                                    ? 'bg-gradient-to-r from-accent to-accent-dark text-white shadow-md border border-white/20 font-bold'
                                     : ($isActive
-                                        ? 'bg-white/15 text-white'
-                                        : 'text-cream-dark/80 hover:bg-white/10 hover:text-white') ?>">
-                        <span class="text-lg w-7 text-center"><?= $icon ?></span>
+                                        ? 'bg-white/15 text-white font-bold border border-white/15'
+                                        : 'text-cream-dark/80 hover:bg-white/10 hover:text-white border border-transparent') ?>">
+                        <span class="text-xl w-7 text-center"><?= $icon ?></span>
                         <span class="flex-grow"><?= $label ?></span>
-                        <?php if ($isActive && !$isPrimary): ?>
-                        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                        <?php if ($isActive && !$isHighlight): ?>
+                        <span class="w-2 h-2 rounded-full bg-accent shadow-sm"></span>
                         <?php endif; ?>
                     </a>
                     <?php endforeach; ?>
                 </div>
 
-                <!-- User footer -->
-                <div class="px-4 py-3 border-t border-white/10 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-xs">👤</div>
-                        <span class="text-xs text-cream-dark/70">Sesión: <strong class="text-white"><?= e($currentUser['username']) ?></strong></span>
-                    </div>
+                <!-- Mobile Menu Footer / Logout -->
+                <div class="p-3 border-t border-white/10 bg-black/20">
                     <a href="<?= BASE_URL ?>/logout"
-                       class="text-xs bg-red-900/80 hover:bg-red-700 border border-red-700/40 px-3.5 py-2 rounded-xl text-white font-bold transition flex items-center gap-1 active:scale-95">
-                        Salir 🚪
+                       class="w-full text-sm bg-red-600/20 hover:bg-red-600 border border-red-500/30 text-red-200 hover:text-white px-4 py-2.5 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98]">
+                        <span>Cerrar Sesión</span>
+                        <span>🚪</span>
                     </a>
                 </div>
             </div>
