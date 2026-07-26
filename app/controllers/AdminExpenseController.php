@@ -160,6 +160,9 @@ class AdminExpenseController {
         $countEfectivo = count(array_filter($sales, fn($s) => strtolower($s['payment_method'] ?? '') === 'efectivo'));
         $countQr       = count(array_filter($sales, fn($s) => strtolower($s['payment_method'] ?? '') === 'qr'));
 
+        // Revenue by category
+        $revenueByCategory = Sale::getRevenueByCategory($startDate, $endDate);
+
         view('reports/reports', [
             'filterMode' => $filterMode,
             'selectedMonth' => $selectedMonth,
@@ -176,7 +179,8 @@ class AdminExpenseController {
             'totalNet' => $totalNet,
             'gastosFijos' => $gastosFijos,
             'compras' => $compras,
-            'sales' => $sales
+            'sales' => $sales,
+            'revenueByCategory' => $revenueByCategory
         ]);
     }
 
@@ -225,6 +229,9 @@ class AdminExpenseController {
         $countEfectivo = count(array_filter($sales, fn($s) => strtolower($s['payment_method'] ?? '') === 'efectivo'));
         $countQr       = count(array_filter($sales, fn($s) => strtolower($s['payment_method'] ?? '') === 'qr'));
 
+        // Revenue by category for print report
+        $revenueByCategory = Sale::getRevenueByCategory($startDate, $endDate);
+
         viewRaw('reports/print', [
             'filterMode' => $filterMode,
             'selectedMonth' => $selectedMonth,
@@ -241,7 +248,8 @@ class AdminExpenseController {
             'totalNet' => $totalNet,
             'gastosFijos' => $gastosFijos,
             'compras' => $compras,
-            'sales' => $sales
+            'sales' => $sales,
+            'revenueByCategory' => $revenueByCategory
         ]);
     }
 }

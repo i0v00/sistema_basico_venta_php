@@ -280,6 +280,96 @@ class SaleController {
     }
 
     /**
+     * Export sales history as CSV download
+     */
+    public function exportCsv() {
+        Auth::requireRole(['caja']);
+        $startDate = $_GET['start_date'] ?? date('Y-m-01');
+        $endDate   = $_GET['end_date'] ?? date('Y-m-d');
+
+        $rows = Sale::exportHistoryData($startDate, $endDate);
+
+        $filename = 'ventas_' . $startDate . '_al_' . $endDate . '.csv';
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+
+        $out = fopen('php://output', 'w');
+        // UTF-8 BOM so Excel opens correctly
+        fputs($out, "\xEF\xBB\xBF");
+
+        fputcsv($out, ['N° Ticket', 'Fecha y Hora', 'Método Pago', 'Cajero', 'Cantidad Items', 'Total (Bs.)', 'Estado', 'Detalle Productos'], ';');
+
+        foreach ($rows as $row) {
+            fputcsv($out, [
+                '#' . $row['id'],
+                date('d/m/Y H:i', strtotime($row['sale_date'])),
+                strtoupper($row['payment_method'] ?? 'Sin Especificar'),
+                $row['cashier_name'] ?? '-',
+                $row['items_count'],
+                number_format((float)$row['total'], 2, '.', ''),
+                ucfirst($row['status'] ?? ''),
+                $row['items_detail'] ?? ''
+            ], ';');
+        }
+        fclose($out);
+        exit;
+    }
+
+    /**
+     * Export sales history as Excel (.xls) download
+     */
+    public function exportExcel() {
+        Auth::requireRole(['caja']);
+        $startDate = $_GET['start_date'] ?? date('Y-m-01');
+        $endDate   = $_GET['end_date'] ?? date('Y-m-d');
+
+        $rows = Sale::exportHistoryData($startDate, $endDate);
+
+        $filename = 'ventas_' . $startDate . '_al_' . $endDate . '.xls';
+        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        // HTML table trick – Excel opens this natively
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ';
+        echo 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' . "\n";
+        echo '<Worksheet ss:Name="Ventas"><Table>' . "\n";
+
+        // Header row
+        $headers = ['N° Ticket', 'Fecha y Hora', 'Método Pago', 'Cajero', 'Cantidad Items', 'Total (Bs.)', 'Estado', 'Detalle Productos'];
+        echo '<Row>';
+        foreach ($headers as $h) {
+            echo '<Cell ss:StyleID="s62"><Data ss:Type="String">' . htmlspecialchars($h) . '</Data></Cell>';
+        }
+        echo '</Row>' . "\n";
+
+        foreach ($rows as $row) {
+            $cols = [
+                '#' . $row['id'],
+                date('d/m/Y H:i', strtotime($row['sale_date'])),
+                strtoupper($row['payment_method'] ?? 'Sin Especificar'),
+                $row['cashier_name'] ?? '-',
+                (int)$row['items_count'],
+                number_format((float)$row['total'], 2, '.', ''),
+                ucfirst($row['status'] ?? ''),
+                $row['items_detail'] ?? ''
+            ];
+            echo '<Row>';
+            foreach ($cols as $c) {
+                echo '<Cell><Data ss:Type="String">' . htmlspecialchars((string)$c) . '</Data></Cell>';
+            }
+            echo '</Row>' . "\n";
+        }
+
+        echo '</Table></Worksheet></Workbook>';
+        exit;
+    }
+
+    /**
      * Get sale details as JSON (for visual modals)
      */
     public function details() {

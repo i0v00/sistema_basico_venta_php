@@ -16,9 +16,9 @@
         </div>
     <?php endif; ?>
 
-    <!-- Date Filters -->
-    <div class="bg-white p-4 rounded-2xl border border-cream-dark shadow-sm">
-        <form method="GET" action="<?= BASE_URL ?>/sales/history" class="flex flex-col sm:flex-row gap-4 items-center">
+    <!-- Date Filters + Export Actions -->
+    <div class="bg-white p-4 rounded-2xl border border-cream-dark shadow-sm space-y-3">
+        <form method="GET" action="<?= BASE_URL ?>/sales/history" id="history-filter-form" class="flex flex-col sm:flex-row gap-4 items-end">
             <div class="w-full sm:flex-1">
                 <label for="start_date" class="block text-xs font-bold text-coffee-medium mb-1 uppercase">Fecha Inicio</label>
                 <input type="date" id="start_date" name="start_date" value="<?= e($startDate) ?>"
@@ -29,13 +29,49 @@
                 <input type="date" id="end_date" name="end_date" value="<?= e($endDate) ?>"
                        class="w-full px-4 py-2 rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-sm">
             </div>
-            <div class="w-full sm:w-auto pt-5">
-                <button type="submit" class="w-full bg-accent hover:bg-accent-dark text-white font-bold px-8 py-2.5 rounded-xl transition duration-200 text-sm shadow-sm">
-                    Filtrar 📊
+            <div class="flex gap-2 sm:shrink-0">
+                <button type="submit" class="bg-accent hover:bg-accent-dark text-white font-bold px-6 py-2.5 rounded-xl transition duration-200 text-sm shadow-sm flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Filtrar
                 </button>
             </div>
         </form>
+
+        <!-- Export Buttons Row -->
+        <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-cream-dark">
+            <span class="text-xs font-bold text-coffee-medium uppercase tracking-wide">Exportar:</span>
+            <a id="btn-export-csv" href="<?= BASE_URL ?>/sales/export-csv?start_date=<?= e($startDate) ?>&end_date=<?= e($endDate) ?>"
+               class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition active:scale-95 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+                Descargar CSV
+            </a>
+            <a id="btn-export-excel" href="<?= BASE_URL ?>/sales/export-excel?start_date=<?= e($startDate) ?>&end_date=<?= e($endDate) ?>"
+               class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition active:scale-95 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="8 10 10 14 12 10 14 14 16 10"/></svg>
+                Descargar Excel
+            </a>
+            <span class="text-[10px] text-slate-400 font-medium ml-1"><?= count($sales) ?> registros en el período</span>
+        </div>
     </div>
+
+    <script>
+    // Keep export links in sync when filter dates change
+    (function() {
+        const sd = document.getElementById('start_date');
+        const ed = document.getElementById('end_date');
+        const csvBtn   = document.getElementById('btn-export-csv');
+        const excelBtn = document.getElementById('btn-export-excel');
+        const base     = window.BASE_URL;
+
+        function updateExportLinks() {
+            const q = '?start_date=' + (sd.value || '') + '&end_date=' + (ed.value || '');
+            if (csvBtn)   csvBtn.href   = base + '/sales/export-csv'   + q;
+            if (excelBtn) excelBtn.href = base + '/sales/export-excel' + q;
+        }
+        if (sd) sd.addEventListener('change', updateExportLinks);
+        if (ed) ed.addEventListener('change', updateExportLinks);
+    })();
+    </script>
 
     <!-- Sales List -->
     <div class="bg-white rounded-2xl border border-cream-dark overflow-hidden shadow-sm animate-fade-in">

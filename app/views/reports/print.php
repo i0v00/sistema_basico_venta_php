@@ -144,7 +144,125 @@
                 </div>
             </div>
 
+            <!-- ══════════════════════════════════════════════════════
+                 Section: VENTAS POR CATEGORÍA
+            ══════════════════════════════════════════════════════ -->
+            <?php if (!empty($revenueByCategory)): ?>
+            <?php
+            $totalCatRev = array_sum(array_column($revenueByCategory, 'total_revenue'));
+            $maxCatRev   = max(array_column($revenueByCategory, 'total_revenue')) ?: 1;
+
+            // Colour palette cycling for rows
+            $rowColors = [
+                ['bg' => '#FEF3C7', 'border' => '#FDE68A', 'text' => '#92400E'],  // amber
+                ['bg' => '#DBEAFE', 'border' => '#BFDBFE', 'text' => '#1E40AF'],  // blue
+                ['bg' => '#D1FAE5', 'border' => '#A7F3D0', 'text' => '#065F46'],  // emerald
+                ['bg' => '#FCE7F3', 'border' => '#FBCFE8', 'text' => '#9D174D'],  // pink
+                ['bg' => '#EDE9FE', 'border' => '#DDD6FE', 'text' => '#5B21B6'],  // purple
+                ['bg' => '#FEE2E2', 'border' => '#FECACA', 'text' => '#991B1B'],  // red
+                ['bg' => '#ECFCCB', 'border' => '#D9F99D', 'text' => '#3F6212'],  // lime
+                ['bg' => '#E0F2FE', 'border' => '#BAE6FD', 'text' => '#075985'],  // sky
+                ['bg' => '#F3F4F6', 'border' => '#E5E7EB', 'text' => '#374151'],  // gray
+            ];
+
+            // Map icon keys to compact emoji-like labels for print
+            $iconLabels = [
+                'hamburger'   => '🍔',
+                'fries'       => '🍟',
+                'chicken'     => '🍗',
+                'drink_cup'   => '🥤',
+                'soda_bottle' => '🥃',
+                'package'     => '📦',
+                'dessert'     => '🍮',
+                'weekend'     => '⭐',
+                'coffee'      => '☕',
+                'pizza'       => '🍕',
+                'salad'       => '🥗',
+                'combo'       => '🗂️',
+            ];
+            ?>
+            <div class="space-y-3 page-break-inside-avoid">
+                <!-- Section title -->
+                <h3 class="text-sm font-heading font-extrabold uppercase tracking-wider text-slate-800 flex items-center gap-2 border-b-2 border-amber-300 pb-2">
+                    <span style="display:inline-block;width:1.1rem;height:1.1rem;vertical-align:middle;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        </svg>
+                    </span>
+                    Ingresos por Categoría de Producto
+                    <span class="ml-auto text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-lg normal-case tracking-normal">
+                        Total: <?= formatMoney($totalCatRev) ?>
+                    </span>
+                </h3>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-amber-50 text-amber-950 font-bold uppercase tracking-wider text-[10px]">
+                                <th class="p-3 pl-4" style="width:2rem">#</th>
+                                <th class="p-3">Categoría</th>
+                                <th class="p-3 text-center" style="width:6rem">Items Vendidos</th>
+                                <th class="p-3 text-right" style="width:8rem">Ganancia Total</th>
+                                <th class="p-3 text-right" style="width:5rem">% del Total</th>
+                                <th class="p-3" style="width:9rem">Participación</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <?php foreach ($revenueByCategory as $idx => $catRow):
+                                $color   = $rowColors[$idx % count($rowColors)];
+                                $share   = $totalCatRev > 0 ? round(($catRow['total_revenue'] / $totalCatRev) * 100, 1) : 0;
+                                $barPct  = $maxCatRev  > 0 ? round(($catRow['total_revenue'] / $maxCatRev) * 100) : 0;
+                                $iconLabel = $iconLabels[$catRow['category_icon']] ?? '🏷️';
+                            ?>
+                            <tr class="hover:bg-slate-50">
+                                <!-- Rank -->
+                                <td class="p-3 pl-4 font-extrabold text-slate-400 text-[11px]"><?= $idx + 1 ?></td>
+                                <!-- Category name + icon -->
+                                <td class="p-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-sm flex-shrink-0"
+                                              style="background:<?= $color['bg'] ?>; border:1px solid <?= $color['border'] ?>;">
+                                            <?= $iconLabel ?>
+                                        </span>
+                                        <span class="font-bold text-slate-800"><?= e($catRow['category_name']) ?></span>
+                                    </div>
+                                </td>
+                                <!-- Items -->
+                                <td class="p-3 text-center font-semibold text-slate-600"><?= number_format((int)$catRow['items_sold']) ?></td>
+                                <!-- Revenue -->
+                                <td class="p-3 text-right font-extrabold" style="color:<?= $color['text'] ?>"><?= formatMoney($catRow['total_revenue']) ?></td>
+                                <!-- Share % -->
+                                <td class="p-3 text-right font-bold text-slate-500"><?= $share ?>%</td>
+                                <!-- Bar -->
+                                <td class="p-3">
+                                    <div style="background:#F1F5F9; border-radius:99px; height:8px; width:100%; overflow:hidden;">
+                                        <div style="height:8px; border-radius:99px; width:<?= $barPct ?>%; background:<?= $color['text'] ?>; min-width:4px;"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <!-- Totals footer row -->
+                        <tfoot>
+                            <tr class="bg-slate-100 border-t-2 border-slate-300">
+                                <td class="p-3 pl-4" colspan="2">
+                                    <span class="font-extrabold text-slate-700 text-[11px] uppercase tracking-wide">TOTAL</span>
+                                </td>
+                                <td class="p-3 text-center font-extrabold text-slate-700">
+                                    <?= number_format(array_sum(array_column($revenueByCategory, 'items_sold'))) ?>
+                                </td>
+                                <td class="p-3 text-right font-extrabold text-emerald-700 text-sm"><?= formatMoney($totalCatRev) ?></td>
+                                <td class="p-3 text-right font-extrabold text-slate-500">100%</td>
+                                <td class="p-3"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Section 1: Compras de Materia Prima -->
+
             <div class="space-y-3 page-break-inside-avoid">
                 <h3 class="text-sm font-heading font-extrabold uppercase tracking-wider text-emerald-950 flex items-center gap-2 border-b border-emerald-100 pb-2">
                     <span>🛒</span> Detalle de Compras de Materia Prima (Aumento de Stock)

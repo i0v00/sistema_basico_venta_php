@@ -19,6 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
 //  PRODUCT GRID
 // ═══════════════════════════════════════════════════════════
 
+function getIconHtml(key, classes = "w-4 h-4") {
+    if (typeof POS_ICONS !== 'undefined' && POS_ICONS[key]) {
+        return `<span class="${classes} inline-flex items-center justify-center flex-shrink-0 [&_svg]:w-full [&_svg]:h-full">${POS_ICONS[key]}</span>`;
+    }
+    return `<span>${key || ''}</span>`;
+}
+
 function posSelectCat(catId) {
     posCatId = catId;
 
@@ -85,8 +92,8 @@ function posRenderGrid() {
             ${imgBlock}
             <!-- Category badge -->
             <span class="absolute top-2 left-2 text-[9px] font-bold px-2 py-0.5 rounded-full
-                         bg-coffee-dark/75 text-white backdrop-blur-sm">
-                ${p.category_icon} ${p.category_name}
+                         bg-coffee-dark/75 text-white backdrop-blur-sm flex items-center gap-1">
+                ${getIconHtml(p.category_icon, 'w-3 h-3')} ${p.category_name}
             </span>
             <!-- Quick-add overlay -->
             <div class="absolute inset-0 flex items-center justify-center
@@ -111,11 +118,11 @@ function posRenderGrid() {
 }
 
 /** Placeholder identical to admin products page */
-function posPlaceholder(icon) {
+function posPlaceholder(iconKey) {
     return `<div class="w-full h-full bg-gradient-to-br from-cream to-cream-dark flex flex-col
                         items-center justify-center text-coffee-medium/40 select-none">
-                <div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-md text-3xl mb-1">
-                    ${icon}
+                <div class="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-md mb-1 text-coffee-medium/50">
+                    ${getIconHtml(iconKey, 'w-6 h-6')}
                 </div>
                 <span class="text-[9px] uppercase font-extrabold tracking-widest text-coffee-medium/60 font-mono">Sin Imagen</span>
             </div>`;
@@ -225,7 +232,7 @@ function posRenderCart() {
             row.innerHTML = `
                 <!-- Icon bubble -->
                 <div class="shrink-0 w-9 h-9 rounded-xl bg-white border border-cream-dark shadow-sm
-                            flex items-center justify-center text-lg">${item.icon}</div>
+                            flex items-center justify-center text-coffee-medium">${getIconHtml(item.icon, 'w-4 h-4')}</div>
                 <!-- Name & price/u -->
                 <div class="flex-grow min-w-0">
                     <p class="text-[11px] font-bold text-coffee-dark truncate leading-snug">${item.name}</p>
@@ -393,6 +400,7 @@ function ckSubmit() {
             if (data.success) {
                 const pm = selectedPaymentMethod;
                 closeCheckout();
+                closeMobCart();
                 posShowReceipt(data.sale_id, total, paid || total, pm);
             } else {
                 posToast('Error: ' + data.message, 'error');
@@ -437,6 +445,7 @@ function posShowReceipt(saleId, total, paid, paymentMethod = 'efectivo') {
 
 function closeReceipt() {
     document.getElementById('receipt-modal').classList.add('hidden');
+    closeMobCart();
     posClearCart();
     if (POS_TRACK_RM) window.location.reload();
 }

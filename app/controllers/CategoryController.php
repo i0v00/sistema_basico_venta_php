@@ -34,6 +34,21 @@ class CategoryController {
         redirect('/categories');
     }
 
+    public function update() {
+        $id   = (int)($_POST['id'] ?? 0);
+        $name = trim($_POST['name'] ?? '');
+        $icon = trim($_POST['icon'] ?? '🍔');
+
+        if ($id <= 0 || empty($name)) {
+            Auth::setFlash('error', 'Datos inválidos para actualizar la categoría.');
+            redirect('/categories');
+        }
+
+        Category::update($id, ['name' => $name, 'icon' => $icon]);
+        Auth::setFlash('success', 'Categoría actualizada correctamente.');
+        redirect('/categories');
+    }
+
     public function delete() {
         $id = $_POST['id'] ?? null;
 

@@ -318,4 +318,97 @@
             </div>
         </div>
     </div>
+
+    <!-- ─── VENTAS POR CATEGORÍA ─────────────────────────────────────────── -->
+    <?php if (!empty($revenueByCategory)): ?>
+    <?php
+    $maxCatRevenue = max(array_column($revenueByCategory, 'total_revenue')) ?: 1;
+    $totalCatRevenue = array_sum(array_column($revenueByCategory, 'total_revenue'));
+
+    // Inline SVG icons matching the categories view
+    $catSvgIcons = [
+        'hamburger'  => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18"/><path d="M3 15h18"/><path d="M5 6a7 7 0 0 1 14 0"/><rect x="3" y="9" width="18" height="6" rx="1"/><path d="M5 18h14a2 2 0 0 0 2-2v-1H3v1a2 2 0 0 0 2 2z"/></svg>', 'bg' => 'bg-amber-100', 'text' => 'text-amber-700', 'border' => 'border-amber-200'],
+        'fries'       => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8"/><path d="M5 11l2-7h10l2 7"/><line x1="8" y1="4" x2="8" y2="11"/><line x1="12" y1="3" x2="12" y2="11"/><line x1="16" y1="4" x2="16" y2="11"/></svg>', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700', 'border' => 'border-yellow-200'],
+        'chicken'     => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M12 6S7 8 5 13c-1.5 4 1 8 5 8s7-2 8-6c1-3.5-1-7-6-9z"/><path d="M9 15c1 1.5 3 2 5 1"/></svg>', 'bg' => 'bg-orange-100', 'text' => 'text-orange-700', 'border' => 'border-orange-200'],
+        'drink_cup'   => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h14l-1.5 16.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5L5 2z"/><line x1="9" y1="2" x2="9.5" y2="6"/><line x1="15" y1="2" x2="14.5" y2="6"/><path d="M3 2h18"/></svg>', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700', 'border' => 'border-blue-200'],
+        'soda_bottle' => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v3l2 4v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V10l2-4V3z"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/><line x1="6" y1="14" x2="18" y2="14"/></svg>', 'bg' => 'bg-cyan-100', 'text' => 'text-cyan-700', 'border' => 'border-cyan-200'],
+        'package'     => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>', 'bg' => 'bg-stone-100', 'text' => 'text-stone-700', 'border' => 'border-stone-200'],
+        'dessert'     => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 13 8 13s8-7.75 8-13a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>', 'bg' => 'bg-pink-100', 'text' => 'text-pink-700', 'border' => 'border-pink-200'],
+        'weekend'     => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700', 'border' => 'border-purple-200'],
+        'coffee'      => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>', 'bg' => 'bg-stone-100', 'text' => 'text-stone-700', 'border' => 'border-stone-200'],
+        'pizza'       => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12l10 10L22 12C22 6.477 17.523 2 12 2z"/><path d="M12 2v10"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="14" cy="13" r="1" fill="currentColor"/></svg>', 'bg' => 'bg-red-100', 'text' => 'text-red-700', 'border' => 'border-red-200'],
+        'salad'       => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14s3-3 6-3 6 3 9 3 6-3 6-3"/><path d="M2 20h20"/><path d="M8 14V8a4 4 0 0 1 8 0v6"/></svg>', 'bg' => 'bg-green-100', 'text' => 'text-green-700', 'border' => 'border-green-200'],
+        'combo'       => ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>', 'bg' => 'bg-indigo-100', 'text' => 'text-indigo-700', 'border' => 'border-indigo-200'],
+    ];
+    // fallback for unknown icons
+    $defaultIcon = ['svg' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>', 'bg' => 'bg-slate-100', 'text' => 'text-slate-600', 'border' => 'border-slate-200'];
+    ?>
+    <div class="bg-white rounded-2xl border border-cream-dark shadow-sm overflow-hidden">
+        <!-- Section Header -->
+        <div class="p-5 border-b border-cream-dark bg-gradient-to-r from-coffee-dark/5 to-transparent flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-accent/15 text-accent flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                </div>
+                <div>
+                    <h3 class="font-heading font-extrabold text-base text-coffee-dark">Ventas por Categoría</h3>
+                    <p class="text-xs text-coffee-light font-medium"><?= count($revenueByCategory) ?> categorías con ventas en el período</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-xs font-bold text-coffee-medium uppercase">Total categorías</span>
+                <div class="text-lg font-extrabold text-coffee-dark"><?= formatMoney($totalCatRevenue) ?></div>
+            </div>
+        </div>
+
+        <!-- Category Cards Grid -->
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <?php foreach ($revenueByCategory as $idx => $catRow):
+                $iconKey  = $catRow['category_icon'] ?? '';
+                $iconData = $catSvgIcons[$iconKey] ?? $defaultIcon;
+                $pct      = $maxCatRevenue > 0 ? round(($catRow['total_revenue'] / $maxCatRevenue) * 100) : 0;
+                $sharePct = $totalCatRevenue > 0 ? round(($catRow['total_revenue'] / $totalCatRevenue) * 100, 1) : 0;
+
+                // Rank badge colors
+                $rankColors = ['bg-amber-400 text-amber-900', 'bg-slate-300 text-slate-700', 'bg-amber-600/60 text-amber-900'];
+                $rankColor  = $rankColors[$idx] ?? 'bg-cream text-coffee-medium';
+            ?>
+            <div class="bg-white border-2 <?= $iconData['border'] ?> rounded-2xl p-4 flex flex-col gap-3 hover:shadow-md transition-shadow duration-200">
+                <!-- Card Header -->
+                <div class="flex items-center gap-3">
+                    <!-- Rank badge -->
+                    <?php if ($idx < 3): ?>
+                    <div class="w-5 h-5 rounded-full <?= $rankColor ?> text-[10px] font-extrabold flex items-center justify-center flex-shrink-0"><?= $idx + 1 ?></div>
+                    <?php endif; ?>
+                    <!-- Category Icon -->
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 <?= $iconData['bg'] ?> <?= $iconData['text'] ?> [&_svg]:w-5 [&_svg]:h-5 border <?= $iconData['border'] ?>">
+                        <?= $iconData['svg'] ?>
+                    </div>
+                    <!-- Name -->
+                    <div class="min-w-0">
+                        <h4 class="text-sm font-extrabold text-coffee-dark leading-tight truncate"><?= e($catRow['category_name']) ?></h4>
+                        <span class="text-[10px] text-slate-400 font-medium"><?= number_format((int)$catRow['items_sold']) ?> items vendidos</span>
+                    </div>
+                </div>
+
+                <!-- Revenue + Share -->
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="text-xs text-coffee-light font-medium block">Ganancia total</span>
+                        <span class="text-xl font-extrabold text-emerald-700"><?= formatMoney($catRow['total_revenue']) ?></span>
+                    </div>
+                    <span class="text-xs font-bold <?= $iconData['text'] ?> <?= $iconData['bg'] ?> px-2.5 py-1 rounded-xl border <?= $iconData['border'] ?>"><?= $sharePct ?>%</span>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="w-full bg-slate-100 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-700 <?= str_replace('text-', 'bg-', explode(' ', $iconData['text'])[0]) ?>"
+                         style="width: <?= $pct ?>%; min-width: 4px;"></div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
+

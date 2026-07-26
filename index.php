@@ -97,12 +97,17 @@ $routes = [
         '/admin-expenses' => [\App\Controllers\AdminExpenseController::class, 'index'],
         '/reports' => [\App\Controllers\AdminExpenseController::class, 'reports'],
         '/reports/print' => [\App\Controllers\AdminExpenseController::class, 'printReport'],
+
+        // Export routes
+        '/sales/export-csv'   => [\App\Controllers\SaleController::class, 'exportCsv'],
+        '/sales/export-excel' => [\App\Controllers\SaleController::class, 'exportExcel'],
     ],
     'POST' => [
         '/login' => [\App\Controllers\AuthController::class, 'login'],
         '/products/save' => [\App\Controllers\ProductController::class, 'save'],
         '/products/delete' => [\App\Controllers\ProductController::class, 'delete'],
         '/categories/save' => [\App\Controllers\CategoryController::class, 'save'],
+        '/categories/update' => [\App\Controllers\CategoryController::class, 'update'],
         '/categories/delete' => [\App\Controllers\CategoryController::class, 'delete'],
         '/raw-materials/save' => [\App\Controllers\RawMaterialController::class, 'save'],
         '/raw-materials/delete' => [\App\Controllers\RawMaterialController::class, 'delete'],

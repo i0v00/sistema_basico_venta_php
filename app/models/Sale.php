@@ -431,4 +431,57 @@ class Sale {
         }
         return $result;
     }
+
+    /**
+     * Get sales revenue grouped by product category for a date range.
+     * Only returns categories that had at least 1 sale.
+     */
+    public static function getRevenueByCategory(string $startDate, string $endDate): array {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("
+            SELECT 
+                c.id          AS category_id,
+                c.name        AS category_name,
+                c.icon        AS category_icon,
+                SUM(sd.price * sd.quantity) AS total_revenue,
+                SUM(sd.quantity)             AS items_sold
+            FROM sale_details sd
+            JOIN products p  ON sd.product_id = p.id
+            JOIN categories c ON p.category_id = c.id
+            JOIN sales s      ON sd.sale_id = s.id
+            WHERE DATE(s.sale_date) >= ? AND DATE(s.sale_date) <= ? AND s.deleted = 0
+            GROUP BY c.id, c.name, c.icon
+            ORDER BY total_revenue DESC
+        ");
+        $stmt->execute([$startDate, $endDate]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Export history data for CSV/Excel download (enriched rows).
+     */
+    public static function exportHistoryData(string $startDate, string $endDate): array {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("
+            SELECT 
+                s.id,
+                s.sale_date,
+                s.payment_method,
+                s.items_count,
+                s.total,
+                s.status,
+                u.full_name AS cashier_name,
+                GROUP_CONCAT(CONCAT(p.name, ' x', sd.quantity) ORDER BY p.name SEPARATOR ' | ') AS items_detail
+            FROM sales s
+            LEFT JOIN users u ON s.cashier_id = u.id
+            LEFT JOIN sale_details sd ON sd.sale_id = s.id
+            LEFT JOIN products p ON sd.product_id = p.id
+            WHERE DATE(s.sale_date) >= ? AND DATE(s.sale_date) <= ? AND s.deleted = 0
+            GROUP BY s.id, s.sale_date, s.payment_method, s.items_count, s.total, s.status, u.full_name
+            ORDER BY s.sale_date DESC
+        ");
+        $stmt->execute([$startDate, $endDate]);
+        return $stmt->fetchAll();
+    }
 }
+

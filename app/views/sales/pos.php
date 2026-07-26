@@ -1,5 +1,21 @@
 <?php
 $trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
+
+// ── Professional SVG icons map (matches categories/index.php) ──────────
+$posCatIcons = [
+    'hamburger'   => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18"/><path d="M3 15h18"/><path d="M5 6a7 7 0 0 1 14 0"/><rect x="3" y="9" width="18" height="6" rx="1"/><path d="M5 18h14a2 2 0 0 0 2-2v-1H3v1a2 2 0 0 0 2 2z"/></svg>',
+    'fries'       => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8"/><path d="M5 11l2-7h10l2 7"/><line x1="8" y1="4" x2="8" y2="11"/><line x1="12" y1="3" x2="12" y2="11"/><line x1="16" y1="4" x2="16" y2="11"/></svg>',
+    'chicken'     => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M12 6S7 8 5 13c-1.5 4 1 8 5 8s7-2 8-6c1-3.5-1-7-6-9z"/><path d="M9 15c1 1.5 3 2 5 1"/></svg>',
+    'drink_cup'   => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h14l-1.5 16.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5L5 2z"/><line x1="9" y1="2" x2="9.5" y2="6"/><line x1="15" y1="2" x2="14.5" y2="6"/><path d="M3 2h18"/></svg>',
+    'soda_bottle' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v3l2 4v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V10l2-4V3z"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/><line x1="6" y1="14" x2="18" y2="14"/></svg>',
+    'package'     => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+    'dessert'     => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 13 8 13s8-7.75 8-13a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>',
+    'weekend'     => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    'coffee'      => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>',
+    'pizza'       => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12l10 10L22 12C22 6.477 17.523 2 12 2z"/><path d="M12 2v10"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="14" cy="13" r="1" fill="currentColor"/></svg>',
+    'salad'       => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14s3-3 6-3 6 3 9 3 6-3 6-3"/><path d="M2 20h20"/><path d="M8 14V8a4 4 0 0 1 8 0v6"/></svg>',
+    'combo'       => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2"/><path d="M15 8h2"/><path d="M11 12h2"/></svg>',
+];
 ?>
 <!– ══════════════════════════════════════════════════
     POS — Full-screen kiosk layout
@@ -10,7 +26,7 @@ $trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
     /* Hide the main footer on POS for full-screen feel */
     body > footer { display: none !important; }
     /* Hide main padding wrapper on POS */
-    body > main { padding: 0 !important; max-width: 100% !important; }
+    body > main { padding: 0 !important; }
 
     /* Category rail active pill */
     .cat-pill.active {
@@ -104,14 +120,22 @@ $trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
                                transition-all duration-200 whitespace-nowrap">
                     🍽️ Todos
                 </button>
-                <?php foreach ($categories as $cat): ?>
+                <?php foreach ($categories as $cat):
+                    $iconKey = $cat['icon'] ?? '';
+                    $hasSvg  = isset($posCatIcons[$iconKey]);
+                ?>
                 <button id="cat-<?= $cat['id'] ?>"
                         onclick="posSelectCat(<?= $cat['id'] ?>)"
                         class="cat-pill snap-start shrink-0 flex items-center gap-1.5
                                px-4 py-2 rounded-full text-xs font-bold bg-white border border-cream-dark
                                text-coffee-dark hover:border-accent/60 hover:text-accent
                                transition-all duration-200 whitespace-nowrap">
-                    <?= e($cat['icon']) ?> <?= e($cat['name']) ?>
+                    <?php if ($hasSvg): ?>
+                    <span class="w-3.5 h-3.5 flex-shrink-0 [&_svg]:w-3.5 [&_svg]:h-3.5"><?= $posCatIcons[$iconKey] ?></span>
+                    <?php else: ?>
+                    <span><?= e($iconKey) ?></span>
+                    <?php endif; ?>
+                    <?= e($cat['name']) ?>
                 </button>
                 <?php endforeach; ?>
             </div>
@@ -276,69 +300,64 @@ $trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
      CHECKOUT MODAL
 ══════════════════════════════════════════════════════════ -->
 <div id="checkout-modal"
-     class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+     class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-coffee-dark/60 backdrop-blur-sm" onclick="closeCheckout()"></div>
 
-    <div class="modal-panel relative z-10 w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
+    <div class="modal-panel relative z-10 w-[22%] min-w-[300px] max-w-[340px] bg-white rounded-xl shadow-2xl overflow-hidden">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-coffee-dark to-coffee-medium text-white px-5 py-4 flex items-center justify-between">
+        <div class="bg-gradient-to-r from-coffee-dark to-coffee-medium text-white px-4 py-3 flex items-center justify-between">
             <div>
-                <h4 class="font-heading font-extrabold text-base">Confirmar Cobro</h4>
-                <p class="text-white/60 text-[10px] mt-0.5">Ingresa el monto recibido</p>
+                <h4 class="font-heading font-extrabold text-sm">Confirmar Cobro</h4>
             </div>
             <button onclick="closeCheckout()"
-                    class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
 
-        <div class="p-5 space-y-4">
+        <div class="p-4 space-y-3">
             <!-- Total bubble -->
-            <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-accent/20 p-4 text-center">
-                <span class="text-[10px] font-bold uppercase tracking-widest text-accent-dark block mb-1">Total a Cobrar</span>
-                <span id="ck-total" class="text-4xl font-heading font-extrabold text-coffee-dark">Bs. 0.00</span>
+            <div class="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-accent/20 p-3 text-center">
+                <span class="text-[9px] font-bold uppercase tracking-widest text-accent-dark block mb-0.5">Total a Cobrar</span>
+                <span id="ck-total" class="text-2xl font-heading font-extrabold text-coffee-dark">Bs. 0.00</span>
             </div>
 
             <!-- Payment Method Selector (REQUIRED) -->
             <div>
-                <label class="text-xs font-bold text-coffee-dark block mb-2 uppercase tracking-wider">
-                    Selecciona Tipo de Pago <span class="text-rose-600">*</span>
+                <label class="text-[10px] font-bold text-coffee-dark block mb-1.5 uppercase tracking-wider">
+                    Tipo de Pago <span class="text-rose-600">*</span>
                 </label>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-2">
                     <button type="button" id="pm-btn-efectivo" onclick="setPaymentMethod('efectivo')"
-                            class="pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
+                            class="pm-btn flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg font-bold text-xs border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
                         <span>💵</span> Efectivo
                     </button>
                     <button type="button" id="pm-btn-qr" onclick="setPaymentMethod('qr')"
-                            class="pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
-                        <span>📱</span> Pago QR
+                            class="pm-btn flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg font-bold text-xs border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span>📱</span> QR
                     </button>
                 </div>
             </div>
 
             <!-- Cash Payment Details (Visible when Efectivo selected or default) -->
-            <div id="cash-details-box" class="space-y-3">
+            <div id="cash-details-box" class="space-y-2">
                 <div>
-                    <label class="text-xs font-bold text-coffee-dark block mb-1.5">Pago recibido con:</label>
+                    <label class="text-[10px] font-bold text-coffee-dark block mb-1">Recibido:</label>
                     <div class="relative">
-                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-sm text-coffee-medium">Bs.</span>
+                        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 font-bold text-xs text-coffee-medium">Bs.</span>
                         <input id="ck-pay" type="number" oninput="ckCalcChange()" step="0.01" min="0" placeholder="0.00"
-                               class="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-cream-dark focus:outline-none
-                                      focus:border-accent font-extrabold text-2xl text-coffee-dark bg-cream/40 transition">
+                               class="w-full pl-8 pr-3 py-2 rounded-lg border-2 border-cream-dark focus:outline-none focus:border-accent font-bold text-lg text-coffee-dark bg-cream/40 transition">
                     </div>
                 </div>
 
                 <!-- Quick bills -->
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-coffee-light mb-2">Billetes rápidos:</p>
-                    <div class="grid grid-cols-6 gap-1.5">
+                    <div class="grid grid-cols-6 gap-1">
                         <?php foreach ([5, 10, 20, 50, 100, 200] as $b): ?>
                         <button onclick="ckSetBill(<?= $b ?>)"
-                                class="py-2 rounded-lg text-xs font-extrabold bg-cream hover:bg-cream-dark
-                                       border border-cream-dark hover:border-accent hover:text-accent
-                                       text-coffee-dark transition-all active:scale-95">
+                                class="py-1 rounded-md text-[9px] font-bold bg-cream hover:bg-cream-dark border border-cream-dark hover:border-accent hover:text-accent text-coffee-dark transition-all active:scale-95">
                             <?= $b ?>
                         </button>
                         <?php endforeach; ?>
@@ -346,17 +365,16 @@ $trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
                 </div>
 
                 <!-- Change -->
-                <div class="flex justify-between items-center rounded-xl bg-emerald-50 border border-emerald-100 px-4 py-2.5">
-                    <span class="text-xs font-semibold text-emerald-900">Cambio a dar:</span>
-                    <span id="ck-change" class="text-lg font-extrabold text-emerald-700 font-heading">Bs. 0.00</span>
+                <div class="flex justify-between items-center rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2">
+                    <span class="text-[10px] font-semibold text-emerald-900">Cambio:</span>
+                    <span id="ck-change" class="text-sm font-extrabold text-emerald-700 font-heading">Bs. 0.00</span>
                 </div>
             </div>
 
             <!-- Submit -->
             <button id="ck-btn" onclick="ckSubmit()"
-                    class="w-full bg-accent hover:bg-accent-dark active:scale-95 text-white font-heading font-extrabold
-                           py-4 rounded-xl shadow-lg shadow-accent/25 transition-all text-sm flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-full bg-accent hover:bg-accent-dark active:scale-95 text-white font-heading font-bold py-2.5 rounded-lg shadow-md shadow-accent/25 transition-all text-xs flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 Completar Venta
@@ -423,10 +441,10 @@ $trackRawMaterials = (getSetting('track_raw_materials', '0') === '1') ? 1 : 0;
     </div>
 </div>
 
-<!-- ── JS Data ─────────────────────────────────────────────── -->
 <script>
     const POS_PRODUCTS  = <?= json_encode(array_values($products)) ?>;
     const POS_BASE      = '<?= BASE_URL ?>';
     const POS_TRACK_RM  = <?= $trackRawMaterials ?>;
+    const POS_ICONS     = <?= json_encode($posCatIcons) ?>;
 </script>
-<script src="<?= BASE_URL ?>/assets/app.js"></script>
+<script src="<?= BASE_URL ?>/assets/app.js?v=<?= time() ?>"></script>
