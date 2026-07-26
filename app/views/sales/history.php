@@ -143,7 +143,7 @@
 
 <!-- Modal Details -->
 <div id="details-modal" class="fixed inset-0 bg-coffee-dark/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md border border-cream-dark shadow-2xl overflow-hidden animate-fade-in">
+    <div class="bg-white rounded-2xl w-[95%] md:w-[25%] md:min-w-[320px] border border-cream-dark shadow-2xl overflow-hidden animate-fade-in">
         <div class="bg-coffee-dark text-white p-4 flex items-center justify-between">
             <h4 class="font-heading font-extrabold text-base" id="details-modal-title">Detalle del Ticket</h4>
             <button onclick="closeDetailsModal()" class="text-white font-bold text-lg">&times;</button>

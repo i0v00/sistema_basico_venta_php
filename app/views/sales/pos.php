@@ -303,7 +303,7 @@ $posCatIcons = [
      class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-coffee-dark/60 backdrop-blur-sm" onclick="closeCheckout()"></div>
 
-    <div class="modal-panel relative z-10 w-[22%] min-w-[300px] max-w-[340px] bg-white rounded-xl shadow-2xl overflow-hidden">
+    <div class="modal-panel relative z-10 w-[95%] md:w-[25%] md:min-w-[320px] bg-white rounded-xl shadow-2xl overflow-hidden">
         <!-- Header -->
         <div class="bg-gradient-to-r from-coffee-dark to-coffee-medium text-white px-4 py-3 flex items-center justify-between">
             <div>
@@ -389,7 +389,7 @@ $posCatIcons = [
 <div id="receipt-modal"
      class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-coffee-dark/70 backdrop-blur-sm" onclick="closeReceipt()"></div>
-    <div class="receipt-panel relative z-10 w-full max-w-xs bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="receipt-panel relative z-10 w-[95%] md:w-[25%] md:min-w-[320px] bg-white rounded-2xl shadow-2xl overflow-hidden">
 
         <!-- Top gradient header -->
         <div class="bg-gradient-to-br from-accent to-accent-dark p-5 text-center text-white">

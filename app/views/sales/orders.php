@@ -84,7 +84,7 @@
      onclick="closeOrderModal(event)">
 
     <div id="order-modal"
-         class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+         class="relative w-[95%] md:w-[25%] md:min-w-[320px] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
          style="max-height: 88vh; transform: scale(0.95); opacity: 0; transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;">
 
         <!-- Modal Header (gradient) -->
@@ -283,6 +283,21 @@
 </style>
 
 <script>
+    const posCatIcons = {
+        'hamburger': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18"/><path d="M3 15h18"/><path d="M5 6a7 7 0 0 1 14 0"/><rect x="3" y="9" width="18" height="6" rx="1"/><path d="M5 18h14a2 2 0 0 0 2-2v-1H3v1a2 2 0 0 0 2 2z"/></svg>',
+        'fries': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8"/><path d="M5 11l2-7h10l2 7"/><line x1="8" y1="4" x2="8" y2="11"/><line x1="12" y1="3" x2="12" y2="11"/><line x1="16" y1="4" x2="16" y2="11"/></svg>',
+        'chicken': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M12 6S7 8 5 13c-1.5 4 1 8 5 8s7-2 8-6c1-3.5-1-7-6-9z"/><path d="M9 15c1 1.5 3 2 5 1"/></svg>',
+        'drink_cup': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h14l-1.5 16.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5L5 2z"/><line x1="9" y1="2" x2="9.5" y2="6"/><line x1="15" y1="2" x2="14.5" y2="6"/><path d="M3 2h18"/></svg>',
+        'soda_bottle': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v3l2 4v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V10l2-4V3z"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/><line x1="6" y1="14" x2="18" y2="14"/></svg>',
+        'package': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+        'dessert': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 13 8 13s8-7.75 8-13a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>',
+        'weekend': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+        'coffee': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>',
+        'pizza': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12l10 10L22 12C22 6.477 17.523 2 12 2z"/><path d="M12 2v10"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="14" cy="13" r="1" fill="currentColor"/></svg>',
+        'salad': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14s3-3 6-3 6 3 9 3 6-3 6-3"/><path d="M2 20h20"/><path d="M8 14V8a4 4 0 0 1 8 0v6"/></svg>',
+        'combo': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2"/><path d="M15 8h2"/><path d="M11 12h2"/></svg>'
+    };
+
     let currentFilter = 'all';
     let previousOrdersCount = -1;
     let allOrders = []; // store locally for modal lookup
@@ -437,13 +452,15 @@
                 openOrderModal(order.id);
             });
 
-            // Build items list – compact summary for card
             let itemsHtml = '';
             order.items.forEach(item => {
+                let iconContent = posCatIcons[item.product_icon] ? posCatIcons[item.product_icon] : (item.product_icon || '🍔');
+                // if it's text, it might just render without being an SVG, but we want it to look good. We will wrap in a smaller span if it's an SVG.
+                let iconClass = posCatIcons[item.product_icon] ? 'w-6 h-6 inline-block' : 'text-2xl';
                 itemsHtml += `
                     <div class="flex justify-between items-center py-3 border-b border-cream/50 last:border-0 text-lg">
                         <div class="flex items-center gap-3">
-                            <span class="text-2xl">${item.product_icon || '🍔'}</span>
+                            <span class="${iconClass}">${iconContent}</span>
                             <span class="font-extrabold text-coffee-dark">${item.quantity}unid.</span>
                             <span class="text-slate-800 font-bold">${item.product_name}</span>
                         </div>
@@ -561,10 +578,12 @@
             const lineTotal = parseFloat(item.unit_price || 0) * parseInt(item.quantity || 1);
             subtotal += lineTotal;
             const hasPrice = item.unit_price && parseFloat(item.unit_price) > 0;
+            let iconContent = posCatIcons[item.product_icon] ? posCatIcons[item.product_icon] : (item.product_icon || '🍔');
+            let iconClass = posCatIcons[item.product_icon] ? 'w-5 h-5 inline-block text-amber-800' : 'text-lg';
             itemsContainer.innerHTML += `
                 <div class="flex items-center gap-2.5 p-2.5 rounded-xl ${idx % 2 === 0 ? 'bg-cream/60' : 'bg-white'} border border-cream-dark/50">
-                    <div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-lg flex-shrink-0">
-                        ${item.product_icon || '🍔'}
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0">
+                        <span class="${iconClass}">${iconContent}</span>
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="font-bold text-coffee-dark text-xs leading-tight">${item.product_name}</p>
