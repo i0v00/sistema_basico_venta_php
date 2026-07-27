@@ -16,112 +16,112 @@ $posCatIcons = [
 $categoriesList = $categories ?? [];
 
 $catColors = [
-    'hamburger'   => ['bg' => 'bg-amber-100',   'text' => 'text-amber-700',   'border' => 'border-amber-200'],
-    'fries'       => ['bg' => 'bg-yellow-100',  'text' => 'text-yellow-700',  'border' => 'border-yellow-200'],
-    'chicken'     => ['bg' => 'bg-orange-100',  'text' => 'text-orange-700',  'border' => 'border-orange-200'],
-    'drink_cup'   => ['bg' => 'bg-blue-100',    'text' => 'text-blue-700',    'border' => 'border-blue-200'],
-    'soda_bottle' => ['bg' => 'bg-cyan-100',    'text' => 'text-cyan-700',    'border' => 'border-cyan-200'],
-    'package'     => ['bg' => 'bg-amber-100',   'text' => 'text-amber-900',   'border' => 'border-amber-200'],
-    'dessert'     => ['bg' => 'bg-pink-100',    'text' => 'text-pink-700',    'border' => 'border-pink-200'],
-    'weekend'     => ['bg' => 'bg-purple-100',  'text' => 'text-purple-700',  'border' => 'border-purple-200'],
-    'coffee'      => ['bg' => 'bg-stone-100',   'text' => 'text-stone-700',   'border' => 'border-stone-200'],
-    'pizza'       => ['bg' => 'bg-red-100',     'text' => 'text-red-700',     'border' => 'border-red-200'],
-    'salad'       => ['bg' => 'bg-green-100',   'text' => 'text-green-700',   'border' => 'border-green-200'],
-    'combo'       => ['bg' => 'bg-indigo-100',  'text' => 'text-indigo-700',  'border' => 'border-indigo-200'],
+    'hamburger'   => ['bg' => 'bg-amber-100',   'text' => 'text-amber-700',   'border' => 'border-amber-300'],
+    'fries'       => ['bg' => 'bg-yellow-100',  'text' => 'text-yellow-700',  'border' => 'border-yellow-300'],
+    'chicken'     => ['bg' => 'bg-orange-100',  'text' => 'text-orange-700',  'border' => 'border-orange-300'],
+    'drink_cup'   => ['bg' => 'bg-blue-100',    'text' => 'text-blue-700',    'border' => 'border-blue-300'],
+    'soda_bottle' => ['bg' => 'bg-cyan-100',    'text' => 'text-cyan-700',    'border' => 'border-cyan-300'],
+    'package'     => ['bg' => 'bg-amber-100',   'text' => 'text-amber-900',   'border' => 'border-amber-300'],
+    'dessert'     => ['bg' => 'bg-pink-100',    'text' => 'text-pink-700',    'border' => 'border-pink-300'],
+    'weekend'     => ['bg' => 'bg-purple-100',  'text' => 'text-purple-700',  'border' => 'border-purple-300'],
+    'coffee'      => ['bg' => 'bg-stone-100',   'text' => 'text-stone-700',   'border' => 'border-stone-300'],
+    'pizza'       => ['bg' => 'bg-red-100',     'text' => 'text-red-700',     'border' => 'border-red-300'],
+    'salad'       => ['bg' => 'bg-green-100',   'text' => 'text-green-700',   'border' => 'border-green-300'],
+    'combo'       => ['bg' => 'bg-indigo-100',  'text' => 'text-indigo-700',  'border' => 'border-indigo-300'],
 ];
 ?>
 
-<div class="max-w-5xl mx-auto space-y-6 animate-slide-up">
+<div class="max-w-6xl mx-auto space-y-6 animate-slide-up">
     <!-- Header -->
     <div class="bg-white p-6 rounded-2xl border border-cream-dark shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-accent/15 text-accent flex items-center justify-center text-2xl shrink-0 shadow-sm">
+        <div class="flex items-center gap-3.5">
+            <div class="w-14 h-14 rounded-2xl bg-accent/15 text-accent flex items-center justify-center text-3xl shrink-0 shadow-sm">
                 📜
             </div>
             <div>
                 <h1 class="font-heading font-extrabold text-2xl sm:text-3xl text-coffee-dark">Registrar Pedido Histórico</h1>
-                <p class="text-sm text-coffee-light mt-0.5">Registra un pedido realizado en otra fecha (por ejemplo, en 2025) con productos e importes.</p>
+                <p class="text-base text-coffee-light mt-0.5">Registra un pedido realizado en otra fecha con productos e importes.</p>
             </div>
         </div>
         <div>
-            <a href="<?= BASE_URL ?>/sales/history" class="bg-cream-dark hover:bg-cream-dark/80 text-coffee-dark font-bold py-2.5 px-5 rounded-xl text-sm transition inline-flex items-center gap-1.5 active:scale-95 shadow-sm">
+            <a href="<?= BASE_URL ?>/sales/history" class="bg-cream-dark hover:bg-cream-dark/80 text-coffee-dark font-bold py-3 px-6 rounded-xl text-base transition inline-flex items-center gap-2 active:scale-95 shadow-sm">
                 📋 Ver Historial
             </a>
         </div>
     </div>
 
     <!-- Main Form -->
-    <form id="manual-sale-form" action="<?= BASE_URL ?>/sales/save-manual" method="POST" class="bg-white p-6 rounded-2xl border border-cream-dark shadow-sm space-y-6">
+    <form id="manual-sale-form" action="<?= BASE_URL ?>/sales/save-manual" method="POST" class="bg-white p-6 sm:p-8 rounded-3xl border border-cream-dark shadow-sm space-y-8">
         <!-- Dynamic Alert Container -->
         <div id="alert-container" class="hidden"></div>
 
         <!-- Date & Payment Method Selector -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <label for="sale_date" class="block text-sm font-bold text-coffee-dark mb-1">Fecha y Hora del Pedido *</label>
+                <label for="sale_date" class="block text-base font-extrabold text-coffee-dark mb-2">Fecha y Hora del Pedido *</label>
                 <input type="datetime-local" id="sale_date" name="sale_date" required 
                        value="<?= date('Y-m-d\TH:i') ?>"
-                       class="w-full px-4 py-3 rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-sm text-coffee-dark bg-white font-medium">
-                <span class="text-xs text-coffee-light mt-1.5 block">
-                    ⚠️ Al guardar el pedido, este se guardará automáticamente en estado <strong>Finalizado</strong>.
+                       class="w-full px-5 py-3.5 rounded-2xl border-2 border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-base text-coffee-dark bg-white font-bold">
+                <span class="text-xs text-coffee-light mt-2 block font-medium">
+                    ⚠️ Al guardar el pedido, este se registrará automáticamente en estado <strong>Finalizado</strong>.
                 </span>
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-coffee-dark mb-1">
+                <label class="block text-base font-extrabold text-coffee-dark mb-2">
                     Método de Pago <span class="text-rose-600">*</span>
                 </label>
                 <input type="hidden" name="payment_method" id="payment_method" value="" required>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <button type="button" id="pm-btn-efectivo" onclick="selectPaymentMethod('efectivo')"
-                            class="pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
-                        <span>💵</span> Efectivo
+                            class="pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span class="text-xl">💵</span> Efectivo
                     </button>
                     <button type="button" id="pm-btn-qr" onclick="selectPaymentMethod('qr')"
-                            class="pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
-                        <span>📱</span> QR
+                            class="pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span class="text-xl">📱</span> QR
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- ─── Product Selection Section ─── -->
-        <div class="border-t border-cream-dark pt-6 space-y-5">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="border-t-2 border-cream-dark/60 pt-8 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h3 class="font-heading font-extrabold text-lg text-coffee-dark flex items-center gap-2">
-                        <span>🛒</span> Productos del Pedido
+                    <h3 class="font-heading font-black text-xl sm:text-2xl text-coffee-dark flex items-center gap-2.5">
+                        <span class="text-2xl">🛒</span> Productos del Pedido
                     </h3>
-                    <p class="text-xs text-coffee-light">Selecciona o busca productos para añadirlos a la lista.</p>
+                    <p class="text-sm text-coffee-light font-medium mt-0.5">Selecciona productos grandes o busca directamente en la lista.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button type="button" onclick="toggleQuickCatalog()" id="quick-catalog-toggle"
-                            class="bg-cream hover:bg-cream-dark text-coffee-dark font-bold py-2 px-3.5 rounded-xl text-xs border border-cream-dark transition inline-flex items-center gap-1.5">
-                        <span>⚡</span> <span id="quick-catalog-toggle-label">Ocultar Catálogo Rápido</span>
+                            class="bg-cream hover:bg-cream-dark text-coffee-dark font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm border border-cream-dark transition inline-flex items-center gap-2 shadow-2xs">
+                        <span class="text-base">⚡</span> <span id="quick-catalog-toggle-label">Ocultar Catálogo Rápido</span>
                     </button>
                 </div>
             </div>
 
-            <!-- ─── Quick Product Catalog / Search Bar ─── -->
-            <div id="quick-catalog-section" class="bg-cream/30 p-4 rounded-2xl border border-cream-dark/70 space-y-3.5 transition-all">
+            <!-- ─── Quick Product Catalog / Search Bar (Prominent Display) ─── -->
+            <div id="quick-catalog-section" class="bg-cream/30 p-5 rounded-3xl border-2 border-cream-dark/70 space-y-4 transition-all">
                 <!-- Search & Category Filters -->
-                <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+                <div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
                     <!-- Search input -->
                     <div class="relative flex-1">
-                        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-coffee-light pointer-events-none"
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-coffee-light pointer-events-none"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <input type="text" id="quick-search-input" oninput="filterQuickProducts()"
                                placeholder="Buscar producto por nombre o código..."
-                               class="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-cream-dark text-sm text-coffee-dark focus:outline-none focus:ring-2 focus:ring-accent transition shadow-sm">
+                               class="w-full pl-12 pr-4 py-3 bg-white rounded-2xl border-2 border-cream-dark text-base text-coffee-dark font-medium focus:outline-none focus:ring-2 focus:ring-accent transition shadow-sm">
                     </div>
 
                     <!-- Category Pills with Colorful Icons -->
-                    <div class="flex gap-1.5 overflow-x-auto pb-1 md:pb-0 custom-scrollbar snap-x max-w-full">
+                    <div class="flex gap-2 overflow-x-auto pb-1.5 md:pb-0 custom-scrollbar snap-x max-w-full">
                         <button type="button" onclick="selectQuickCategory(null)" id="qcat-all"
-                                class="qcat-pill active snap-start shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold border border-transparent transition whitespace-nowrap">
+                                class="qcat-pill active snap-start shrink-0 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black border border-transparent transition whitespace-nowrap">
                             🍽️ Todos
                         </button>
                         <?php foreach ($categoriesList as $c): 
@@ -130,11 +130,11 @@ $catColors = [
                             $cColor = $catColors[$cKey] ?? ['bg' => 'bg-cream', 'text' => 'text-coffee-dark', 'border' => 'border-cream-dark'];
                         ?>
                         <button type="button" onclick="selectQuickCategory(<?= $c['id'] ?>)" id="qcat-<?= $c['id'] ?>"
-                                class="qcat-pill snap-start shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white border border-cream-dark text-coffee-dark hover:border-accent/60 transition whitespace-nowrap flex items-center gap-1.5">
+                                class="qcat-pill snap-start shrink-0 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-cream-dark text-coffee-dark hover:border-accent/60 transition whitespace-nowrap flex items-center gap-2">
                             <?php if ($hasSvg): ?>
-                                <span class="w-5 h-5 rounded-lg <?= $cColor['bg'] ?> <?= $cColor['text'] ?> <?= $cColor['border'] ?> border flex items-center justify-center shrink-0 [&_svg]:w-3 [&_svg]:h-3"><?= $posCatIcons[$cKey] ?></span>
+                                <span class="w-6 h-6 rounded-lg <?= $cColor['bg'] ?> <?= $cColor['text'] ?> <?= $cColor['border'] ?> border flex items-center justify-center shrink-0 [&_svg]:w-3.5 [&_svg]:h-3.5 shadow-2xs"><?= $posCatIcons[$cKey] ?></span>
                             <?php else: ?>
-                                <span><?= e($cKey ?: '🏷️') ?></span>
+                                <span class="text-base"><?= e($cKey ?: '🏷️') ?></span>
                             <?php endif; ?>
                             <?= e($c['name']) ?>
                         </button>
@@ -142,64 +142,64 @@ $catColors = [
                     </div>
                 </div>
 
-                <!-- Products Grid -->
-                <div id="quick-products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 max-h-56 overflow-y-auto custom-scrollbar p-1">
+                <!-- Products Grid (Larger Cards) -->
+                <div id="quick-products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-72 overflow-y-auto custom-scrollbar p-1">
                     <!-- Injected dynamically via JS -->
                 </div>
             </div>
 
-            <!-- ─── Order Table ─── -->
-            <div class="overflow-x-auto rounded-2xl border border-cream-dark shadow-sm bg-white">
+            <!-- ─── Order Table (High Visibility & Legibility) ─── -->
+            <div class="overflow-x-auto rounded-3xl border-2 border-cream-dark shadow-sm bg-white">
                 <table class="w-full text-left border-collapse" id="products-table">
                     <thead>
-                        <tr class="bg-coffee-dark/5 text-coffee-dark font-heading font-bold text-xs uppercase border-b border-cream-dark">
-                            <th class="p-3 pl-4">Producto</th>
-                            <th class="p-3 w-32">Precio Unit.</th>
-                            <th class="p-3 w-40 text-center">Cantidad</th>
-                            <th class="p-3 w-32 text-right">Subtotal</th>
-                            <th class="p-3 pr-4 text-center w-16">Acción</th>
+                        <tr class="bg-coffee-dark/5 text-coffee-dark font-heading font-black text-sm uppercase tracking-wider border-b-2 border-cream-dark">
+                            <th class="p-4 pl-6">Producto</th>
+                            <th class="p-4 w-36">Precio Unit.</th>
+                            <th class="p-4 w-44 text-center">Cantidad</th>
+                            <th class="p-4 w-36 text-right">Subtotal</th>
+                            <th class="p-4 pr-6 text-center w-20">Acción</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-cream-dark text-sm text-slate-700" id="items-container">
+                    <tbody class="divide-y divide-cream-dark text-base text-slate-800" id="items-container">
                         <!-- Dynamic rows injected here -->
                     </tbody>
                 </table>
                 
                 <!-- Empty state inside table if empty -->
-                <div id="table-empty-state" class="hidden p-8 text-center bg-cream/10">
-                    <div class="w-12 h-12 mx-auto rounded-2xl bg-cream-dark flex items-center justify-center text-2xl text-coffee-medium mb-2">
+                <div id="table-empty-state" class="hidden p-10 text-center bg-cream/10">
+                    <div class="w-16 h-16 mx-auto rounded-2xl bg-cream-dark flex items-center justify-center text-3xl text-coffee-medium mb-3 shadow-inner">
                         🛒
                     </div>
-                    <p class="font-bold text-coffee-dark text-sm">Tu pedido está vacío</p>
-                    <p class="text-xs text-coffee-light mt-0.5">Haz clic en un producto arriba o en "+ Añadir Fila" para comenzar.</p>
+                    <p class="font-extrabold text-coffee-dark text-base">Tu pedido está vacío</p>
+                    <p class="text-sm text-coffee-light font-medium mt-1">Haz clic en un producto arriba o en "+ Añadir Fila Manual" para comenzar.</p>
                 </div>
             </div>
 
             <!-- Add Row Button -->
-            <div class="flex items-center justify-between pt-1">
+            <div class="flex items-center justify-between pt-2">
                 <button type="button" onclick="addRow()" 
-                        class="bg-coffee-dark hover:bg-coffee-medium text-white font-bold py-2.5 px-4 rounded-xl text-xs transition inline-flex items-center gap-1.5 active:scale-95 shadow-sm">
-                    <span>➕</span> Añadir Fila Manual
+                        class="bg-coffee-dark hover:bg-coffee-medium text-white font-extrabold py-3 px-5 rounded-2xl text-sm sm:text-base transition inline-flex items-center gap-2 active:scale-95 shadow-md">
+                    <span class="text-lg">➕</span> Añadir Fila Manual
                 </button>
 
                 <button type="button" onclick="clearAllRows()" 
-                        class="text-xs text-rose-600 hover:text-rose-800 font-semibold transition px-2 py-1">
+                        class="text-sm text-rose-600 hover:text-rose-800 font-extrabold transition px-3 py-1.5">
                     Vaciar Lista
                 </button>
             </div>
         </div>
 
         <!-- Grand Total & Submit -->
-        <div class="border-t border-cream-dark pt-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl px-6 py-3.5 self-start md:self-auto flex items-center gap-4 shadow-sm">
+        <div class="border-t-2 border-cream-dark pt-8 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+            <div class="bg-emerald-50 border-2 border-emerald-300 rounded-3xl px-8 py-4 self-start md:self-auto flex items-center gap-5 shadow-sm">
                 <div>
-                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider block">Total a Registrar</span>
-                    <span class="text-3xl font-extrabold text-emerald-700 font-heading" id="grand-total">Bs. 0.00</span>
+                    <span class="text-xs font-black text-emerald-800 uppercase tracking-widest block">Total a Registrar</span>
+                    <span class="text-3xl sm:text-4xl font-black text-emerald-700 font-heading" id="grand-total">Bs. 0.00</span>
                 </div>
             </div>
             <button type="submit" id="submit-btn"
-                    class="bg-accent hover:bg-accent-dark text-white font-heading font-extrabold py-3.5 px-8 rounded-xl text-sm transition shadow-lg shadow-accent/25 active:scale-95 flex items-center justify-center gap-2">
-                <span>💾</span> Guardar Pedido Histórico
+                    class="bg-accent hover:bg-accent-dark text-white font-heading font-black py-4 px-10 rounded-2xl text-base sm:text-lg transition shadow-xl shadow-accent/30 active:scale-95 flex items-center justify-center gap-2.5">
+                <span class="text-xl">💾</span> Guardar Pedido Histórico
             </button>
         </div>
     </form>
@@ -211,7 +211,7 @@ $catColors = [
         background: #E07B39;
         color: #fff;
         border-color: #E07B39;
-        box-shadow: 0 2px 8px rgba(224,123,57,.3);
+        box-shadow: 0 4px 12px rgba(224,123,57,.35);
     }
 </style>
 
@@ -220,30 +220,30 @@ $catColors = [
     const POS_ICONS = <?= json_encode($posCatIcons) ?>;
 
     const CAT_COLORS = {
-        'hamburger':   { bg: 'bg-amber-100',   text: 'text-amber-700',   border: 'border-amber-200' },
-        'fries':       { bg: 'bg-yellow-100',  text: 'text-yellow-700',  border: 'border-yellow-200' },
-        'chicken':     { bg: 'bg-orange-100',  text: 'text-orange-700',  border: 'border-orange-200' },
-        'drink_cup':   { bg: 'bg-blue-100',    text: 'text-blue-700',    border: 'border-blue-200' },
-        'soda_bottle': { bg: 'bg-cyan-100',    text: 'text-cyan-700',    border: 'border-cyan-200' },
-        'package':     { bg: 'bg-amber-100',   text: 'text-amber-900',   border: 'border-amber-200' },
-        'dessert':     { bg: 'bg-pink-100',    text: 'text-pink-700',    border: 'border-pink-200' },
-        'weekend':     { bg: 'bg-purple-100',  text: 'text-purple-700',  border: 'border-purple-200' },
-        'coffee':      { bg: 'bg-stone-100',   text: 'text-stone-700',   border: 'border-stone-200' },
-        'pizza':       { bg: 'bg-red-100',     text: 'text-red-700',     border: 'border-red-200' },
-        'salad':       { bg: 'bg-green-100',   text: 'text-green-700',   border: 'border-green-200' },
-        'combo':       { bg: 'bg-indigo-100',  text: 'text-indigo-700',  border: 'border-indigo-200' }
+        'hamburger':   { bg: 'bg-amber-100',   text: 'text-amber-700',   border: 'border-amber-300' },
+        'fries':       { bg: 'bg-yellow-100',  text: 'text-yellow-700',  border: 'border-yellow-300' },
+        'chicken':     { bg: 'bg-orange-100',  text: 'text-orange-700',  border: 'border-orange-300' },
+        'drink_cup':   { bg: 'bg-blue-100',    text: 'text-blue-700',    border: 'border-blue-300' },
+        'soda_bottle': { bg: 'bg-cyan-100',    text: 'text-cyan-700',    border: 'border-cyan-300' },
+        'package':     { bg: 'bg-amber-100',   text: 'text-amber-900',   border: 'border-amber-300' },
+        'dessert':     { bg: 'bg-pink-100',    text: 'text-pink-700',    border: 'border-pink-300' },
+        'weekend':     { bg: 'bg-purple-100',  text: 'text-purple-700',  border: 'border-purple-300' },
+        'coffee':      { bg: 'bg-stone-100',   text: 'text-stone-700',   border: 'border-stone-300' },
+        'pizza':       { bg: 'bg-red-100',     text: 'text-red-700',     border: 'border-red-300' },
+        'salad':       { bg: 'bg-green-100',   text: 'text-green-700',   border: 'border-green-300' },
+        'combo':       { bg: 'bg-indigo-100',  text: 'text-indigo-700',  border: 'border-indigo-300' }
     };
 
     let selectedPaymentMethod = null;
     let currentQuickCatId = null;
     let openComboboxIndex = null;
 
-    function getColoredIconBadge(iconKey, sizeClass = "w-7 h-7", iconSizeClass = "w-3.5 h-3.5") {
+    function getColoredIconBadge(iconKey, sizeClass = "w-10 h-10", iconSizeClass = "w-5 h-5") {
         const col = CAT_COLORS[iconKey] || { bg: 'bg-cream', text: 'text-coffee-dark', border: 'border-cream-dark' };
         if (POS_ICONS[iconKey]) {
-            return `<div class="${sizeClass} rounded-xl ${col.bg} ${col.text} border ${col.border} flex items-center justify-center shrink-0 shadow-2xs [&_svg]:${iconSizeClass}">${POS_ICONS[iconKey]}</div>`;
+            return `<div class="${sizeClass} rounded-2xl ${col.bg} ${col.text} border-2 ${col.border} flex items-center justify-center shrink-0 shadow-sm [&_svg]:${iconSizeClass}">${POS_ICONS[iconKey]}</div>`;
         }
-        return `<div class="${sizeClass} rounded-xl bg-cream border border-cream-dark text-coffee-dark flex items-center justify-center shrink-0 text-xs font-bold">${iconKey || '🏷️'}</div>`;
+        return `<div class="${sizeClass} rounded-2xl bg-cream border-2 border-cream-dark text-coffee-dark flex items-center justify-center shrink-0 text-base font-bold">${iconKey || '🏷️'}</div>`;
     }
 
     // ─── Payment Method Selection ─────────────────────────────────────────────
@@ -255,11 +255,11 @@ $catColors = [
         const btnQr = document.getElementById('pm-btn-qr');
 
         if (method === 'efectivo') {
-            btnEf.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-extrabold text-sm border-2 border-emerald-600 bg-emerald-600 text-white shadow-md transition-all scale-[1.02]";
-            btnQr.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+            btnEf.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-black text-base border-2 border-emerald-600 bg-emerald-600 text-white shadow-md transition-all scale-[1.02]";
+            btnQr.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
         } else if (method === 'qr') {
-            btnQr.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-extrabold text-sm border-2 border-blue-600 bg-blue-600 text-white shadow-md transition-all scale-[1.02]";
-            btnEf.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+            btnQr.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-black text-base border-2 border-blue-600 bg-blue-600 text-white shadow-md transition-all scale-[1.02]";
+            btnEf.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
         }
     }
 
@@ -268,8 +268,8 @@ $catColors = [
         document.getElementById('payment_method').value = '';
         const btnEf = document.getElementById('pm-btn-efectivo');
         const btnQr = document.getElementById('pm-btn-qr');
-        if (btnEf) btnEf.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
-        if (btnQr) btnQr.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+        if (btnEf) btnEf.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+        if (btnQr) btnQr.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
     }
 
     // ─── Quick Catalog Grid ──────────────────────────────────────────────────
@@ -286,27 +286,27 @@ $catColors = [
         });
 
         if (!filtered.length) {
-            grid.innerHTML = `<div class="col-span-full py-4 text-center text-xs text-coffee-light font-semibold">No se encontraron productos.</div>`;
+            grid.innerHTML = `<div class="col-span-full py-6 text-center text-sm text-coffee-light font-bold">No se encontraron productos.</div>`;
             return;
         }
 
         grid.innerHTML = '';
         filtered.forEach(p => {
-            const iconBadge = getColoredIconBadge(p.category_icon, 'w-7 h-7', 'w-3.5 h-3.5');
+            const iconBadge = getColoredIconBadge(p.category_icon, 'w-10 h-10', 'w-5 h-5');
             const card = document.createElement('div');
-            card.className = 'bg-white p-2.5 rounded-xl border border-cream-dark shadow-2xs hover:shadow-md hover:border-accent/60 transition cursor-pointer flex flex-col justify-between group active:scale-95';
+            card.className = 'bg-white p-3.5 rounded-2xl border-2 border-cream-dark shadow-2xs hover:shadow-md hover:border-accent/60 transition cursor-pointer flex flex-col justify-between group active:scale-95';
             card.onclick = () => addOrIncrementProduct(p.id);
 
             card.innerHTML = `
-                <div class="flex items-start justify-between gap-1 mb-1.5">
+                <div class="flex items-start justify-between gap-1.5 mb-2">
                     ${iconBadge}
-                    <span class="text-[11px] font-extrabold text-accent font-heading">Bs. ${parseFloat(p.price).toFixed(2)}</span>
+                    <span class="text-sm sm:text-base font-black text-accent font-heading">Bs. ${parseFloat(p.price).toFixed(2)}</span>
                 </div>
-                <div>
-                    <p class="text-xs font-bold text-coffee-dark leading-snug line-clamp-2 group-hover:text-accent transition-colors">${p.name}</p>
-                    <p class="text-[10px] text-coffee-light/70 truncate mt-0.5">${p.category_name}</p>
+                <div class="space-y-0.5">
+                    <p class="text-xs sm:text-sm font-extrabold text-coffee-dark leading-snug line-clamp-2 group-hover:text-accent transition-colors">${p.name}</p>
+                    <p class="text-[11px] text-coffee-light/80 font-bold truncate">${p.category_name}</p>
                 </div>
-                <button type="button" class="mt-2 w-full py-1 bg-cream hover:bg-accent hover:text-white text-coffee-dark font-extrabold text-[10px] rounded-lg transition border border-cream-dark flex items-center justify-center gap-1">
+                <button type="button" class="mt-3 w-full py-1.5 bg-cream hover:bg-accent hover:text-white text-coffee-dark font-black text-xs rounded-xl transition border border-cream-dark flex items-center justify-center gap-1">
                     <span>+</span> Añadir
                 </button>
             `;
@@ -366,8 +366,8 @@ $catColors = [
             const rIndex = foundRow.id.split('-')[1];
             updateQty(rIndex, 1);
             // Flash effect
-            foundRow.classList.add('bg-amber-100/50');
-            setTimeout(() => foundRow.classList.remove('bg-amber-100/50'), 400);
+            foundRow.classList.add('bg-amber-100/60');
+            setTimeout(() => foundRow.classList.remove('bg-amber-100/60'), 400);
         } else {
             // Find empty row or add new
             let emptyTr = null;
@@ -386,36 +386,36 @@ $catColors = [
         }
     }
 
-    // ─── Order Table Rows & Custom Combobox ───────────────────────────────────
+    // ─── Order Table Rows & Custom Combobox (Large Text & Prominent Displays) ───
     function addRow(preselectedProductId = null) {
         const container = document.getElementById('items-container');
         const rowIndex = Date.now() + Math.floor(Math.random() * 100);
         const tr = document.createElement('tr');
         tr.id = `row-${rowIndex}`;
-        tr.className = 'hover:bg-cream/15 transition duration-150';
+        tr.className = 'hover:bg-cream/20 transition duration-150 border-b border-cream-dark/50';
         tr.setAttribute('data-product-id', '');
 
         tr.innerHTML = `
-            <td class="p-3 pl-4">
+            <td class="p-4 pl-6">
                 <!-- Custom Combobox Component -->
                 <div class="relative custom-combobox" id="combobox-wrap-${rowIndex}">
                     <button type="button" onclick="toggleCombobox(${rowIndex})"
-                            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-cream-dark bg-white hover:border-accent/60 focus:ring-2 focus:ring-accent transition text-left text-sm font-medium text-coffee-dark shadow-2xs">
-                        <div id="combobox-label-${rowIndex}" class="flex items-center gap-2.5 overflow-hidden min-w-0 flex-1">
-                            <span class="text-coffee-light/60 text-xs font-semibold">🔍 Seleccionar producto...</span>
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-2xl border-2 border-cream-dark bg-white hover:border-accent/60 focus:ring-2 focus:ring-accent transition text-left text-base font-extrabold text-coffee-dark shadow-2xs">
+                        <div id="combobox-label-${rowIndex}" class="flex items-center gap-3 overflow-hidden min-w-0 flex-1">
+                            <span class="text-coffee-light/70 text-sm font-bold">🔍 Seleccionar producto...</span>
                         </div>
-                        <svg class="w-4 h-4 text-coffee-medium shrink-0 ml-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        <svg class="w-5 h-5 text-coffee-medium shrink-0 ml-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
 
                     <!-- Dropdown Menu -->
-                    <div id="combobox-menu-${rowIndex}" class="hidden absolute top-full left-0 right-0 z-[60] mt-1 bg-white rounded-2xl border border-cream-dark shadow-2xl overflow-hidden p-2 space-y-1.5 animate-slide-up max-w-full" style="min-width: 280px;">
+                    <div id="combobox-menu-${rowIndex}" class="hidden absolute top-full left-0 right-0 z-[60] mt-1 bg-white rounded-3xl border-2 border-cream-dark shadow-2xl overflow-hidden p-3 space-y-2 animate-slide-up max-w-full" style="min-width: 320px;">
                         <div class="relative">
-                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-coffee-light pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            <input type="text" oninput="filterComboboxOptions(${rowIndex}, this.value)" placeholder="Filtrar por nombre o código..." class="w-full pl-8 pr-3 py-2 rounded-xl border border-cream-dark text-xs focus:outline-none focus:ring-2 focus:ring-accent bg-cream/30 text-coffee-dark">
+                            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-coffee-light pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" oninput="filterComboboxOptions(${rowIndex}, this.value)" placeholder="Filtrar por nombre o código..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-cream-dark text-sm focus:outline-none focus:ring-2 focus:ring-accent bg-cream/30 text-coffee-dark font-medium">
                         </div>
-                        <div class="combobox-options max-h-52 overflow-y-auto custom-scrollbar space-y-1" id="combobox-opts-${rowIndex}">
+                        <div class="combobox-options max-h-60 overflow-y-auto custom-scrollbar space-y-1.5" id="combobox-opts-${rowIndex}">
                             ${generateComboboxOptionsHtml(rowIndex)}
                         </div>
                     </div>
@@ -424,25 +424,25 @@ $catColors = [
                 <!-- Hidden inputs for form POST -->
                 <input type="hidden" class="real-qty-input" id="qty-real-${rowIndex}" value="0">
             </td>
-            <td class="p-3">
-                <span class="font-extrabold text-coffee-dark text-sm" id="price-${rowIndex}">Bs. 0.00</span>
+            <td class="p-4">
+                <span class="font-black text-coffee-dark text-base sm:text-lg font-heading" id="price-${rowIndex}">Bs. 0.00</span>
             </td>
-            <td class="p-3">
-                <div class="flex items-center justify-center gap-1.5 bg-cream/40 p-1 rounded-xl border border-cream-dark/60 w-fit mx-auto">
+            <td class="p-4">
+                <div class="flex items-center justify-center gap-2 bg-cream/40 p-1.5 rounded-2xl border-2 border-cream-dark/60 w-fit mx-auto">
                     <button type="button" onclick="updateQty(${rowIndex}, -1)"
-                            class="w-7 h-7 rounded-lg bg-white border border-cream-dark text-xs font-extrabold text-coffee-dark hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center shadow-2xs active:scale-90">-</button>
+                            class="w-9 h-9 rounded-xl bg-white border border-cream-dark text-lg font-black text-coffee-dark hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center shadow-2xs active:scale-90">-</button>
                     <input type="number" id="qty-${rowIndex}" min="0" value="0" oninput="onQtyChange(${rowIndex}, this)"
-                           class="w-12 text-center text-xs font-black text-coffee-dark bg-transparent border-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                           class="w-14 text-center text-base sm:text-lg font-black text-coffee-dark bg-transparent border-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                     <button type="button" onclick="updateQty(${rowIndex}, 1)"
-                            class="w-7 h-7 rounded-lg bg-white border border-cream-dark text-xs font-extrabold text-coffee-dark hover:bg-emerald-50 hover:text-emerald-600 transition flex items-center justify-center shadow-2xs active:scale-90">+</button>
+                            class="w-9 h-9 rounded-xl bg-white border border-cream-dark text-lg font-black text-coffee-dark hover:bg-emerald-50 hover:text-emerald-600 transition flex items-center justify-center shadow-2xs active:scale-90">+</button>
                 </div>
             </td>
-            <td class="p-3 text-right">
-                <span class="font-black text-coffee-dark text-sm font-heading" id="subtotal-${rowIndex}">Bs. 0.00</span>
+            <td class="p-4 text-right">
+                <span class="font-black text-accent-dark text-lg sm:text-xl font-heading" id="subtotal-${rowIndex}">Bs. 0.00</span>
             </td>
-            <td class="p-3 pr-4 text-center">
+            <td class="p-4 pr-6 text-center">
                 <button type="button" onclick="removeRow(${rowIndex})"
-                        class="w-8 h-8 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition font-bold text-sm flex items-center justify-center mx-auto active:scale-90" title="Quitar item">
+                        class="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition font-black text-lg flex items-center justify-center mx-auto active:scale-90" title="Quitar item">
                     &times;
                 </button>
             </td>
@@ -464,22 +464,22 @@ $catColors = [
         });
 
         if (!filtered.length) {
-            return `<div class="p-3 text-center text-xs text-coffee-light font-semibold">Sin coincidencias</div>`;
+            return `<div class="p-4 text-center text-sm text-coffee-light font-bold">Sin coincidencias</div>`;
         }
 
         return filtered.map(p => {
-            const iconBadge = getColoredIconBadge(p.category_icon, 'w-7 h-7', 'w-3.5 h-3.5');
+            const iconBadge = getColoredIconBadge(p.category_icon, 'w-10 h-10', 'w-5 h-5');
             return `
                 <div onclick="selectComboboxOption(${rowIndex}, ${p.id})"
-                     class="flex items-center justify-between p-2 rounded-xl hover:bg-cream/60 cursor-pointer transition group">
-                    <div class="flex items-center gap-2.5 min-w-0">
+                     class="flex items-center justify-between p-2.5 rounded-2xl hover:bg-cream/60 cursor-pointer transition group">
+                    <div class="flex items-center gap-3 min-w-0">
                         ${iconBadge}
                         <div class="truncate">
-                            <p class="text-xs font-bold text-coffee-dark leading-snug group-hover:text-accent transition-colors truncate">${p.name}</p>
-                            <span class="text-[10px] text-coffee-light/70 truncate">${p.category_name}</span>
+                            <p class="text-sm sm:text-base font-extrabold text-coffee-dark leading-snug group-hover:text-accent transition-colors truncate">${p.name}</p>
+                            <span class="text-xs text-coffee-light/80 font-bold truncate">${p.category_name}</span>
                         </div>
                     </div>
-                    <span class="text-xs font-extrabold text-accent shrink-0 ml-2 font-heading">Bs. ${parseFloat(p.price).toFixed(2)}</span>
+                    <span class="text-sm sm:text-base font-black text-accent shrink-0 ml-3 font-heading">Bs. ${parseFloat(p.price).toFixed(2)}</span>
                 </div>
             `;
         }).join('');
@@ -533,14 +533,16 @@ $catColors = [
 
         tr.setAttribute('data-product-id', productId);
 
-        // Update trigger label
-        const iconBadge = getColoredIconBadge(product.category_icon, 'w-7 h-7', 'w-3.5 h-3.5');
+        // Update trigger label with prominent text & icon
+        const iconBadge = getColoredIconBadge(product.category_icon, 'w-10 h-10', 'w-5 h-5');
         const labelEl = document.getElementById(`combobox-label-${rowIndex}`);
         if (labelEl) {
             labelEl.innerHTML = `
                 ${iconBadge}
-                <span class="font-extrabold text-coffee-dark text-xs truncate">${product.name}</span>
-                <span class="text-[10px] text-coffee-light bg-cream px-1.5 py-0.5 rounded-md border border-cream-dark shrink-0">${product.category_name}</span>
+                <div class="flex flex-col min-w-0">
+                    <span class="font-black text-coffee-dark text-base truncate leading-snug">${product.name}</span>
+                    <span class="text-xs text-coffee-light font-bold truncate">${product.category_name}</span>
+                </div>
             `;
         }
 
@@ -671,7 +673,7 @@ $catColors = [
             alertContainer.className = 'hidden';
 
             if (!selectedPaymentMethod) {
-                alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block animate-slide-up";
+                alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-5 py-4 rounded-2xl text-base font-bold mb-4 block animate-slide-up";
                 alertContainer.innerText = 'Debes seleccionar obligatoriamente un tipo de pago (Efectivo o QR).';
                 alertContainer.classList.remove('hidden');
                 alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -695,10 +697,10 @@ $catColors = [
             .then(res => res.json())
             .then(data => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = `<span>💾</span> Guardar Pedido Histórico`;
+                submitBtn.innerHTML = `<span class="text-xl">💾</span> Guardar Pedido Histórico`;
 
                 if (data.success) {
-                    alertContainer.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block animate-slide-up";
+                    alertContainer.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl text-base font-bold mb-4 block animate-slide-up";
                     alertContainer.innerText = data.message;
 
                     // Clear products and payment method selection
@@ -707,7 +709,7 @@ $catColors = [
                     addRow();
                     calculateGrandTotal();
                 } else {
-                    alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block animate-slide-up";
+                    alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-5 py-4 rounded-2xl text-base font-bold mb-4 block animate-slide-up";
                     alertContainer.innerText = data.message;
                 }
                 alertContainer.classList.remove('hidden');
@@ -715,9 +717,9 @@ $catColors = [
             })
             .catch(err => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = `<span>💾</span> Guardar Pedido Histórico`;
+                submitBtn.innerHTML = `<span class="text-xl">💾</span> Guardar Pedido Histórico`;
 
-                alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block animate-slide-up";
+                alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-5 py-4 rounded-2xl text-base font-bold mb-4 block animate-slide-up";
                 alertContainer.innerText = 'Error de red o conexión al servidor.';
                 alertContainer.classList.remove('hidden');
                 alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

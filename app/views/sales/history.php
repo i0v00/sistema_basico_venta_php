@@ -216,7 +216,7 @@ foreach ($sales as $s) {
                                     <div class="text-center flex justify-center items-center gap-2">
                                         <button onclick="loadSaleDetails(<?= $sale['id'] ?>, '<?= date('d/m/Y H:i', strtotime($sale['sale_date'])) ?>', 'Bs. <?= number_format((float)$sale['total'], 2) ?>')" 
                                                  class="bg-coffee-dark hover:bg-coffee-medium text-white text-xs font-bold px-3.5 py-2 rounded-xl transition duration-200 shadow-2xs active:scale-95 flex items-center gap-1">
-                                             🔍 Detail
+                                             🔍 Detalle
                                          </button>
                                          <?php if (\Core\Auth::role() === 'admin'): ?>
                                          <button type="button" onclick="confirmDeleteSale(<?= $sale['id'] ?>)" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold px-2.5 py-2 rounded-xl transition duration-200 border border-rose-200 active:scale-95" title="Eliminar ticket">
@@ -234,44 +234,44 @@ foreach ($sales as $s) {
     </div>
 </div>
 
-<!-- Modal Details (With Colorful SVG Icons & Correct Currency Bs.) -->
+<!-- Modal Details (Prominent Font Sizes & Large Colorful Icons) -->
 <div id="details-modal" class="fixed inset-0 bg-coffee-dark/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 animate-fade-in">
-    <div class="bg-white rounded-3xl w-full md:w-[32%] md:min-w-[340px] border border-cream-dark shadow-2xl overflow-hidden animate-slide-up">
+    <div class="bg-white rounded-3xl w-full md:w-[38%] md:min-w-[360px] border border-cream-dark shadow-2xl overflow-hidden animate-slide-up">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-coffee-dark to-coffee-medium text-white p-5 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-lg">🧾</div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center text-xl shadow-sm">🧾</div>
                 <div>
-                    <h4 class="font-heading font-extrabold text-base" id="details-modal-title">Ticket #—</h4>
-                    <p class="text-white/60 text-[10px] uppercase tracking-wider font-semibold">Detalle de la venta</p>
+                    <h4 class="font-heading font-extrabold text-lg sm:text-xl" id="details-modal-title">Ticket #—</h4>
+                    <p class="text-white/70 text-xs uppercase tracking-wider font-semibold">Detalle de la venta</p>
                 </div>
             </div>
-            <button onclick="closeDetailsModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-lg flex items-center justify-center transition">&times;</button>
+            <button onclick="closeDetailsModal()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xl flex items-center justify-center transition">&times;</button>
         </div>
         
-        <div class="p-6 space-y-4">
-            <div class="text-xs text-coffee-light flex justify-between font-semibold border-b border-cream-dark/60 pb-3">
+        <div class="p-6 space-y-5">
+            <div class="text-sm text-coffee-light flex justify-between font-bold border-b border-cream-dark/60 pb-3">
                 <span id="details-modal-date">Fecha: --/--/----</span>
-                <span id="details-modal-id" class="font-bold text-coffee-dark">Ticket N°: --</span>
+                <span id="details-modal-id" class="font-black text-coffee-dark">Ticket N°: --</span>
             </div>
 
             <!-- Payment Method Container -->
-            <div id="details-modal-pm-container" class="bg-cream/40 p-3 rounded-2xl border border-cream-dark text-xs flex flex-col gap-2">
+            <div id="details-modal-pm-container" class="bg-cream/40 p-4 rounded-2xl border border-cream-dark text-sm flex flex-col gap-2">
                 <!-- Javascript dynamic insert for payment method status or assign form -->
             </div>
 
-            <!-- List items with colorful SVG icons -->
-            <div class="py-2 max-h-64 overflow-y-auto custom-scrollbar space-y-2" id="details-modal-items">
+            <!-- List items with large colorful SVG icons -->
+            <div class="py-2 max-h-72 overflow-y-auto custom-scrollbar space-y-2.5" id="details-modal-items">
                 <!-- Javascript dynamic insert -->
             </div>
 
             <!-- Total -->
-            <div class="flex justify-between items-center text-base font-extrabold text-coffee-dark pt-3 border-t border-cream-dark">
-                <span class="text-sm">Total de Venta:</span>
-                <span id="details-modal-total" class="text-2xl text-accent font-heading">Bs. 0.00</span>
+            <div class="flex justify-between items-center text-lg font-black text-coffee-dark pt-4 border-t-2 border-cream-dark">
+                <span class="text-base font-extrabold">Total de Venta:</span>
+                <span id="details-modal-total" class="text-3xl text-accent font-heading font-black">Bs. 0.00</span>
             </div>
 
-            <button onclick="closeDetailsModal()" class="w-full bg-coffee-dark hover:bg-coffee-medium text-white font-bold py-3 rounded-xl transition duration-200 text-xs shadow-md">
+            <button onclick="closeDetailsModal()" class="w-full bg-coffee-dark hover:bg-coffee-medium text-white font-black py-3.5 rounded-2xl transition duration-200 text-sm shadow-md">
                 Cerrar Detalle
             </button>
         </div>
@@ -318,26 +318,26 @@ foreach ($sales as $s) {
     const POS_ICONS = <?= json_encode($posCatIcons) ?>;
 
     const CAT_COLORS = {
-        'hamburger':   { bg: 'bg-amber-100',   text: 'text-amber-700',   border: 'border-amber-200' },
-        'fries':       { bg: 'bg-yellow-100',  text: 'text-yellow-700',  border: 'border-yellow-200' },
-        'chicken':     { bg: 'bg-orange-100',  text: 'text-orange-700',  border: 'border-orange-200' },
-        'drink_cup':   { bg: 'bg-blue-100',    text: 'text-blue-700',    border: 'border-blue-200' },
-        'soda_bottle': { bg: 'bg-cyan-100',    text: 'text-cyan-700',    border: 'border-cyan-200' },
-        'package':     { bg: 'bg-amber-100',   text: 'text-amber-900',   border: 'border-amber-200' },
-        'dessert':     { bg: 'bg-pink-100',    text: 'text-pink-700',    border: 'border-pink-200' },
-        'weekend':     { bg: 'bg-purple-100',  text: 'text-purple-700',  border: 'border-purple-200' },
-        'coffee':      { bg: 'bg-stone-100',   text: 'text-stone-700',   border: 'border-stone-200' },
-        'pizza':       { bg: 'bg-red-100',     text: 'text-red-700',     border: 'border-red-200' },
-        'salad':       { bg: 'bg-green-100',   text: 'text-green-700',   border: 'border-green-200' },
-        'combo':       { bg: 'bg-indigo-100',  text: 'text-indigo-700',  border: 'border-indigo-200' }
+        'hamburger':   { bg: 'bg-amber-100',   text: 'text-amber-700',   border: 'border-amber-300' },
+        'fries':       { bg: 'bg-yellow-100',  text: 'text-yellow-700',  border: 'border-yellow-300' },
+        'chicken':     { bg: 'bg-orange-100',  text: 'text-orange-700',  border: 'border-orange-300' },
+        'drink_cup':   { bg: 'bg-blue-100',    text: 'text-blue-700',    border: 'border-blue-300' },
+        'soda_bottle': { bg: 'bg-cyan-100',    text: 'text-cyan-700',    border: 'border-cyan-300' },
+        'package':     { bg: 'bg-amber-100',   text: 'text-amber-900',   border: 'border-amber-300' },
+        'dessert':     { bg: 'bg-pink-100',    text: 'text-pink-700',    border: 'border-pink-300' },
+        'weekend':     { bg: 'bg-purple-100',  text: 'text-purple-700',  border: 'border-purple-300' },
+        'coffee':      { bg: 'bg-stone-100',   text: 'text-stone-700',   border: 'border-stone-300' },
+        'pizza':       { bg: 'bg-red-100',     text: 'text-red-700',     border: 'border-red-300' },
+        'salad':       { bg: 'bg-green-100',   text: 'text-green-700',   border: 'border-green-300' },
+        'combo':       { bg: 'bg-indigo-100',  text: 'text-indigo-700',  border: 'border-indigo-300' }
     };
 
-    function getColoredIconBadge(iconKey, sizeClass = "w-8 h-8", iconSizeClass = "w-4 h-4") {
+    function getColoredIconBadge(iconKey, sizeClass = "w-11 h-11", iconSizeClass = "w-6 h-6") {
         const col = CAT_COLORS[iconKey] || { bg: 'bg-cream', text: 'text-coffee-dark', border: 'border-cream-dark' };
         if (POS_ICONS[iconKey]) {
-            return `<div class="${sizeClass} rounded-xl ${col.bg} ${col.text} border ${col.border} flex items-center justify-center shrink-0 shadow-2xs [&_svg]:${iconSizeClass}">${POS_ICONS[iconKey]}</div>`;
+            return `<div class="${sizeClass} rounded-2xl ${col.bg} ${col.text} border-2 ${col.border} flex items-center justify-center shrink-0 shadow-sm [&_svg]:${iconSizeClass}">${POS_ICONS[iconKey]}</div>`;
         }
-        return `<div class="${sizeClass} rounded-xl bg-cream border border-cream-dark text-coffee-dark flex items-center justify-center shrink-0 text-xs font-bold">${iconKey || '🏷️'}</div>`;
+        return `<div class="${sizeClass} rounded-2xl bg-cream border-2 border-cream-dark text-coffee-dark flex items-center justify-center shrink-0 text-base font-bold">${iconKey || '🏷️'}</div>`;
     }
 
     function setPresetDate(preset) {
@@ -390,8 +390,8 @@ foreach ($sales as $s) {
         document.getElementById("details-modal-id").innerText = `Ticket N°: #${saleId}`;
         document.getElementById("details-modal-total").innerText = totalStr;
 
-        itemsContainer.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Cargando detalles...</div>`;
-        pmContainer.innerHTML = `<div class="text-center text-slate-400 py-1 text-xs">Cargando información de pago...</div>`;
+        itemsContainer.innerHTML = `<div class="text-center text-slate-400 py-6 text-sm font-bold">Cargando detalles...</div>`;
+        pmContainer.innerHTML = `<div class="text-center text-slate-400 py-1 text-sm font-bold">Cargando información de pago...</div>`;
         modal.classList.remove("hidden");
 
         fetch(`${window.BASE_URL}/sales/details?id=${saleId}`)
@@ -401,18 +401,18 @@ foreach ($sales as $s) {
                     // Payment Method section
                     if (data.payment_method === 'efectivo') {
                         pmContainer.innerHTML = `
-                            <div class="flex justify-between items-center font-semibold">
-                                <span class="text-coffee-light uppercase tracking-wider text-[10px]">Método de Pago:</span>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <div class="flex justify-between items-center font-bold">
+                                <span class="text-coffee-light uppercase tracking-wider text-xs">Método de Pago:</span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
                                     💵 Efectivo
                                 </span>
                             </div>
                         `;
                     } else if (data.payment_method === 'qr') {
                         pmContainer.innerHTML = `
-                            <div class="flex justify-between items-center font-semibold">
-                                <span class="text-coffee-light uppercase tracking-wider text-[10px]">Método de Pago:</span>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            <div class="flex justify-between items-center font-bold">
+                                <span class="text-coffee-light uppercase tracking-wider text-xs">Método de Pago:</span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-800 border border-blue-200">
                                     📱 QR
                                 </span>
                             </div>
@@ -421,19 +421,19 @@ foreach ($sales as $s) {
                         pmContainer.innerHTML = `
                             <div class="flex flex-col gap-2">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-coffee-light uppercase tracking-wider text-[10px] font-bold">Método de Pago:</span>
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                    <span class="text-coffee-light uppercase tracking-wider text-xs font-bold">Método de Pago:</span>
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 border border-amber-300">
                                         ⚠️ Sin Especificar
                                     </span>
                                 </div>
-                                <div class="text-[11px] text-coffee-medium font-medium">Asignar método de pago a este ticket:</div>
+                                <div class="text-xs text-coffee-medium font-bold">Asignar método de pago a este ticket:</div>
                                 <div class="flex gap-2">
                                     <button type="button" onclick="assignPaymentMethod(${saleId}, 'efectivo')" 
-                                            class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded-xl transition text-center flex items-center justify-center gap-1 shadow-sm">
+                                            class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black py-2 px-3 rounded-xl transition text-center flex items-center justify-center gap-1 shadow-sm">
                                         💵 Efectivo
                                     </button>
                                     <button type="button" onclick="assignPaymentMethod(${saleId}, 'qr')" 
-                                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1.5 px-3 rounded-xl transition text-center flex items-center justify-center gap-1 shadow-sm">
+                                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black py-2 px-3 rounded-xl transition text-center flex items-center justify-center gap-1 shadow-sm">
                                         📱 QR
                                     </button>
                                 </div>
@@ -441,39 +441,39 @@ foreach ($sales as $s) {
                         `;
                     }
 
-                    // Details items section with colorful SVG icons & Bs.
+                    // Details items section with large colorful SVG icons & Bs.
                     if (data.details && data.details.length) {
                         itemsContainer.innerHTML = "";
                         data.details.forEach(item => {
-                            const iconBadge = getColoredIconBadge(item.product_icon, 'w-8 h-8', 'w-4 h-4');
+                            const iconBadge = getColoredIconBadge(item.product_icon, 'w-11 h-11', 'w-6 h-6');
                             const lineTotal = (parseFloat(item.price) * parseInt(item.quantity)).toFixed(2);
                             const div = document.createElement("div");
-                            div.className = "flex items-center justify-between p-2 rounded-xl bg-cream/30 border border-cream-dark/60";
+                            div.className = "flex items-center justify-between p-3.5 rounded-2xl bg-cream/30 border-2 border-cream-dark/60";
                             div.innerHTML = `
-                                <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="flex items-center gap-3 min-w-0">
                                     ${iconBadge}
                                     <div class="truncate">
-                                        <p class="font-bold text-coffee-dark text-xs truncate leading-tight">${item.product_name}</p>
-                                        <p class="text-[10px] text-coffee-light font-medium mt-0.5">Bs. ${parseFloat(item.price).toFixed(2)} c/u</p>
+                                        <p class="font-black text-coffee-dark text-sm sm:text-base truncate leading-tight">${item.product_name}</p>
+                                        <p class="text-xs font-bold text-coffee-light mt-0.5">Bs. ${parseFloat(item.price).toFixed(2)} c/u</p>
                                     </div>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <span class="inline-block bg-coffee-dark text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-md">×${item.quantity}</span>
-                                    <p class="text-xs font-extrabold text-coffee-dark font-heading mt-0.5">Bs. ${lineTotal}</p>
+                                    <span class="inline-block bg-coffee-dark text-white text-xs font-black px-2.5 py-1 rounded-lg">×${item.quantity}</span>
+                                    <p class="text-sm sm:text-base font-black text-coffee-dark font-heading mt-1">Bs. ${lineTotal}</p>
                                 </div>
                             `;
                             itemsContainer.appendChild(div);
                         });
                     }
                 } else {
-                    itemsContainer.innerHTML = `<div class="text-center text-rose-600 py-6 text-xs">Error al cargar detalles.</div>`;
-                    pmContainer.innerHTML = `<div class="text-center text-rose-600 py-1 text-xs">Error.</div>`;
+                    itemsContainer.innerHTML = `<div class="text-center text-rose-600 py-6 text-sm font-bold">Error al cargar detalles.</div>`;
+                    pmContainer.innerHTML = `<div class="text-center text-rose-600 py-1 text-sm font-bold">Error.</div>`;
                 }
             })
             .catch(err => {
                 console.error(err);
-                itemsContainer.innerHTML = `<div class="text-center text-rose-600 py-6 text-xs">Error de conexión.</div>`;
-                pmContainer.innerHTML = `<div class="text-center text-rose-600 py-1 text-xs">Error de conexión.</div>`;
+                itemsContainer.innerHTML = `<div class="text-center text-rose-600 py-6 text-sm font-bold">Error de conexión.</div>`;
+                pmContainer.innerHTML = `<div class="text-center text-rose-600 py-1 text-sm font-bold">Error de conexión.</div>`;
             });
     }
 
