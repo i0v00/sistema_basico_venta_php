@@ -17,18 +17,33 @@
         <!-- Dynamic Alert Container -->
         <div id="alert-container" class="hidden"></div>
 
-        <!-- Date Selector -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Date & Payment Method Selector -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label for="sale_date" class="block text-sm font-bold text-coffee-dark mb-1">Fecha y Hora del Pedido *</label>
                 <input type="datetime-local" id="sale_date" name="sale_date" required 
                        value="<?= date('Y-m-d\TH:i') ?>"
                        class="w-full px-4 py-3 rounded-xl border border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-sm text-coffee-dark">
-            </div>
-            <div class="flex items-end">
-                <span class="text-xs text-coffee-light">
-                    ⚠️ Al guardar el pedido, este se guardará automáticamente en estado <strong>Finalizado</strong>, por lo que no aparecerá en la cocina en tiempo real ni alterará el flujo de preparación del día.
+                <span class="text-xs text-coffee-light mt-1.5 block">
+                    ⚠️ Al guardar el pedido, este se guardará automáticamente en estado <strong>Finalizado</strong>.
                 </span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-coffee-dark mb-1">
+                    Método de Pago <span class="text-rose-600">*</span>
+                </label>
+                <input type="hidden" name="payment_method" id="payment_method" value="" required>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="pm-btn-efectivo" onclick="selectPaymentMethod('efectivo')"
+                            class="pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span>💵</span> Efectivo
+                    </button>
+                    <button type="button" id="pm-btn-qr" onclick="selectPaymentMethod('qr')"
+                            class="pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span>📱</span> QR
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -78,7 +93,33 @@
 <!-- Template for select options -->
 <script>
     const availableProducts = <?= json_encode(array_values($products)) ?>;
-    
+    let selectedPaymentMethod = null;
+
+    function selectPaymentMethod(method) {
+        selectedPaymentMethod = method;
+        document.getElementById('payment_method').value = method;
+
+        const btnEf = document.getElementById('pm-btn-efectivo');
+        const btnQr = document.getElementById('pm-btn-qr');
+
+        if (method === 'efectivo') {
+            btnEf.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-extrabold text-sm border-2 border-emerald-600 bg-emerald-600 text-white shadow-md transition-all scale-[1.02]";
+            btnQr.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+        } else if (method === 'qr') {
+            btnQr.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-extrabold text-sm border-2 border-blue-600 bg-blue-600 text-white shadow-md transition-all scale-[1.02]";
+            btnEf.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+        }
+    }
+
+    function resetPaymentMethod() {
+        selectedPaymentMethod = null;
+        document.getElementById('payment_method').value = '';
+        const btnEf = document.getElementById('pm-btn-efectivo');
+        const btnQr = document.getElementById('pm-btn-qr');
+        if (btnEf) btnEf.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+        if (btnQr) btnQr.className = "pm-btn flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+    }
+
     function addRow() {
         const container = document.getElementById('items-container');
         const rowIndex = Date.now();
@@ -211,12 +252,20 @@
         document.getElementById('manual-sale-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const form = this;
-            const formData = new FormData(form);
             const alertContainer = document.getElementById('alert-container');
-            
             alertContainer.classList.add('hidden');
             alertContainer.className = 'hidden';
+
+            if (!selectedPaymentMethod) {
+                alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block";
+                alertContainer.innerText = 'Debes seleccionar obligatoriamente un tipo de pago (Efectivo o QR).';
+                alertContainer.classList.remove('hidden');
+                alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                return;
+            }
+
+            const form = this;
+            const formData = new FormData(form);
             
             fetch(form.action, {
                 method: 'POST',
@@ -231,8 +280,9 @@
                     alertContainer.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm font-semibold mb-4 block";
                     alertContainer.innerText = data.message;
                     
-                    // Clear products
+                    // Clear products and payment method selection
                     document.getElementById('items-container').innerHTML = '';
+                    resetPaymentMethod();
                     addRow();
                     calculateGrandTotal();
                 } else {
