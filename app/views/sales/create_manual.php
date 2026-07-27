@@ -14,6 +14,21 @@ $posCatIcons = [
     'combo'       => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2"/><path d="M15 8h2"/><path d="M11 12h2"/></svg>'
 ];
 $categoriesList = $categories ?? [];
+
+$catColors = [
+    'hamburger'   => ['bg' => 'bg-amber-100',   'text' => 'text-amber-700',   'border' => 'border-amber-200'],
+    'fries'       => ['bg' => 'bg-yellow-100',  'text' => 'text-yellow-700',  'border' => 'border-yellow-200'],
+    'chicken'     => ['bg' => 'bg-orange-100',  'text' => 'text-orange-700',  'border' => 'border-orange-200'],
+    'drink_cup'   => ['bg' => 'bg-blue-100',    'text' => 'text-blue-700',    'border' => 'border-blue-200'],
+    'soda_bottle' => ['bg' => 'bg-cyan-100',    'text' => 'text-cyan-700',    'border' => 'border-cyan-200'],
+    'package'     => ['bg' => 'bg-amber-100',   'text' => 'text-amber-900',   'border' => 'border-amber-200'],
+    'dessert'     => ['bg' => 'bg-pink-100',    'text' => 'text-pink-700',    'border' => 'border-pink-200'],
+    'weekend'     => ['bg' => 'bg-purple-100',  'text' => 'text-purple-700',  'border' => 'border-purple-200'],
+    'coffee'      => ['bg' => 'bg-stone-100',   'text' => 'text-stone-700',   'border' => 'border-stone-200'],
+    'pizza'       => ['bg' => 'bg-red-100',     'text' => 'text-red-700',     'border' => 'border-red-200'],
+    'salad'       => ['bg' => 'bg-green-100',   'text' => 'text-green-700',   'border' => 'border-green-200'],
+    'combo'       => ['bg' => 'bg-indigo-100',  'text' => 'text-indigo-700',  'border' => 'border-indigo-200'],
+];
 ?>
 
 <div class="max-w-5xl mx-auto space-y-6 animate-slide-up">
@@ -103,7 +118,7 @@ $categoriesList = $categories ?? [];
                                class="w-full pl-10 pr-4 py-2.5 bg-white rounded-xl border border-cream-dark text-sm text-coffee-dark focus:outline-none focus:ring-2 focus:ring-accent transition shadow-sm">
                     </div>
 
-                    <!-- Category Pills -->
+                    <!-- Category Pills with Colorful Icons -->
                     <div class="flex gap-1.5 overflow-x-auto pb-1 md:pb-0 custom-scrollbar snap-x max-w-full">
                         <button type="button" onclick="selectQuickCategory(null)" id="qcat-all"
                                 class="qcat-pill active snap-start shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold border border-transparent transition whitespace-nowrap">
@@ -112,11 +127,12 @@ $categoriesList = $categories ?? [];
                         <?php foreach ($categoriesList as $c): 
                             $cKey = $c['icon'] ?? '';
                             $hasSvg = isset($posCatIcons[$cKey]);
+                            $cColor = $catColors[$cKey] ?? ['bg' => 'bg-cream', 'text' => 'text-coffee-dark', 'border' => 'border-cream-dark'];
                         ?>
                         <button type="button" onclick="selectQuickCategory(<?= $c['id'] ?>)" id="qcat-<?= $c['id'] ?>"
                                 class="qcat-pill snap-start shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white border border-cream-dark text-coffee-dark hover:border-accent/60 transition whitespace-nowrap flex items-center gap-1.5">
                             <?php if ($hasSvg): ?>
-                                <span class="w-3.5 h-3.5 shrink-0 inline-flex items-center justify-center [&_svg]:w-full [&_svg]:h-full"><?= $posCatIcons[$cKey] ?></span>
+                                <span class="w-5 h-5 rounded-lg <?= $cColor['bg'] ?> <?= $cColor['text'] ?> <?= $cColor['border'] ?> border flex items-center justify-center shrink-0 [&_svg]:w-3 [&_svg]:h-3"><?= $posCatIcons[$cKey] ?></span>
                             <?php else: ?>
                                 <span><?= e($cKey ?: '🏷️') ?></span>
                             <?php endif; ?>
@@ -203,34 +219,31 @@ $categoriesList = $categories ?? [];
     const availableProducts = <?= json_encode(array_values($products)) ?>;
     const POS_ICONS = <?= json_encode($posCatIcons) ?>;
 
-    const CAT_BADGES = {
-        'hamburger': 'bg-amber-100 text-amber-800 border-amber-200',
-        'fries': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        'chicken': 'bg-orange-100 text-orange-800 border-orange-200',
-        'drink_cup': 'bg-blue-100 text-blue-800 border-blue-200',
-        'soda_bottle': 'bg-cyan-100 text-cyan-800 border-cyan-200',
-        'package': 'bg-amber-50 text-amber-900 border-amber-200',
-        'dessert': 'bg-pink-100 text-pink-800 border-pink-200',
-        'weekend': 'bg-purple-100 text-purple-800 border-purple-200',
-        'coffee': 'bg-stone-100 text-stone-800 border-stone-200',
-        'pizza': 'bg-red-100 text-red-800 border-red-200',
-        'salad': 'bg-green-100 text-green-800 border-green-200',
-        'combo': 'bg-indigo-100 text-indigo-800 border-indigo-200'
+    const CAT_COLORS = {
+        'hamburger':   { bg: 'bg-amber-100',   text: 'text-amber-700',   border: 'border-amber-200' },
+        'fries':       { bg: 'bg-yellow-100',  text: 'text-yellow-700',  border: 'border-yellow-200' },
+        'chicken':     { bg: 'bg-orange-100',  text: 'text-orange-700',  border: 'border-orange-200' },
+        'drink_cup':   { bg: 'bg-blue-100',    text: 'text-blue-700',    border: 'border-blue-200' },
+        'soda_bottle': { bg: 'bg-cyan-100',    text: 'text-cyan-700',    border: 'border-cyan-200' },
+        'package':     { bg: 'bg-amber-100',   text: 'text-amber-900',   border: 'border-amber-200' },
+        'dessert':     { bg: 'bg-pink-100',    text: 'text-pink-700',    border: 'border-pink-200' },
+        'weekend':     { bg: 'bg-purple-100',  text: 'text-purple-700',  border: 'border-purple-200' },
+        'coffee':      { bg: 'bg-stone-100',   text: 'text-stone-700',   border: 'border-stone-200' },
+        'pizza':       { bg: 'bg-red-100',     text: 'text-red-700',     border: 'border-red-200' },
+        'salad':       { bg: 'bg-green-100',   text: 'text-green-700',   border: 'border-green-200' },
+        'combo':       { bg: 'bg-indigo-100',  text: 'text-indigo-700',  border: 'border-indigo-200' }
     };
 
     let selectedPaymentMethod = null;
     let currentQuickCatId = null;
     let openComboboxIndex = null;
 
-    function getIconHtml(key, classes = "w-4 h-4") {
-        if (POS_ICONS[key]) {
-            return `<span class="${classes} inline-flex items-center justify-center shrink-0 [&_svg]:w-full [&_svg]:h-full">${POS_ICONS[key]}</span>`;
+    function getColoredIconBadge(iconKey, sizeClass = "w-7 h-7", iconSizeClass = "w-3.5 h-3.5") {
+        const col = CAT_COLORS[iconKey] || { bg: 'bg-cream', text: 'text-coffee-dark', border: 'border-cream-dark' };
+        if (POS_ICONS[iconKey]) {
+            return `<div class="${sizeClass} rounded-xl ${col.bg} ${col.text} border ${col.border} flex items-center justify-center shrink-0 shadow-2xs [&_svg]:${iconSizeClass}">${POS_ICONS[iconKey]}</div>`;
         }
-        return `<span>${key || '🏷️'}</span>`;
-    }
-
-    function getBadgeClass(key) {
-        return CAT_BADGES[key] || 'bg-cream text-coffee-dark border-cream-dark';
+        return `<div class="${sizeClass} rounded-xl bg-cream border border-cream-dark text-coffee-dark flex items-center justify-center shrink-0 text-xs font-bold">${iconKey || '🏷️'}</div>`;
     }
 
     // ─── Payment Method Selection ─────────────────────────────────────────────
@@ -279,14 +292,14 @@ $categoriesList = $categories ?? [];
 
         grid.innerHTML = '';
         filtered.forEach(p => {
-            const badgeClass = getBadgeClass(p.category_icon);
+            const iconBadge = getColoredIconBadge(p.category_icon, 'w-7 h-7', 'w-3.5 h-3.5');
             const card = document.createElement('div');
             card.className = 'bg-white p-2.5 rounded-xl border border-cream-dark shadow-2xs hover:shadow-md hover:border-accent/60 transition cursor-pointer flex flex-col justify-between group active:scale-95';
             card.onclick = () => addOrIncrementProduct(p.id);
 
             card.innerHTML = `
                 <div class="flex items-start justify-between gap-1 mb-1.5">
-                    <span class="p-1 rounded-lg border ${badgeClass} shadow-2xs">${getIconHtml(p.category_icon, 'w-3.5 h-3.5')}</span>
+                    ${iconBadge}
                     <span class="text-[11px] font-extrabold text-accent font-heading">Bs. ${parseFloat(p.price).toFixed(2)}</span>
                 </div>
                 <div>
@@ -388,7 +401,7 @@ $categoriesList = $categories ?? [];
                 <div class="relative custom-combobox" id="combobox-wrap-${rowIndex}">
                     <button type="button" onclick="toggleCombobox(${rowIndex})"
                             class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-cream-dark bg-white hover:border-accent/60 focus:ring-2 focus:ring-accent transition text-left text-sm font-medium text-coffee-dark shadow-2xs">
-                        <div id="combobox-label-${rowIndex}" class="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
+                        <div id="combobox-label-${rowIndex}" class="flex items-center gap-2.5 overflow-hidden min-w-0 flex-1">
                             <span class="text-coffee-light/60 text-xs font-semibold">🔍 Seleccionar producto...</span>
                         </div>
                         <svg class="w-4 h-4 text-coffee-medium shrink-0 ml-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,12 +468,12 @@ $categoriesList = $categories ?? [];
         }
 
         return filtered.map(p => {
-            const badgeClass = getBadgeClass(p.category_icon);
+            const iconBadge = getColoredIconBadge(p.category_icon, 'w-7 h-7', 'w-3.5 h-3.5');
             return `
                 <div onclick="selectComboboxOption(${rowIndex}, ${p.id})"
                      class="flex items-center justify-between p-2 rounded-xl hover:bg-cream/60 cursor-pointer transition group">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <span class="p-1 rounded-lg border ${badgeClass} shrink-0 shadow-2xs">${getIconHtml(p.category_icon, 'w-3.5 h-3.5')}</span>
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        ${iconBadge}
                         <div class="truncate">
                             <p class="text-xs font-bold text-coffee-dark leading-snug group-hover:text-accent transition-colors truncate">${p.name}</p>
                             <span class="text-[10px] text-coffee-light/70 truncate">${p.category_name}</span>
@@ -521,11 +534,11 @@ $categoriesList = $categories ?? [];
         tr.setAttribute('data-product-id', productId);
 
         // Update trigger label
-        const badgeClass = getBadgeClass(product.category_icon);
+        const iconBadge = getColoredIconBadge(product.category_icon, 'w-7 h-7', 'w-3.5 h-3.5');
         const labelEl = document.getElementById(`combobox-label-${rowIndex}`);
         if (labelEl) {
             labelEl.innerHTML = `
-                <span class="p-1 rounded-lg border ${badgeClass} shrink-0 shadow-2xs">${getIconHtml(product.category_icon, 'w-3.5 h-3.5')}</span>
+                ${iconBadge}
                 <span class="font-extrabold text-coffee-dark text-xs truncate">${product.name}</span>
                 <span class="text-[10px] text-coffee-light bg-cream px-1.5 py-0.5 rounded-md border border-cream-dark shrink-0">${product.category_name}</span>
             `;
