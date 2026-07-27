@@ -55,35 +55,19 @@ $catColors = [
         <!-- Dynamic Alert Container -->
         <div id="alert-container" class="hidden"></div>
 
-        <!-- Date & Payment Method Selector -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label for="sale_date" class="block text-base font-extrabold text-coffee-dark mb-2">Fecha y Hora del Pedido *</label>
-                <input type="datetime-local" id="sale_date" name="sale_date" required 
-                       value="<?= date('Y-m-d\TH:i') ?>"
-                       class="w-full px-5 py-3.5 rounded-2xl border-2 border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-base text-coffee-dark bg-white font-bold">
-                <span class="text-xs text-coffee-light mt-2 block font-medium">
-                    ⚠️ Al guardar el pedido, este se registrará automáticamente en estado <strong>Finalizado</strong>.
-                </span>
-            </div>
-
-            <div>
-                <label class="block text-base font-extrabold text-coffee-dark mb-2">
-                    Método de Pago <span class="text-rose-600">*</span>
-                </label>
-                <input type="hidden" name="payment_method" id="payment_method" value="" required>
-                <div class="grid grid-cols-2 gap-4">
-                    <button type="button" id="pm-btn-efectivo" onclick="selectPaymentMethod('efectivo')"
-                            class="pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
-                        <span class="text-xl">💵</span> Efectivo
-                    </button>
-                    <button type="button" id="pm-btn-qr" onclick="selectPaymentMethod('qr')"
-                            class="pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all">
-                        <span class="text-xl">📱</span> QR
-                    </button>
-                </div>
-            </div>
+        <!-- Date Selector Only (top) -->
+        <div>
+            <label for="sale_date" class="block text-base font-extrabold text-coffee-dark mb-2">Fecha y Hora del Pedido *</label>
+            <input type="datetime-local" id="sale_date" name="sale_date" required 
+                   value="<?= date('Y-m-d\TH:i') ?>"
+                   class="w-full md:w-96 px-5 py-3.5 rounded-2xl border-2 border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-base text-coffee-dark bg-white font-bold">
+            <span class="text-xs text-coffee-light mt-2 block font-medium">
+                ⚠️ Al guardar el pedido, este se registrará automáticamente en estado <strong>Finalizado</strong>.
+            </span>
         </div>
+
+        <!-- Hidden payment method input (set via JS buttons at bottom) -->
+        <input type="hidden" name="payment_method" id="payment_method" value="" required>
 
         <!-- ─── Product Selection Section ─── -->
         <div class="border-t-2 border-cream-dark/60 pt-8 space-y-6">
@@ -189,16 +173,41 @@ $catColors = [
             </div>
         </div>
 
-        <!-- Grand Total & Submit -->
-        <div class="border-t-2 border-cream-dark pt-8 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
-            <div class="bg-emerald-50 border-2 border-emerald-300 rounded-3xl px-8 py-4 self-start md:self-auto flex items-center gap-5 shadow-sm">
-                <div>
-                    <span class="text-xs font-black text-emerald-800 uppercase tracking-widest block">Total a Registrar</span>
-                    <span class="text-3xl sm:text-4xl font-black text-emerald-700 font-heading" id="grand-total">Bs. 0.00</span>
+        <!-- Grand Total + Payment Method + Submit (all at bottom) -->
+        <div class="border-t-2 border-cream-dark pt-8 space-y-5">
+
+            <!-- Total + Payment Method row -->
+            <div class="flex flex-col md:flex-row md:items-stretch gap-4">
+
+                <!-- Total card -->
+                <div class="bg-emerald-50 border-2 border-emerald-300 rounded-3xl px-8 py-4 flex items-center gap-5 shadow-sm">
+                    <div>
+                        <span class="text-xs font-black text-emerald-800 uppercase tracking-widest block">Total a Registrar</span>
+                        <span class="text-3xl sm:text-4xl font-black text-emerald-700 font-heading" id="grand-total">Bs. 0.00</span>
+                    </div>
+                </div>
+
+                <!-- Payment Method selector -->  
+                <div class="flex-1 bg-cream/40 border-2 border-cream-dark rounded-3xl px-6 py-4 flex flex-col justify-center gap-3">
+                    <label class="block text-base font-extrabold text-coffee-dark">
+                        Método de Pago <span class="text-rose-600">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" id="pm-btn-efectivo" onclick="selectPaymentMethod('efectivo')"
+                                class="pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-white hover:bg-cream-dark text-coffee-dark transition-all shadow-2xs">
+                            <span class="text-xl">💵</span> Efectivo
+                        </button>
+                        <button type="button" id="pm-btn-qr" onclick="selectPaymentMethod('qr')"
+                                class="pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-white hover:bg-cream-dark text-coffee-dark transition-all shadow-2xs">
+                            <span class="text-xl">📱</span> QR
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <!-- Submit button -->
             <button type="submit" id="submit-btn"
-                    class="bg-accent hover:bg-accent-dark text-white font-heading font-black py-4 px-10 rounded-2xl text-base sm:text-lg transition shadow-xl shadow-accent/30 active:scale-95 flex items-center justify-center gap-2.5">
+                    class="w-full bg-accent hover:bg-accent-dark text-white font-heading font-black py-4 px-10 rounded-2xl text-base sm:text-lg transition shadow-xl shadow-accent/30 active:scale-95 flex items-center justify-center gap-2.5">
                 <span class="text-xl">💾</span> Guardar Pedido Histórico
             </button>
         </div>
