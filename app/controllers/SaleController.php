@@ -173,13 +173,15 @@ class SaleController {
      */
     public function createManualForm() {
         Auth::requireRole(['caja']);
+        $categories = Product::getCategories();
         $products = Product::all();
         // filter active products
         $products = array_filter($products, function($p) {
             return (int)$p['active'] === 1;
         });
         view('sales/create_manual', [
-            'products' => $products
+            'categories' => $categories,
+            'products'   => $products
         ]);
     }
 
