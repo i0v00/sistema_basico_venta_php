@@ -13,726 +13,630 @@ $posCatIcons = [
     'salad'       => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14s3-3 6-3 6 3 9 3 6-3 6-3"/><path d="M2 20h20"/><path d="M8 14V8a4 4 0 0 1 8 0v6"/></svg>',
     'combo'       => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2"/><path d="M15 8h2"/><path d="M11 12h2"/></svg>'
 ];
-$categoriesList = $categories ?? [];
 
 $catColors = [
-    'hamburger'   => ['bg' => 'bg-amber-100',   'text' => 'text-amber-700',   'border' => 'border-amber-300'],
-    'fries'       => ['bg' => 'bg-yellow-100',  'text' => 'text-yellow-700',  'border' => 'border-yellow-300'],
-    'chicken'     => ['bg' => 'bg-orange-100',  'text' => 'text-orange-700',  'border' => 'border-orange-300'],
-    'drink_cup'   => ['bg' => 'bg-blue-100',    'text' => 'text-blue-700',    'border' => 'border-blue-300'],
-    'soda_bottle' => ['bg' => 'bg-cyan-100',    'text' => 'text-cyan-700',    'border' => 'border-cyan-300'],
-    'package'     => ['bg' => 'bg-amber-100',   'text' => 'text-amber-900',   'border' => 'border-amber-300'],
-    'dessert'     => ['bg' => 'bg-pink-100',    'text' => 'text-pink-700',    'border' => 'border-pink-300'],
-    'weekend'     => ['bg' => 'bg-purple-100',  'text' => 'text-purple-700',  'border' => 'border-purple-300'],
-    'coffee'      => ['bg' => 'bg-stone-100',   'text' => 'text-stone-700',   'border' => 'border-stone-300'],
-    'pizza'       => ['bg' => 'bg-red-100',     'text' => 'text-red-700',     'border' => 'border-red-300'],
-    'salad'       => ['bg' => 'bg-green-100',   'text' => 'text-green-700',   'border' => 'border-green-300'],
-    'combo'       => ['bg' => 'bg-indigo-100',  'text' => 'text-indigo-700',  'border' => 'border-indigo-300'],
+    'hamburger'   => ['bg' => '#FEF3C7', 'text' => '#B45309', 'border' => '#FCD34D'],
+    'fries'       => ['bg' => '#FEF9C3', 'text' => '#A16207', 'border' => '#FDE047'],
+    'chicken'     => ['bg' => '#FFEDD5', 'text' => '#C2410C', 'border' => '#FED7AA'],
+    'drink_cup'   => ['bg' => '#DBEAFE', 'text' => '#1D4ED8', 'border' => '#BFDBFE'],
+    'soda_bottle' => ['bg' => '#CFFAFE', 'text' => '#0E7490', 'border' => '#A5F3FC'],
+    'package'     => ['bg' => '#FEF3C7', 'text' => '#78350F', 'border' => '#FCD34D'],
+    'dessert'     => ['bg' => '#FCE7F3', 'text' => '#BE185D', 'border' => '#FBCFE8'],
+    'weekend'     => ['bg' => '#EDE9FE', 'text' => '#6D28D9', 'border' => '#DDD6FE'],
+    'coffee'      => ['bg' => '#F5F5F4', 'text' => '#57534E', 'border' => '#E7E5E4'],
+    'pizza'       => ['bg' => '#FEE2E2', 'text' => '#B91C1C', 'border' => '#FECACA'],
+    'salad'       => ['bg' => '#DCFCE7', 'text' => '#15803D', 'border' => '#BBF7D0'],
+    'combo'       => ['bg' => '#E0E7FF', 'text' => '#4338CA', 'border' => '#C7D2FE'],
 ];
+
+$categoriesList = $categories ?? [];
 ?>
 
-<div class="max-w-6xl mx-auto space-y-6 animate-slide-up">
-    <!-- Header -->
-    <div class="bg-white p-6 rounded-2xl border border-cream-dark shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="flex items-center gap-3.5">
-            <div class="w-14 h-14 rounded-2xl bg-accent/15 text-accent flex items-center justify-center text-3xl shrink-0 shadow-sm">
-                📜
-            </div>
-            <div>
-                <h1 class="font-heading font-extrabold text-2xl sm:text-3xl text-coffee-dark">Registrar Pedido Histórico</h1>
-                <p class="text-base text-coffee-light mt-0.5">Registra un pedido realizado en otra fecha con productos e importes.</p>
-            </div>
-        </div>
-        <div>
-            <a href="<?= BASE_URL ?>/sales/history" class="bg-cream-dark hover:bg-cream-dark/80 text-coffee-dark font-bold py-3 px-6 rounded-xl text-base transition inline-flex items-center gap-2 active:scale-95 shadow-sm">
-                📋 Ver Historial
-            </a>
-        </div>
-    </div>
-
-    <!-- Main Form -->
-    <form id="manual-sale-form" action="<?= BASE_URL ?>/sales/save-manual" method="POST" class="bg-white p-6 sm:p-8 rounded-3xl border border-cream-dark shadow-sm space-y-8">
-        <!-- Dynamic Alert Container -->
-        <div id="alert-container" class="hidden"></div>
-
-        <!-- Date Selector Only (top) -->
-        <div>
-            <label for="sale_date" class="block text-base font-extrabold text-coffee-dark mb-2">Fecha y Hora del Pedido *</label>
-            <input type="datetime-local" id="sale_date" name="sale_date" required 
-                   value="<?= date('Y-m-d\TH:i') ?>"
-                   class="w-full md:w-96 px-5 py-3.5 rounded-2xl border-2 border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-base text-coffee-dark bg-white font-bold">
-            <span class="text-xs text-coffee-light mt-2 block font-medium">
-                ⚠️ Al guardar el pedido, este se registrará automáticamente en estado <strong>Finalizado</strong>.
-            </span>
-        </div>
-
-        <!-- Hidden payment method input (set via JS buttons at bottom) -->
-        <input type="hidden" name="payment_method" id="payment_method" value="" required>
-
-        <!-- ─── Product Selection Section ─── -->
-        <div class="border-t-2 border-cream-dark/60 pt-8 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h3 class="font-heading font-black text-xl sm:text-2xl text-coffee-dark flex items-center gap-2.5">
-                        <span class="text-2xl">🛒</span> Productos del Pedido
-                    </h3>
-                    <p class="text-sm text-coffee-light font-medium mt-0.5">Selecciona productos grandes o busca directamente en la lista.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="toggleQuickCatalog()" id="quick-catalog-toggle"
-                            class="bg-cream hover:bg-cream-dark text-coffee-dark font-extrabold py-2.5 px-4 rounded-xl text-xs sm:text-sm border border-cream-dark transition inline-flex items-center gap-2 shadow-2xs">
-                        <span class="text-base">⚡</span> <span id="quick-catalog-toggle-label">Ocultar Catálogo Rápido</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- ─── Quick Product Catalog / Search Bar (Prominent Display) ─── -->
-            <div id="quick-catalog-section" class="bg-cream/30 p-5 rounded-3xl border-2 border-cream-dark/70 space-y-4 transition-all">
-                <!-- Search & Category Filters -->
-                <div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-                    <!-- Search input -->
-                    <div class="relative flex-1">
-                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-coffee-light pointer-events-none"
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        <input type="text" id="quick-search-input" oninput="filterQuickProducts()"
-                               placeholder="Buscar producto por nombre o código..."
-                               class="w-full pl-12 pr-4 py-3 bg-white rounded-2xl border-2 border-cream-dark text-base text-coffee-dark font-medium focus:outline-none focus:ring-2 focus:ring-accent transition shadow-sm">
-                    </div>
-
-                    <!-- Category Pills with Colorful Icons -->
-                    <div class="flex gap-2 overflow-x-auto pb-1.5 md:pb-0 custom-scrollbar snap-x max-w-full">
-                        <button type="button" onclick="selectQuickCategory(null)" id="qcat-all"
-                                class="qcat-pill active snap-start shrink-0 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black border border-transparent transition whitespace-nowrap">
-                            🍽️ Todos
-                        </button>
-                        <?php foreach ($categoriesList as $c): 
-                            $cKey = $c['icon'] ?? '';
-                            $hasSvg = isset($posCatIcons[$cKey]);
-                            $cColor = $catColors[$cKey] ?? ['bg' => 'bg-cream', 'text' => 'text-coffee-dark', 'border' => 'border-cream-dark'];
-                        ?>
-                        <button type="button" onclick="selectQuickCategory(<?= $c['id'] ?>)" id="qcat-<?= $c['id'] ?>"
-                                class="qcat-pill snap-start shrink-0 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-white border border-cream-dark text-coffee-dark hover:border-accent/60 transition whitespace-nowrap flex items-center gap-2">
-                            <?php if ($hasSvg): ?>
-                                <span class="w-6 h-6 rounded-lg <?= $cColor['bg'] ?> <?= $cColor['text'] ?> <?= $cColor['border'] ?> border flex items-center justify-center shrink-0 [&_svg]:w-3.5 [&_svg]:h-3.5 shadow-2xs"><?= $posCatIcons[$cKey] ?></span>
-                            <?php else: ?>
-                                <span class="text-base"><?= e($cKey ?: '🏷️') ?></span>
-                            <?php endif; ?>
-                            <?= e($c['name']) ?>
-                        </button>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-
-                <!-- Products Grid (Larger Cards) -->
-                <div id="quick-products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-72 overflow-y-auto custom-scrollbar p-1">
-                    <!-- Injected dynamically via JS -->
-                </div>
-            </div>
-
-            <!-- ─── Order Table (High Visibility & Legibility) ─── -->
-            <div class="overflow-x-auto rounded-3xl border-2 border-cream-dark shadow-sm bg-white">
-                <table class="w-full text-left border-collapse" id="products-table">
-                    <thead>
-                        <tr class="bg-coffee-dark/5 text-coffee-dark font-heading font-black text-sm uppercase tracking-wider border-b-2 border-cream-dark">
-                            <th class="p-4 pl-6">Producto</th>
-                            <th class="p-4 w-36">Precio Unit.</th>
-                            <th class="p-4 w-44 text-center">Cantidad</th>
-                            <th class="p-4 w-36 text-right">Subtotal</th>
-                            <th class="p-4 pr-6 text-center w-20">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-cream-dark text-base text-slate-800" id="items-container">
-                        <!-- Dynamic rows injected here -->
-                    </tbody>
-                </table>
-                
-                <!-- Empty state inside table if empty -->
-                <div id="table-empty-state" class="hidden p-10 text-center bg-cream/10">
-                    <div class="w-16 h-16 mx-auto rounded-2xl bg-cream-dark flex items-center justify-center text-3xl text-coffee-medium mb-3 shadow-inner">
-                        🛒
-                    </div>
-                    <p class="font-extrabold text-coffee-dark text-base">Tu pedido está vacío</p>
-                    <p class="text-sm text-coffee-light font-medium mt-1">Haz clic en un producto arriba o en "+ Añadir Fila Manual" para comenzar.</p>
-                </div>
-            </div>
-
-            <!-- Add Row Button -->
-            <div class="flex items-center justify-between pt-2">
-                <button type="button" onclick="addRow()" 
-                        class="bg-coffee-dark hover:bg-coffee-medium text-white font-extrabold py-3 px-5 rounded-2xl text-sm sm:text-base transition inline-flex items-center gap-2 active:scale-95 shadow-md">
-                    <span class="text-lg">➕</span> Añadir Fila Manual
-                </button>
-
-                <button type="button" onclick="clearAllRows()" 
-                        class="text-sm text-rose-600 hover:text-rose-800 font-extrabold transition px-3 py-1.5">
-                    Vaciar Lista
-                </button>
-            </div>
-        </div>
-
-        <!-- Grand Total + Payment Method + Submit (all at bottom) -->
-        <div class="border-t-2 border-cream-dark pt-8 space-y-5">
-
-            <!-- Total + Payment Method row -->
-            <div class="flex flex-col md:flex-row md:items-stretch gap-4">
-
-                <!-- Total card -->
-                <div class="bg-emerald-50 border-2 border-emerald-300 rounded-3xl px-8 py-4 flex items-center gap-5 shadow-sm">
-                    <div>
-                        <span class="text-xs font-black text-emerald-800 uppercase tracking-widest block">Total a Registrar</span>
-                        <span class="text-3xl sm:text-4xl font-black text-emerald-700 font-heading" id="grand-total">Bs. 0.00</span>
-                    </div>
-                </div>
-
-                <!-- Payment Method selector -->  
-                <div class="flex-1 bg-cream/40 border-2 border-cream-dark rounded-3xl px-6 py-4 flex flex-col justify-center gap-3">
-                    <label class="block text-base font-extrabold text-coffee-dark">
-                        Método de Pago <span class="text-rose-600">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button type="button" id="pm-btn-efectivo" onclick="selectPaymentMethod('efectivo')"
-                                class="pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-white hover:bg-cream-dark text-coffee-dark transition-all shadow-2xs">
-                            <span class="text-xl">💵</span> Efectivo
-                        </button>
-                        <button type="button" id="pm-btn-qr" onclick="selectPaymentMethod('qr')"
-                                class="pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-white hover:bg-cream-dark text-coffee-dark transition-all shadow-2xs">
-                            <span class="text-xl">📱</span> QR
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Submit button -->
-            <button type="submit" id="submit-btn"
-                    class="w-full bg-accent hover:bg-accent-dark text-white font-heading font-black py-4 px-10 rounded-2xl text-base sm:text-lg transition shadow-xl shadow-accent/30 active:scale-95 flex items-center justify-center gap-2.5">
-                <span class="text-xl">💾</span> Guardar Pedido Histórico
-            </button>
-        </div>
-    </form>
-</div>
-
-<!-- Category Styles & Dropdown Scripts -->
 <style>
-    .qcat-pill.active {
+    /* Hide footer & remove main padding for full-screen POS feel */
+    body > footer { display: none !important; }
+    body > main   { padding: 0 !important; }
+
+    .hcat-pill.active {
         background: #E07B39;
         color: #fff;
         border-color: #E07B39;
-        box-shadow: 0 4px 12px rgba(224,123,57,.35);
+        box-shadow: 0 4px 14px rgba(224,123,57,.38);
+    }
+
+    @keyframes rowSlideIn {
+        from { opacity: 0; transform: translateX(10px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    .cart-row-anim { animation: rowSlideIn .2s ease both; }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .prod-card-anim { animation: fadeInUp .18s ease both; }
+    .prod-card-anim:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.09); }
+
+    /* Ripple on product tap */
+    @keyframes ripple { from { transform:scale(0); opacity:.45; } to { transform:scale(3); opacity:0; } }
+    .ripple-fx {
+        position: absolute; border-radius: 50%;
+        background: rgba(224,123,57,.5);
+        width: 50px; height: 50px;
+        pointer-events: none;
+        animation: ripple .5s linear forwards;
     }
 </style>
 
+<!-- ── Root: full viewport minus top navbar ── -->
+<div class="flex h-[calc(100vh-4rem)] bg-cream overflow-hidden">
+
+    <!-- ════════════════════════════════════════════════
+         LEFT — Category Pills + Search + Product Grid
+    ════════════════════════════════════════════════ -->
+    <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
+
+        <!-- Top bar -->
+        <div class="shrink-0 bg-white border-b border-cream-dark px-4 py-3 space-y-3">
+
+            <!-- Title + back link -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-accent/15 text-accent flex items-center justify-center text-lg">📜</div>
+                    <div>
+                        <h1 class="font-heading font-extrabold text-base text-coffee-dark leading-tight">Registrar Pedido Histórico</h1>
+                        <p class="text-[11px] text-coffee-light font-medium">Pedido realizado en otra fecha</p>
+                    </div>
+                </div>
+                <a href="<?= BASE_URL ?>/sales/history"
+                   class="text-xs font-bold text-coffee-medium hover:text-accent transition flex items-center gap-1">
+                    📋 Ver Historial
+                </a>
+            </div>
+
+            <!-- Search input -->
+            <div class="relative">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-coffee-light pointer-events-none"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input id="hpos-search" type="text" oninput="hposFilter()"
+                       placeholder="Buscar producto o código…"
+                       class="w-full pl-10 pr-4 py-2.5 bg-cream rounded-xl border border-cream-dark text-sm
+                              text-coffee-dark placeholder-coffee-light/60 focus:outline-none focus:ring-2
+                              focus:ring-accent/50 focus:border-accent transition">
+            </div>
+
+            <!-- Category pills -->
+            <div class="flex gap-2 overflow-x-auto pb-0.5 custom-scrollbar snap-x">
+                <button id="hcat-all" onclick="hposSelectCat(null)"
+                        class="hcat-pill active snap-start shrink-0 flex items-center gap-1.5
+                               px-4 py-2 rounded-full text-xs font-bold border border-transparent
+                               transition-all whitespace-nowrap">
+                    🍽️ Todos
+                </button>
+                <?php foreach ($categoriesList as $cat):
+                    $iconKey = $cat['icon'] ?? '';
+                    $hasSvg  = isset($posCatIcons[$iconKey]);
+                    $col     = $catColors[$iconKey] ?? [];
+                ?>
+                <button id="hcat-<?= $cat['id'] ?>" onclick="hposSelectCat(<?= $cat['id'] ?>)"
+                        class="hcat-pill snap-start shrink-0 flex items-center gap-1.5
+                               px-4 py-2 rounded-full text-xs font-bold bg-white border border-cream-dark
+                               text-coffee-dark hover:border-accent/60 hover:text-accent
+                               transition-all whitespace-nowrap">
+                    <?php if ($hasSvg && $col): ?>
+                        <span class="w-4 h-4 flex-shrink-0 [&_svg]:w-4 [&_svg]:h-4"
+                              style="color:<?= $col['text'] ?>"><?= $posCatIcons[$iconKey] ?></span>
+                    <?php elseif ($hasSvg): ?>
+                        <span class="w-4 h-4 flex-shrink-0 [&_svg]:w-4 [&_svg]:h-4"><?= $posCatIcons[$iconKey] ?></span>
+                    <?php else: ?>
+                        <span><?= e($iconKey ?: '🏷️') ?></span>
+                    <?php endif; ?>
+                    <?= e($cat['name']) ?>
+                </button>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Product grid -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-4">
+            <div id="hpos-grid"
+                 class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            </div>
+            <div id="hpos-empty" class="hidden flex-col items-center justify-center h-full py-24 text-center gap-3">
+                <div class="w-20 h-20 rounded-2xl bg-cream-dark flex items-center justify-center text-4xl">🔍</div>
+                <p class="font-bold text-coffee-medium">Sin resultados</p>
+                <p class="text-xs text-coffee-light">Intenta con otro término o categoría.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         RIGHT — Order panel (like POS cart sidebar)
+    ════════════════════════════════════════════════ -->
+    <form id="manual-sale-form" action="<?= BASE_URL ?>/sales/save-manual" method="POST"
+          class="hidden lg:flex flex-col w-[340px] xl:w-[380px] shrink-0 bg-white border-l border-cream-dark overflow-hidden">
+
+        <!-- Panel header -->
+        <div class="shrink-0 px-5 py-4 border-b border-cream-dark bg-coffee-dark text-white flex items-center gap-2.5">
+            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <span class="font-heading font-extrabold text-sm tracking-wide">Pedido Histórico</span>
+        </div>
+
+        <!-- Date input (compact, inside cart panel) -->
+        <div class="shrink-0 px-4 py-3 border-b border-cream-dark bg-cream/30">
+            <label for="sale_date" class="block text-[10px] font-black text-coffee-medium uppercase tracking-wider mb-1.5">
+                📅 Fecha y Hora del Pedido <span class="text-rose-500">*</span>
+            </label>
+            <input type="datetime-local" id="sale_date" name="sale_date" required
+                   value="<?= date('Y-m-d\TH:i') ?>"
+                   class="w-full px-3 py-2 rounded-xl border-2 border-cream-dark focus:outline-none focus:ring-2
+                          focus:ring-accent text-sm text-coffee-dark bg-white font-bold transition">
+        </div>
+
+        <!-- (alerts shown via global toast system) -->
+
+        <!-- Cart items -->
+        <div id="hcart-items" class="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2">
+            <!-- Empty state -->
+            <div id="hcart-empty" class="flex flex-col items-center justify-center h-full py-10 text-center gap-2">
+                <div class="w-14 h-14 rounded-2xl bg-cream-dark flex items-center justify-center text-3xl text-coffee-medium">🛒</div>
+                <p class="font-extrabold text-sm text-coffee-dark">Pedido vacío</p>
+                <p class="text-xs text-coffee-light font-medium">Toca un producto para añadirlo</p>
+            </div>
+        </div>
+
+        <!-- Bottom: total + payment method + submit -->
+        <div class="shrink-0 border-t border-cream-dark bg-cream/40 px-4 py-4 space-y-3">
+
+            <!-- Total -->
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-coffee-light">Total del Pedido</span>
+                <span id="hcart-total" class="text-2xl font-black text-accent-dark font-heading">Bs. 0.00</span>
+            </div>
+
+            <!-- Payment method -->
+            <div>
+                <label class="text-[10px] font-black text-coffee-dark block mb-2 uppercase tracking-wider">
+                    Método de Pago <span class="text-rose-500">*</span>
+                </label>
+                <input type="hidden" name="payment_method" id="payment_method" value="" required>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="pm-btn-efectivo" onclick="hposSelectPM('efectivo')"
+                            class="pm-btn flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl
+                                   font-extrabold text-sm border-2 border-cream-dark bg-white
+                                   hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span class="text-lg">💵</span> Efectivo
+                    </button>
+                    <button type="button" id="pm-btn-qr" onclick="hposSelectPM('qr')"
+                            class="pm-btn flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl
+                                   font-extrabold text-sm border-2 border-cream-dark bg-white
+                                   hover:bg-cream-dark text-coffee-dark transition-all">
+                        <span class="text-lg">📱</span> QR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Clear + Submit buttons -->
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="hposClearCart()"
+                        class="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-cream-dark
+                               bg-white hover:bg-cream text-coffee-medium text-xs font-bold transition-all active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Vaciar
+                </button>
+                <button type="submit" id="submit-btn"
+                        class="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-accent
+                               hover:bg-accent-dark text-white text-xs font-extrabold transition-all
+                               shadow-md shadow-accent/20 active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Guardar Pedido
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Mobile FAB (shows cart as bottom sheet on small screens) -->
+    <button id="mob-hcart-fab" onclick="openMobHCart()"
+            class="lg:hidden fixed bottom-5 right-5 z-50 flex items-center gap-2
+                   bg-accent hover:bg-accent-dark text-white font-bold px-5 py-3.5
+                   rounded-full shadow-2xl shadow-accent/30 transition-all active:scale-95">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <span>Ver Pedido</span>
+        <span id="mob-hfab-badge"
+              class="bg-white text-accent font-heading font-extrabold text-[11px] w-5 h-5 rounded-full flex items-center justify-center">0</span>
+    </button>
+
+    <!-- Mobile backdrop -->
+    <div id="mob-hcart-back" onclick="closeMobHCart()"
+         class="lg:hidden hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"></div>
+
+    <!-- Mobile bottom sheet -->
+    <div id="mob-hcart-sheet"
+         class="lg:hidden fixed bottom-0 left-0 right-0 z-[61] h-[90dvh] bg-white rounded-t-3xl shadow-2xl flex flex-col translate-y-full transition-transform duration-400 ease-[cubic-bezier(.32,0,.67,0)]">
+        <div class="flex justify-center pt-3 pb-1 shrink-0">
+            <div class="w-10 h-1 rounded-full bg-cream-dark"></div>
+        </div>
+        <div class="shrink-0 px-5 py-3.5 border-b border-cream-dark flex items-center justify-between bg-coffee-dark text-white">
+            <span class="font-heading font-extrabold text-sm">Pedido Histórico</span>
+            <button onclick="closeMobHCart()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <!-- Date (mobile) -->
+        <div class="shrink-0 px-4 py-3 border-b border-cream-dark bg-cream/30">
+            <label class="block text-[10px] font-black text-coffee-medium uppercase tracking-wider mb-1.5">📅 Fecha y Hora *</label>
+            <input type="datetime-local" id="sale_date_mob"
+                   value="<?= date('Y-m-d\TH:i') ?>"
+                   class="w-full px-3 py-2 rounded-xl border-2 border-cream-dark focus:outline-none focus:ring-2 focus:ring-accent text-sm text-coffee-dark bg-white font-bold">
+        </div>
+        <div id="hcart-items-mob" class="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2"></div>
+        <div class="shrink-0 border-t border-cream-dark bg-cream/40 px-4 py-4 space-y-3">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-coffee-light">Total</span>
+                <span id="hcart-total-mob" class="text-2xl font-black text-accent-dark font-heading">Bs. 0.00</span>
+            </div>
+            <div>
+                <label class="text-[10px] font-black text-coffee-dark block mb-2 uppercase tracking-wider">Método de Pago *</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="pm-btn-efectivo-mob" onclick="hposSelectPM('efectivo')"
+                            class="pm-btn-mob flex items-center justify-center gap-1.5 py-3 rounded-xl font-extrabold text-sm border-2 border-cream-dark bg-white text-coffee-dark transition-all">
+                        <span>💵</span> Efectivo
+                    </button>
+                    <button type="button" id="pm-btn-qr-mob" onclick="hposSelectPM('qr')"
+                            class="pm-btn-mob flex items-center justify-center gap-1.5 py-3 rounded-xl font-extrabold text-sm border-2 border-cream-dark bg-white text-coffee-dark transition-all">
+                        <span>📱</span> QR
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="hposClearCart()"
+                        class="flex items-center justify-center gap-1.5 py-3 rounded-xl border border-cream-dark bg-white text-coffee-medium text-xs font-bold transition active:scale-95">
+                    🗑️ Vaciar
+                </button>
+                <button type="button" onclick="hposMobileSubmit()"
+                        class="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-accent hover:bg-accent-dark text-white text-xs font-extrabold transition shadow-md shadow-accent/20 active:scale-95">
+                    ✅ Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════ JS ════ -->
 <script>
-    const availableProducts = <?= json_encode(array_values($products)) ?>;
-    const POS_ICONS = <?= json_encode($posCatIcons) ?>;
+const HPOS_PRODUCTS = <?= json_encode(array_values($products)) ?>;
+const HPOS_ICONS    = <?= json_encode($posCatIcons) ?>;
+const HPOS_BASE     = '<?= BASE_URL ?>';
 
-    const CAT_COLORS = {
-        'hamburger':   { bg: 'bg-amber-100',   text: 'text-amber-700',   border: 'border-amber-300' },
-        'fries':       { bg: 'bg-yellow-100',  text: 'text-yellow-700',  border: 'border-yellow-300' },
-        'chicken':     { bg: 'bg-orange-100',  text: 'text-orange-700',  border: 'border-orange-300' },
-        'drink_cup':   { bg: 'bg-blue-100',    text: 'text-blue-700',    border: 'border-blue-300' },
-        'soda_bottle': { bg: 'bg-cyan-100',    text: 'text-cyan-700',    border: 'border-cyan-300' },
-        'package':     { bg: 'bg-amber-100',   text: 'text-amber-900',   border: 'border-amber-300' },
-        'dessert':     { bg: 'bg-pink-100',    text: 'text-pink-700',    border: 'border-pink-300' },
-        'weekend':     { bg: 'bg-purple-100',  text: 'text-purple-700',  border: 'border-purple-300' },
-        'coffee':      { bg: 'bg-stone-100',   text: 'text-stone-700',   border: 'border-stone-300' },
-        'pizza':       { bg: 'bg-red-100',     text: 'text-red-700',     border: 'border-red-300' },
-        'salad':       { bg: 'bg-green-100',   text: 'text-green-700',   border: 'border-green-300' },
-        'combo':       { bg: 'bg-indigo-100',  text: 'text-indigo-700',  border: 'border-indigo-300' }
-    };
+const HCAT_COLORS = {
+    'hamburger':   { bg:'#FEF3C7', text:'#B45309', border:'#FCD34D' },
+    'fries':       { bg:'#FEF9C3', text:'#A16207', border:'#FDE047' },
+    'chicken':     { bg:'#FFEDD5', text:'#C2410C', border:'#FED7AA' },
+    'drink_cup':   { bg:'#DBEAFE', text:'#1D4ED8', border:'#BFDBFE' },
+    'soda_bottle': { bg:'#CFFAFE', text:'#0E7490', border:'#A5F3FC' },
+    'package':     { bg:'#FEF3C7', text:'#78350F', border:'#FCD34D' },
+    'dessert':     { bg:'#FCE7F3', text:'#BE185D', border:'#FBCFE8' },
+    'weekend':     { bg:'#EDE9FE', text:'#6D28D9', border:'#DDD6FE' },
+    'coffee':      { bg:'#F5F5F4', text:'#57534E', border:'#E7E5E4' },
+    'pizza':       { bg:'#FEE2E2', text:'#B91C1C', border:'#FECACA' },
+    'salad':       { bg:'#DCFCE7', text:'#15803D', border:'#BBF7D0' },
+    'combo':       { bg:'#E0E7FF', text:'#4338CA', border:'#C7D2FE' },
+};
 
-    let selectedPaymentMethod = null;
-    let currentQuickCatId = null;
-    let openComboboxIndex = null;
+// ── State ──────────────────────────────────────────────────────────
+let hcart = {};        // { productId: quantity }
+let hCurrentCat = null;
+let hSelectedPM = null;
 
-    function getColoredIconBadge(iconKey, sizeClass = "w-10 h-10", iconSizeClass = "w-5 h-5") {
-        const col = CAT_COLORS[iconKey] || { bg: 'bg-cream', text: 'text-coffee-dark', border: 'border-cream-dark' };
-        if (POS_ICONS[iconKey]) {
-            return `<div class="${sizeClass} rounded-2xl ${col.bg} ${col.text} border-2 ${col.border} flex items-center justify-center shrink-0 shadow-sm [&_svg]:${iconSizeClass}">${POS_ICONS[iconKey]}</div>`;
+// ── Icon Badge ─────────────────────────────────────────────────────
+function hposIconBadge(iconKey, size = 36) {
+    const col = HCAT_COLORS[iconKey] || { bg:'#F5F5F4', text:'#57534E', border:'#E7E5E4' };
+    const s = `width:${size}px;height:${size}px;background:${col.bg};color:${col.text};border:2px solid ${col.border};border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;`;
+    if (HPOS_ICONS[iconKey]) {
+        const iconSize = Math.round(size * 0.55);
+        return `<div style="${s}"><svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${HPOS_ICONS[iconKey].replace(/^<svg[^>]*>/,'').replace('</svg>','')}</svg></div>`;
+    }
+    return `<div style="${s};font-size:${Math.round(size*.45)}px;">${iconKey || '🏷️'}</div>`;
+}
+
+// ── Render product grid ────────────────────────────────────────────
+function hposRenderGrid() {
+    const query = (document.getElementById('hpos-search')?.value || '').toLowerCase().trim();
+    const grid  = document.getElementById('hpos-grid');
+    const empty = document.getElementById('hpos-empty');
+
+    const filtered = HPOS_PRODUCTS.filter(p => {
+        if (hCurrentCat !== null && parseInt(p.category_id) !== hCurrentCat) return false;
+        if (query && !p.name.toLowerCase().includes(query) && !(p.code || '').toLowerCase().includes(query)) return false;
+        return true;
+    });
+
+    grid.innerHTML = '';
+    if (!filtered.length) { empty.classList.remove('hidden'); empty.style.display='flex'; return; }
+    empty.classList.add('hidden'); empty.style.display='none';
+
+    filtered.forEach(p => {
+        const inCart = hcart[p.id] > 0;
+        const col = HCAT_COLORS[p.category_icon] || { bg:'#F5F5F4', text:'#57534E', border:'#E7E5E4' };
+        const card = document.createElement('div');
+        card.className = 'prod-card-anim relative bg-white rounded-2xl border-2 border-cream-dark overflow-hidden cursor-pointer transition-all duration-200 select-none';
+        if (inCart) card.style.borderColor = '#E07B39';
+
+        // Build icon html (inline SVG without outer wrapper tag)
+        const iconSize = 40;
+        let iconHtml;
+        if (HPOS_ICONS[p.category_icon]) {
+            const inner = HPOS_ICONS[p.category_icon].replace(/^<svg[^>]*>/,'').replace('</svg>','');
+            iconHtml = `<div style="width:${iconSize}px;height:${iconSize}px;background:${col.bg};color:${col.text};border:2px solid ${col.border};border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:0 auto 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(iconSize*.55)}" height="${Math.round(iconSize*.55)}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>
+            </div>`;
+        } else {
+            iconHtml = `<div style="width:${iconSize}px;height:${iconSize}px;background:#F5F5F4;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 8px;">${p.category_icon || '🏷️'}</div>`;
         }
-        return `<div class="${sizeClass} rounded-2xl bg-cream border-2 border-cream-dark text-coffee-dark flex items-center justify-center shrink-0 text-base font-bold">${iconKey || '🏷️'}</div>`;
-    }
 
-    // ─── Payment Method Selection ─────────────────────────────────────────────
-    function selectPaymentMethod(method) {
-        selectedPaymentMethod = method;
-        document.getElementById('payment_method').value = method;
+        card.innerHTML = `
+            ${inCart ? `<div style="position:absolute;top:6px;right:6px;background:#E07B39;color:#fff;font-size:10px;font-weight:900;width:20px;height:20px;border-radius:999px;display:flex;align-items:center;justify-content:center;">${hcart[p.id]}</div>` : ''}
+            <div style="padding:14px 10px 10px;text-align:center;">
+                ${iconHtml}
+                <p style="font-size:12px;font-weight:800;color:#2C1810;line-height:1.3;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${p.name}</p>
+                <p style="font-size:13px;font-weight:900;color:#E07B39;font-family:var(--font-heading,sans-serif);">Bs. ${parseFloat(p.price).toFixed(2)}</p>
+            </div>
+        `;
 
-        const btnEf = document.getElementById('pm-btn-efectivo');
-        const btnQr = document.getElementById('pm-btn-qr');
+        card.onclick = (e) => {
+            // Ripple
+            const rect = card.getBoundingClientRect();
+            const rip = document.createElement('div');
+            rip.className = 'ripple-fx';
+            rip.style.left = (e.clientX - rect.left - 25) + 'px';
+            rip.style.top  = (e.clientY - rect.top  - 25) + 'px';
+            card.appendChild(rip);
+            setTimeout(() => rip.remove(), 600);
 
-        if (method === 'efectivo') {
-            btnEf.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-black text-base border-2 border-emerald-600 bg-emerald-600 text-white shadow-md transition-all scale-[1.02]";
-            btnQr.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
-        } else if (method === 'qr') {
-            btnQr.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-black text-base border-2 border-blue-600 bg-blue-600 text-white shadow-md transition-all scale-[1.02]";
-            btnEf.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+            hposAddToCart(p.id);
+        };
+
+        grid.appendChild(card);
+    });
+}
+
+function hposFilter() { hposRenderGrid(); }
+
+function hposSelectCat(catId) {
+    hCurrentCat = catId;
+    document.querySelectorAll('.hcat-pill').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+    });
+    const active = catId === null
+        ? document.getElementById('hcat-all')
+        : document.getElementById('hcat-' + catId);
+    if (active) active.classList.add('active');
+    hposRenderGrid();
+}
+
+// ── Cart ───────────────────────────────────────────────────────────
+function hposAddToCart(productId) {
+    hcart[productId] = (hcart[productId] || 0) + 1;
+    hposRenderCart();
+    hposRenderGrid();
+}
+
+function hposChangeQty(productId, delta) {
+    hcart[productId] = Math.max(0, (hcart[productId] || 0) + delta);
+    if (hcart[productId] === 0) delete hcart[productId];
+    hposRenderCart();
+    hposRenderGrid();
+}
+
+function hposRemoveItem(productId) {
+    delete hcart[productId];
+    hposRenderCart();
+    hposRenderGrid();
+}
+
+function hposClearCart() {
+    hcart = {};
+    hposRenderCart();
+    hposRenderGrid();
+}
+
+function hposRenderCart() {
+    const itemsEl    = document.getElementById('hcart-items');
+    const itemsMob   = document.getElementById('hcart-items-mob');
+    const emptyEl    = document.getElementById('hcart-empty');
+    const totalEl    = document.getElementById('hcart-total');
+    const totalMob   = document.getElementById('hcart-total-mob');
+    const fabBadge   = document.getElementById('mob-hfab-badge');
+
+    const ids = Object.keys(hcart).filter(id => hcart[id] > 0);
+
+    let total = 0;
+    let html = '';
+
+    ids.forEach(id => {
+        const p = HPOS_PRODUCTS.find(x => x.id == id);
+        if (!p) return;
+        const qty = hcart[id];
+        const subtotal = parseFloat(p.price) * qty;
+        total += subtotal;
+
+        const col = HCAT_COLORS[p.category_icon] || { bg:'#F5F5F4', text:'#57534E', border:'#E7E5E4' };
+        let iconHtml;
+        if (HPOS_ICONS[p.category_icon]) {
+            const inner = HPOS_ICONS[p.category_icon].replace(/^<svg[^>]*>/,'').replace('</svg>','');
+            iconHtml = `<div style="width:36px;height:36px;background:${col.bg};color:${col.text};border:2px solid ${col.border};border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>
+            </div>`;
+        } else {
+            iconHtml = `<div style="width:36px;height:36px;background:#F5F5F4;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${p.category_icon || '🏷️'}</div>`;
         }
+
+        html += `
+            <div class="cart-row-anim flex items-center gap-2.5 p-2.5 bg-cream/30 rounded-xl border border-cream-dark/60">
+                ${iconHtml}
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-extrabold text-coffee-dark leading-tight truncate">${p.name}</p>
+                    <p class="text-[11px] text-coffee-light font-semibold">Bs. ${parseFloat(p.price).toFixed(2)} c/u</p>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" onclick="hposChangeQty(${id}, -1)"
+                            class="w-7 h-7 rounded-lg bg-white border border-cream-dark text-coffee-dark font-black text-sm hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center">−</button>
+                    <span class="w-7 text-center font-black text-sm text-coffee-dark">${qty}</span>
+                    <button type="button" onclick="hposChangeQty(${id}, 1)"
+                            class="w-7 h-7 rounded-lg bg-white border border-cream-dark text-coffee-dark font-black text-sm hover:bg-emerald-50 hover:text-emerald-600 transition flex items-center justify-center">+</button>
+                </div>
+                <div class="text-right shrink-0">
+                    <p class="text-xs font-black text-coffee-dark font-heading">Bs. ${subtotal.toFixed(2)}</p>
+                    <button type="button" onclick="hposRemoveItem(${id})" class="text-[10px] text-rose-500 hover:text-rose-700 font-bold mt-0.5">Quitar</button>
+                </div>
+                <!-- Hidden input for form POST -->
+                <input type="hidden" name="items[${id}]" value="${qty}">
+            </div>`;
+    });
+
+    // Show / hide empty state
+    if (emptyEl) emptyEl.style.display = ids.length ? 'none' : 'flex';
+    if (itemsEl) {
+        // Replace all rows (keep empty state el)
+        const existingRows = itemsEl.querySelectorAll('.cart-row-anim');
+        existingRows.forEach(r => r.remove());
+        // Also remove old hidden inputs
+        itemsEl.querySelectorAll('input[type=hidden]').forEach(i => i.remove());
+        itemsEl.insertAdjacentHTML('beforeend', html);
     }
+    if (itemsMob) itemsMob.innerHTML = html;
 
-    function resetPaymentMethod() {
-        selectedPaymentMethod = null;
-        document.getElementById('payment_method').value = '';
-        const btnEf = document.getElementById('pm-btn-efectivo');
-        const btnQr = document.getElementById('pm-btn-qr');
-        if (btnEf) btnEf.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
-        if (btnQr) btnQr.className = "pm-btn flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-2xl font-extrabold text-base border-2 border-cream-dark bg-cream hover:bg-cream-dark text-coffee-dark transition-all";
+    const totalStr = `Bs. ${total.toFixed(2)}`;
+    if (totalEl)  totalEl.innerText  = totalStr;
+    if (totalMob) totalMob.innerText = totalStr;
+    if (fabBadge) fabBadge.innerText = ids.length;
+}
+
+// ── Payment Method ──────────────────────────────────────────────────
+function hposSelectPM(method) {
+    hSelectedPM = method;
+    document.getElementById('payment_method').value = method;
+
+    const btnEf    = document.getElementById('pm-btn-efectivo');
+    const btnQr    = document.getElementById('pm-btn-qr');
+    const btnEfMob = document.getElementById('pm-btn-efectivo-mob');
+    const btnQrMob = document.getElementById('pm-btn-qr-mob');
+
+    const activeClass   = 'pm-btn flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-extrabold text-sm border-2 shadow-md transition-all';
+    const inactiveClass = 'pm-btn flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-extrabold text-sm border-2 border-cream-dark bg-white hover:bg-cream-dark text-coffee-dark transition-all';
+    const activeMobClass  = 'pm-btn-mob flex items-center justify-center gap-1.5 py-3 rounded-xl font-extrabold text-sm border-2 shadow-md transition-all';
+    const inactiveMobClass = 'pm-btn-mob flex items-center justify-center gap-1.5 py-3 rounded-xl font-extrabold text-sm border-2 border-cream-dark bg-white text-coffee-dark transition-all';
+
+    if (method === 'efectivo') {
+        if (btnEf) { btnEf.className = activeClass + ' border-emerald-600 bg-emerald-600 text-white scale-[1.02]'; }
+        if (btnQr) { btnQr.className = inactiveClass; }
+        if (btnEfMob) { btnEfMob.className = activeMobClass + ' border-emerald-600 bg-emerald-600 text-white'; }
+        if (btnQrMob) { btnQrMob.className = inactiveMobClass; }
+    } else {
+        if (btnQr) { btnQr.className = activeClass + ' border-blue-600 bg-blue-600 text-white scale-[1.02]'; }
+        if (btnEf) { btnEf.className = inactiveClass; }
+        if (btnQrMob) { btnQrMob.className = activeMobClass + ' border-blue-600 bg-blue-600 text-white'; }
+        if (btnEfMob) { btnEfMob.className = inactiveMobClass; }
     }
+}
 
-    // ─── Quick Catalog Grid ──────────────────────────────────────────────────
-    function renderQuickProducts() {
-        const grid = document.getElementById('quick-products-grid');
-        if (!grid) return;
+// ── Mobile sheet ────────────────────────────────────────────────────
+function openMobHCart() {
+    document.getElementById('mob-hcart-back').classList.remove('hidden');
+    document.getElementById('mob-hcart-sheet').style.transform = 'translateY(0)';
+}
+function closeMobHCart() {
+    document.getElementById('mob-hcart-back').classList.add('hidden');
+    document.getElementById('mob-hcart-sheet').style.transform = 'translateY(100%)';
+}
 
-        const query = (document.getElementById('quick-search-input')?.value || '').toLowerCase().trim();
+// ── Mobile submit ───────────────────────────────────────────────────
+function hposMobileSubmit() {
+    // Sync date from mobile input to desktop form
+    const mobDate = document.getElementById('sale_date_mob');
+    const deskDate = document.getElementById('sale_date');
+    if (mobDate && deskDate) deskDate.value = mobDate.value;
+    document.getElementById('manual-sale-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
 
-        const filtered = availableProducts.filter(p => {
-            if (currentQuickCatId !== null && parseInt(p.category_id) !== currentQuickCatId) return false;
-            if (query && !p.name.toLowerCase().includes(query) && !(p.code || '').toLowerCase().includes(query)) return false;
-            return true;
-        });
+// ── Form submit (AJAX) ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    hposRenderGrid();
 
-        if (!filtered.length) {
-            grid.innerHTML = `<div class="col-span-full py-6 text-center text-sm text-coffee-light font-bold">No se encontraron productos.</div>`;
+    document.getElementById('manual-sale-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        if (!hSelectedPM) {
+            showToast('Debes seleccionar un método de pago (Efectivo o QR).', 'warning');
             return;
         }
 
-        grid.innerHTML = '';
-        filtered.forEach(p => {
-            const iconBadge = getColoredIconBadge(p.category_icon, 'w-10 h-10', 'w-5 h-5');
-            const card = document.createElement('div');
-            card.className = 'bg-white p-3.5 rounded-2xl border-2 border-cream-dark shadow-2xs hover:shadow-md hover:border-accent/60 transition cursor-pointer flex flex-col justify-between group active:scale-95';
-            card.onclick = () => addOrIncrementProduct(p.id);
-
-            card.innerHTML = `
-                <div class="flex items-start justify-between gap-1.5 mb-2">
-                    ${iconBadge}
-                    <span class="text-sm sm:text-base font-black text-accent font-heading">Bs. ${parseFloat(p.price).toFixed(2)}</span>
-                </div>
-                <div class="space-y-0.5">
-                    <p class="text-xs sm:text-sm font-extrabold text-coffee-dark leading-snug line-clamp-2 group-hover:text-accent transition-colors">${p.name}</p>
-                    <p class="text-[11px] text-coffee-light/80 font-bold truncate">${p.category_name}</p>
-                </div>
-                <button type="button" class="mt-3 w-full py-1.5 bg-cream hover:bg-accent hover:text-white text-coffee-dark font-black text-xs rounded-xl transition border border-cream-dark flex items-center justify-center gap-1">
-                    <span>+</span> Añadir
-                </button>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    function filterQuickProducts() { renderQuickProducts(); }
-
-    function selectQuickCategory(catId) {
-        currentQuickCatId = catId;
-        document.querySelectorAll('.qcat-pill').forEach(btn => {
-            btn.classList.remove('active');
-            btn.classList.add('bg-white', 'text-coffee-dark', 'border-cream-dark');
-        });
-
-        const activeBtn = catId === null
-            ? document.getElementById('qcat-all')
-            : document.getElementById('qcat-' + catId);
-
-        if (activeBtn) {
-            activeBtn.classList.add('active');
-            activeBtn.classList.remove('bg-white', 'text-coffee-dark', 'border-cream-dark');
+        const cartIds = Object.keys(hcart).filter(id => hcart[id] > 0);
+        if (!cartIds.length) {
+            showToast('Añade al menos un producto al pedido antes de guardar.', 'warning');
+            return;
         }
-        renderQuickProducts();
-    }
 
-    function toggleQuickCatalog() {
-        const sec = document.getElementById('quick-catalog-section');
-        const lbl = document.getElementById('quick-catalog-toggle-label');
-        if (sec.classList.contains('hidden')) {
-            sec.classList.remove('hidden');
-            lbl.innerText = 'Ocultar Catálogo Rápido';
-        } else {
-            sec.classList.add('hidden');
-            lbl.innerText = 'Mostrar Catálogo Rápido';
-        }
-    }
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `⏳ Guardando...`;
 
-    // ─── Add or Increment Product ──────────────────────────────────────────────
-    function addOrIncrementProduct(productId) {
-        const product = availableProducts.find(p => p.id == productId);
-        if (!product) return;
+        const formData = new FormData(this);
 
-        // Check if row already exists for this product
-        const existingRows = document.querySelectorAll('#items-container tr');
-        let foundRow = null;
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `✅ Guardar Pedido`;
 
-        existingRows.forEach(tr => {
-            const selectedVal = tr.getAttribute('data-product-id');
-            if (selectedVal == productId) {
-                foundRow = tr;
-            }
-        });
-
-        if (foundRow) {
-            const rIndex = foundRow.id.split('-')[1];
-            updateQty(rIndex, 1);
-            // Flash effect
-            foundRow.classList.add('bg-amber-100/60');
-            setTimeout(() => foundRow.classList.remove('bg-amber-100/60'), 400);
-        } else {
-            // Find empty row or add new
-            let emptyTr = null;
-            existingRows.forEach(tr => {
-                if (!tr.getAttribute('data-product-id')) {
-                    emptyTr = tr;
-                }
-            });
-
-            if (emptyTr) {
-                const rIndex = emptyTr.id.split('-')[1];
-                setRowProduct(rIndex, productId);
+            if (data.success) {
+                showToast(data.message || '¡Pedido histórico guardado exitosamente!', 'success');
+                hposClearCart();
+                hSelectedPM = null;
+                document.getElementById('payment_method').value = '';
+                // Reset PM button styles
+                const inact = 'pm-btn flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-extrabold text-sm border-2 border-cream-dark bg-white hover:bg-cream-dark text-coffee-dark transition-all';
+                const pmEf = document.getElementById('pm-btn-efectivo');
+                const pmQr = document.getElementById('pm-btn-qr');
+                const pmEfMob = document.getElementById('pm-btn-efectivo-mob');
+                const pmQrMob = document.getElementById('pm-btn-qr-mob');
+                if (pmEf) pmEf.className = inact;
+                if (pmQr) pmQr.className = inact;
+                if (pmEfMob) pmEfMob.className = 'pm-btn-mob flex items-center justify-center gap-1.5 py-3 rounded-xl font-extrabold text-sm border-2 border-cream-dark bg-white text-coffee-dark transition-all';
+                if (pmQrMob) pmQrMob.className = 'pm-btn-mob flex items-center justify-center gap-1.5 py-3 rounded-xl font-extrabold text-sm border-2 border-cream-dark bg-white text-coffee-dark transition-all';
             } else {
-                addRow(productId);
+                showToast(data.message || 'Error al guardar el pedido.', 'error');
             }
-        }
-    }
-
-    // ─── Order Table Rows & Custom Combobox (Large Text & Prominent Displays) ───
-    function addRow(preselectedProductId = null) {
-        const container = document.getElementById('items-container');
-        const rowIndex = Date.now() + Math.floor(Math.random() * 100);
-        const tr = document.createElement('tr');
-        tr.id = `row-${rowIndex}`;
-        tr.className = 'hover:bg-cream/20 transition duration-150 border-b border-cream-dark/50';
-        tr.setAttribute('data-product-id', '');
-
-        tr.innerHTML = `
-            <td class="p-4 pl-6">
-                <!-- Custom Combobox Component -->
-                <div class="relative custom-combobox" id="combobox-wrap-${rowIndex}">
-                    <button type="button" onclick="toggleCombobox(${rowIndex})"
-                            class="w-full flex items-center justify-between px-4 py-3 rounded-2xl border-2 border-cream-dark bg-white hover:border-accent/60 focus:ring-2 focus:ring-accent transition text-left text-base font-extrabold text-coffee-dark shadow-2xs">
-                        <div id="combobox-label-${rowIndex}" class="flex items-center gap-3 overflow-hidden min-w-0 flex-1">
-                            <span class="text-coffee-light/70 text-sm font-bold">🔍 Seleccionar producto...</span>
-                        </div>
-                        <svg class="w-5 h-5 text-coffee-medium shrink-0 ml-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-
-                    <!-- Dropdown Menu -->
-                    <div id="combobox-menu-${rowIndex}" class="hidden absolute top-full left-0 right-0 z-[60] mt-1 bg-white rounded-3xl border-2 border-cream-dark shadow-2xl overflow-hidden p-3 space-y-2 animate-slide-up max-w-full" style="min-width: 320px;">
-                        <div class="relative">
-                            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-coffee-light pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            <input type="text" oninput="filterComboboxOptions(${rowIndex}, this.value)" placeholder="Filtrar por nombre o código..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-cream-dark text-sm focus:outline-none focus:ring-2 focus:ring-accent bg-cream/30 text-coffee-dark font-medium">
-                        </div>
-                        <div class="combobox-options max-h-60 overflow-y-auto custom-scrollbar space-y-1.5" id="combobox-opts-${rowIndex}">
-                            ${generateComboboxOptionsHtml(rowIndex)}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hidden inputs for form POST -->
-                <input type="hidden" class="real-qty-input" id="qty-real-${rowIndex}" value="0">
-            </td>
-            <td class="p-4">
-                <span class="font-black text-coffee-dark text-base sm:text-lg font-heading" id="price-${rowIndex}">Bs. 0.00</span>
-            </td>
-            <td class="p-4">
-                <div class="flex items-center justify-center gap-2 bg-cream/40 p-1.5 rounded-2xl border-2 border-cream-dark/60 w-fit mx-auto">
-                    <button type="button" onclick="updateQty(${rowIndex}, -1)"
-                            class="w-9 h-9 rounded-xl bg-white border border-cream-dark text-lg font-black text-coffee-dark hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center shadow-2xs active:scale-90">-</button>
-                    <input type="number" id="qty-${rowIndex}" min="0" value="0" oninput="onQtyChange(${rowIndex}, this)"
-                           class="w-14 text-center text-base sm:text-lg font-black text-coffee-dark bg-transparent border-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                    <button type="button" onclick="updateQty(${rowIndex}, 1)"
-                            class="w-9 h-9 rounded-xl bg-white border border-cream-dark text-lg font-black text-coffee-dark hover:bg-emerald-50 hover:text-emerald-600 transition flex items-center justify-center shadow-2xs active:scale-90">+</button>
-                </div>
-            </td>
-            <td class="p-4 text-right">
-                <span class="font-black text-accent-dark text-lg sm:text-xl font-heading" id="subtotal-${rowIndex}">Bs. 0.00</span>
-            </td>
-            <td class="p-4 pr-6 text-center">
-                <button type="button" onclick="removeRow(${rowIndex})"
-                        class="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white transition font-black text-lg flex items-center justify-center mx-auto active:scale-90" title="Quitar item">
-                    &times;
-                </button>
-            </td>
-        `;
-
-        container.appendChild(tr);
-        checkTableEmptyState();
-
-        if (preselectedProductId) {
-            setRowProduct(rowIndex, preselectedProductId);
-        }
-    }
-
-    function generateComboboxOptionsHtml(rowIndex, query = '') {
-        query = query.toLowerCase().trim();
-        const filtered = availableProducts.filter(p => {
-            if (!query) return true;
-            return p.name.toLowerCase().includes(query) || (p.code || '').toLowerCase().includes(query) || (p.category_name || '').toLowerCase().includes(query);
-        });
-
-        if (!filtered.length) {
-            return `<div class="p-4 text-center text-sm text-coffee-light font-bold">Sin coincidencias</div>`;
-        }
-
-        return filtered.map(p => {
-            const iconBadge = getColoredIconBadge(p.category_icon, 'w-10 h-10', 'w-5 h-5');
-            return `
-                <div onclick="selectComboboxOption(${rowIndex}, ${p.id})"
-                     class="flex items-center justify-between p-2.5 rounded-2xl hover:bg-cream/60 cursor-pointer transition group">
-                    <div class="flex items-center gap-3 min-w-0">
-                        ${iconBadge}
-                        <div class="truncate">
-                            <p class="text-sm sm:text-base font-extrabold text-coffee-dark leading-snug group-hover:text-accent transition-colors truncate">${p.name}</p>
-                            <span class="text-xs text-coffee-light/80 font-bold truncate">${p.category_name}</span>
-                        </div>
-                    </div>
-                    <span class="text-sm sm:text-base font-black text-accent shrink-0 ml-3 font-heading">Bs. ${parseFloat(p.price).toFixed(2)}</span>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function toggleCombobox(rowIndex) {
-        const menu = document.getElementById(`combobox-menu-${rowIndex}`);
-        if (!menu) return;
-
-        const isHidden = menu.classList.contains('hidden');
-
-        // Close any other open combobox
-        document.querySelectorAll('.combobox-menu').forEach(m => m.classList.add('hidden'));
-
-        if (isHidden) {
-            menu.classList.remove('hidden');
-            openComboboxIndex = rowIndex;
-            // Focus search input
-            const input = menu.querySelector('input');
-            if (input) {
-                input.value = '';
-                filterComboboxOptions(rowIndex, '');
-                setTimeout(() => input.focus(), 50);
-            }
-        } else {
-            menu.classList.add('hidden');
-            openComboboxIndex = null;
-        }
-    }
-
-    function filterComboboxOptions(rowIndex, query) {
-        const optsContainer = document.getElementById(`combobox-opts-${rowIndex}`);
-        if (optsContainer) {
-            optsContainer.innerHTML = generateComboboxOptionsHtml(rowIndex, query);
-        }
-    }
-
-    function selectComboboxOption(rowIndex, productId) {
-        setRowProduct(rowIndex, productId);
-        const menu = document.getElementById(`combobox-menu-${rowIndex}`);
-        if (menu) menu.classList.add('hidden');
-        openComboboxIndex = null;
-    }
-
-    function setRowProduct(rowIndex, productId) {
-        const product = availableProducts.find(p => p.id == productId);
-        if (!product) return;
-
-        const tr = document.getElementById(`row-${rowIndex}`);
-        if (!tr) return;
-
-        tr.setAttribute('data-product-id', productId);
-
-        // Update trigger label with prominent text & icon
-        const iconBadge = getColoredIconBadge(product.category_icon, 'w-10 h-10', 'w-5 h-5');
-        const labelEl = document.getElementById(`combobox-label-${rowIndex}`);
-        if (labelEl) {
-            labelEl.innerHTML = `
-                ${iconBadge}
-                <div class="flex flex-col min-w-0">
-                    <span class="font-black text-coffee-dark text-base truncate leading-snug">${product.name}</span>
-                    <span class="text-xs text-coffee-light font-bold truncate">${product.category_name}</span>
-                </div>
-            `;
-        }
-
-        // Set hidden input name and price
-        const realQtyInput = document.getElementById(`qty-real-${rowIndex}`);
-        if (realQtyInput) {
-            realQtyInput.name = `items[${product.id}]`;
-        }
-
-        const priceEl = document.getElementById(`price-${rowIndex}`);
-        if (priceEl) {
-            priceEl.innerText = `Bs. ${parseFloat(product.price).toFixed(2)}`;
-        }
-
-        // Set default quantity to 1 if zero
-        const qtyInput = document.getElementById(`qty-${rowIndex}`);
-        if (qtyInput) {
-            if (parseInt(qtyInput.value) <= 0) {
-                qtyInput.value = 1;
-                if (realQtyInput) realQtyInput.value = 1;
-            }
-        }
-
-        recalculateSubtotal(rowIndex);
-    }
-
-    function updateQty(rowIndex, delta) {
-        const qtyInput = document.getElementById(`qty-${rowIndex}`);
-        let qty = parseInt(qtyInput.value) || 0;
-        qty = Math.max(0, qty + delta);
-        qtyInput.value = qty;
-
-        const realQtyInput = document.getElementById(`qty-real-${rowIndex}`);
-        if (realQtyInput) realQtyInput.value = qty;
-
-        recalculateSubtotal(rowIndex);
-    }
-
-    function onQtyChange(rowIndex, inputEl) {
-        const qty = Math.max(0, parseInt(inputEl.value) || 0);
-        inputEl.value = qty;
-
-        const realQtyInput = document.getElementById(`qty-real-${rowIndex}`);
-        if (realQtyInput) realQtyInput.value = qty;
-
-        recalculateSubtotal(rowIndex);
-    }
-
-    function recalculateSubtotal(rowIndex) {
-        const tr = document.getElementById(`row-${rowIndex}`);
-        if (!tr) return;
-
-        const productId = tr.getAttribute('data-product-id');
-        const product = availableProducts.find(p => p.id == productId);
-        const price = product ? parseFloat(product.price) : 0;
-
-        const qty = parseInt(document.getElementById(`qty-${rowIndex}`).value) || 0;
-        const subtotal = price * qty;
-
-        const subtotalEl = document.getElementById(`subtotal-${rowIndex}`);
-        if (subtotalEl) {
-            subtotalEl.innerText = `Bs. ${subtotal.toFixed(2)}`;
-        }
-
-        calculateGrandTotal();
-    }
-
-    function removeRow(rowIndex) {
-        const row = document.getElementById(`row-${rowIndex}`);
-        if (row) {
-            row.remove();
-            calculateGrandTotal();
-            checkTableEmptyState();
-        }
-    }
-
-    function clearAllRows() {
-        document.getElementById('items-container').innerHTML = '';
-        calculateGrandTotal();
-        checkTableEmptyState();
-    }
-
-    function checkTableEmptyState() {
-        const container = document.getElementById('items-container');
-        const emptyState = document.getElementById('table-empty-state');
-        if (!container.children.length) {
-            emptyState.classList.remove('hidden');
-        } else {
-            emptyState.classList.add('hidden');
-        }
-    }
-
-    function calculateGrandTotal() {
-        let total = 0;
-        const rows = document.querySelectorAll('#items-container tr');
-        rows.forEach(row => {
-            const productId = row.getAttribute('data-product-id');
-            const product = availableProducts.find(p => p.id == productId);
-            const price = product ? parseFloat(product.price) : 0;
-            const rIndex = row.id.split('-')[1];
-            const qtyInput = document.getElementById(`qty-${rIndex}`);
-            const qty = qtyInput ? (parseInt(qtyInput.value) || 0) : 0;
-            total += price * qty;
-        });
-
-        document.getElementById('grand-total').innerText = `Bs. ${total.toFixed(2)}`;
-    }
-
-    // Close combobox when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.custom-combobox')) {
-            document.querySelectorAll('.combobox-menu').forEach(m => m.classList.add('hidden'));
-            openComboboxIndex = null;
-        }
-    });
-
-    // Add first row on DOM load & initialize quick catalog
-    document.addEventListener('DOMContentLoaded', () => {
-        renderQuickProducts();
-        addRow();
-
-        // AJAX Form Submission
-        document.getElementById('manual-sale-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const alertContainer = document.getElementById('alert-container');
-            alertContainer.classList.add('hidden');
-            alertContainer.className = 'hidden';
-
-            if (!selectedPaymentMethod) {
-                alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-5 py-4 rounded-2xl text-base font-bold mb-4 block animate-slide-up";
-                alertContainer.innerText = 'Debes seleccionar obligatoriamente un tipo de pago (Efectivo o QR).';
-                alertContainer.classList.remove('hidden');
-                alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                return;
-            }
-
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `⏳ Guardando...`;
-
-            const form = this;
-            const formData = new FormData(form);
-
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<span class="text-xl">💾</span> Guardar Pedido Histórico`;
-
-                if (data.success) {
-                    alertContainer.className = "bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl text-base font-bold mb-4 block animate-slide-up";
-                    alertContainer.innerText = data.message;
-
-                    // Clear products and payment method selection
-                    document.getElementById('items-container').innerHTML = '';
-                    resetPaymentMethod();
-                    addRow();
-                    calculateGrandTotal();
-                } else {
-                    alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-5 py-4 rounded-2xl text-base font-bold mb-4 block animate-slide-up";
-                    alertContainer.innerText = data.message;
-                }
-                alertContainer.classList.remove('hidden');
-                alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            })
-            .catch(err => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<span class="text-xl">💾</span> Guardar Pedido Histórico`;
-
-                alertContainer.className = "bg-red-50 border border-red-200 text-red-800 px-5 py-4 rounded-2xl text-base font-bold mb-4 block animate-slide-up";
-                alertContainer.innerText = 'Error de red o conexión al servidor.';
-                alertContainer.classList.remove('hidden');
-                alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            });
+        })
+        .catch(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `✅ Guardar Pedido`;
+            showToast('Error de conexión al servidor. Intenta de nuevo.', 'error');
         });
     });
+});
 </script>
