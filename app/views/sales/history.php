@@ -124,12 +124,9 @@
                                              🔍 Ver Detalle
                                          </button>
                                          <?php if (\Core\Auth::role() === 'admin'): ?>
-                                         <form method="POST" action="<?= BASE_URL ?>/sales/delete" class="inline" onsubmit="return confirm('¿Está seguro de que desea eliminar este pedido lógicamente?');">
-                                             <input type="hidden" name="sale_id" value="<?= $sale['id'] ?>">
-                                             <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-2 rounded-lg transition duration-200">
-                                                 ❌ Eliminar
-                                             </button>
-                                         </form>
+                                         <button type="button" onclick="confirmDeleteSale(<?= $sale['id'] ?>)" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-2 rounded-lg transition duration-200">
+                                             ❌ Eliminar
+                                         </button>
                                          <?php endif; ?>
                                      </div>
                                  </td>
@@ -143,7 +140,7 @@
 
 <!-- Modal Details -->
 <div id="details-modal" class="fixed inset-0 bg-coffee-dark/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl w-[95%] md:w-[25%] md:min-w-[320px] border border-cream-dark shadow-2xl overflow-hidden animate-fade-in">
+    <div class="bg-white rounded-2xl w-full md:w-[30%] md:min-w-[320px] border border-cream-dark shadow-2xl overflow-hidden animate-fade-in">
         <div class="bg-coffee-dark text-white p-4 flex items-center justify-between">
             <h4 class="font-heading font-extrabold text-base" id="details-modal-title">Detalle del Ticket</h4>
             <button onclick="closeDetailsModal()" class="text-white font-bold text-lg">&times;</button>
@@ -228,18 +225,16 @@
                                     </span>
                                 </div>
                                 <div class="text-[11px] text-coffee-medium font-medium">Designar método de pago para este ticket:</div>
-                                <form method="POST" action="${window.BASE_URL}/sales/update-payment-method" class="flex gap-2">
-                                    <input type="hidden" name="sale_id" value="${saleId}">
-                                    <input type="hidden" name="redirect_url" value="${window.location.pathname + window.location.search}">
-                                    <button type="submit" name="payment_method" value="efectivo" 
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="assignPaymentMethod(${saleId}, 'efectivo')" 
                                             class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition text-center flex items-center justify-center gap-1 shadow-sm">
                                         💵 Asignar Efectivo
                                     </button>
-                                    <button type="submit" name="payment_method" value="qr" 
+                                    <button type="button" onclick="assignPaymentMethod(${saleId}, 'qr')" 
                                             class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition text-center flex items-center justify-center gap-1 shadow-sm">
                                         📱 Asignar QR
                                     </button>
-                                </form>
+                                </div>
                             </div>
                         `;
                     }
@@ -268,7 +263,158 @@
             });
     }
 
+    function assignPaymentMethod(saleId, method) {
+        fetch(`${window.BASE_URL}/sales/update-payment-method`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `sale_id=${saleId}&payment_method=${method}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const btn = document.querySelector(`button[onclick^="loadSaleDetails(${saleId},"]`);
+                if (btn) {
+                    const tr = btn.closest('tr');
+                    if (tr) {
+                        const pmCell = tr.querySelectorAll('td')[2];
+                        if (pmCell) {
+                            if (method === 'efectivo') {
+                                pmCell.innerHTML = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">💵 Efectivo</span>`;
+                            } else {
+                                pmCell.innerHTML = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">📱 QR</span>`;
+                            }
+                        }
+                    }
+                }
+                
+                const totalStr = document.getElementById("details-modal-total").innerText;
+                const dateStr = document.getElementById("details-modal-date").innerText.replace("Fecha: ", "");
+                loadSaleDetails(saleId, dateStr, totalStr);
+            } else {
+                alert(data.message || 'Error al asignar método de pago');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error de conexión al asignar el método de pago');
+        });
+    }
+
     function closeDetailsModal() {
         document.getElementById("details-modal").classList.add("hidden");
     }
 </script>
+
+<!-- Modal Delete Confirmation (Premium Design) -->
+<div id="delete-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl w-full md:w-[30%] md:min-w-[320px] border border-red-100 shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 hover:scale-100 animate-fade-in relative">
+        <!-- Close button top right -->
+        <button onclick="closeDeleteModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center transition font-bold text-sm z-10">&times;</button>
+        
+        <div class="p-6 text-center space-y-5">
+            <!-- Icon Hero -->
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-red-200/60">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-heading font-extrabold text-slate-900" id="delete-modal-title">¿Eliminar Ticket #00?</h3>
+                <p class="text-slate-500 text-xs mt-1.5 leading-relaxed font-medium">
+                    Esta venta será anulada y eliminada lógicamente de los registros del sistema.
+                </p>
+            </div>
+
+            <!-- Danger notice banner -->
+            <div class="bg-red-50/80 border border-red-100 text-red-700 p-3 rounded-2xl text-xs font-semibold flex items-center gap-2 text-left">
+                <span class="text-base flex-shrink-0">⚠️</span>
+                <span>¿Estás seguro de que deseas proceder con la anulación?</span>
+            </div>
+
+            <!-- Buttons Action -->
+            <div class="flex items-center gap-3 pt-2">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-bold py-3 px-4 rounded-xl transition text-xs">
+                    Cancelar
+                </button>
+                <button type="button" id="confirm-delete-btn" class="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-4 rounded-xl transition text-xs shadow-lg shadow-red-500/30 active:scale-95 flex items-center justify-center gap-2">
+                    <span>🗑️</span> Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Delete Modal Logic ---
+    let currentSaleIdToDelete = null;
+
+    function confirmDeleteSale(saleId) {
+        currentSaleIdToDelete = saleId;
+        const titleEl = document.getElementById('delete-modal-title');
+        if (titleEl) titleEl.innerText = `¿Eliminar Ticket #${saleId}?`;
+
+        const modal = document.getElementById('delete-modal');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        currentSaleIdToDelete = null;
+        const modal = document.getElementById('delete-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmBtn = document.getElementById('confirm-delete-btn');
+        if (!confirmBtn) return;
+
+        confirmBtn.addEventListener('click', function() {
+            if (!currentSaleIdToDelete) return;
+            const saleId = currentSaleIdToDelete;
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Eliminando...';
+
+            fetch(`${window.BASE_URL}/sales/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `sale_id=${saleId}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<span>🗑️</span> Sí, Eliminar';
+                closeDeleteModal();
+                
+                if (data.success) {
+                    const delBtn = document.querySelector(`button[onclick="confirmDeleteSale(${saleId})"]`);
+                    if (delBtn) {
+                        const row = delBtn.closest('tr');
+                        if (row) {
+                            row.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                            setTimeout(() => row.remove(), 500);
+                        }
+                    }
+                } else {
+                    alert(data.message || 'Error al eliminar el pedido.');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                btn.disabled = false;
+                btn.innerHTML = '<span>🗑️</span> Sí, Eliminar';
+                alert('Error de conexión al eliminar el pedido.');
+                closeDeleteModal();
+            });
+        });
+    });
+</script>
+

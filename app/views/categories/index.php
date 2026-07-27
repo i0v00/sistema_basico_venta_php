@@ -210,7 +210,7 @@ $svgIcons = [
 
 <!-- ─── Edit Category Modal ─────────────────────────────────────────── -->
 <div id="edit-cat-modal" class="fixed inset-0 bg-coffee-dark/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl w-[95%] md:w-[25%] md:min-w-[320px] border border-cream-dark shadow-2xl overflow-hidden animate-fade-in">
+    <div class="bg-white rounded-2xl w-full md:w-[30%] md:min-w-[320px] border border-cream-dark shadow-2xl overflow-hidden animate-fade-in">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-coffee-dark to-coffee-medium text-white p-5 flex items-center justify-between">
             <h4 class="font-heading font-extrabold text-base flex items-center gap-2">

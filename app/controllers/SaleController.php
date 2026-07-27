@@ -92,11 +92,23 @@ class SaleController {
         $saleId = (int)($_POST['sale_id'] ?? 0);
         $paymentMethod = $_POST['payment_method'] ?? '';
         $redirectUrl = $_POST['redirect_url'] ?? '/reports';
+        
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
 
         if ($saleId > 0 && in_array($paymentMethod, ['efectivo', 'qr'], true)) {
             Sale::updatePaymentMethod($saleId, $paymentMethod);
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => "Tipo de pago actualizado"]);
+                exit;
+            }
             Auth::setFlash('success', "Tipo de pago actualizado a " . ($paymentMethod === 'qr' ? 'QR' : 'Efectivo') . " para la venta #{$saleId}.");
         } else {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => "No se pudo actualizar el tipo de pago"]);
+                exit;
+            }
             Auth::setFlash('error', "No se pudo actualizar el tipo de pago.");
         }
         redirect($redirectUrl);
@@ -249,17 +261,37 @@ class SaleController {
     public function deleteSale() {
         Auth::requireRole(['admin']);
         $saleId = (int)($_POST['sale_id'] ?? 0);
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+
         if ($saleId <= 0) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'ID de pedido inválido.']);
+                exit;
+            }
             setFlash('error', 'ID de pedido inválido.');
             redirect('/sales/history');
         }
 
         if (Sale::delete($saleId)) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => 'Pedido eliminado lógicamente de los registros.']);
+                exit;
+            }
             setFlash('success', 'Pedido eliminado lógicamente de los registros.');
         } else {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'No se pudo eliminar el pedido.']);
+                exit;
+            }
             setFlash('error', 'No se pudo eliminar el pedido.');
         }
-        redirect('/sales/history');
+        
+        if (!$isAjax) {
+            redirect('/sales/history');
+        }
     }
 
     /**

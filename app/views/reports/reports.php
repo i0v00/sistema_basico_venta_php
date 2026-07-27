@@ -235,18 +235,16 @@
                                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
                                                     ⚠️ Sin Especificar
                                                 </span>
-                                                <form method="POST" action="<?= BASE_URL ?>/sales/update-payment-method" class="flex gap-1 mt-0.5">
-                                                    <input type="hidden" name="sale_id" value="<?= $sale['id'] ?>">
-                                                    <input type="hidden" name="redirect_url" value="<?= e($_SERVER['REQUEST_URI']) ?>">
-                                                    <button type="submit" name="payment_method" value="efectivo" title="Asignar Efectivo"
+                                                <div class="flex gap-1 mt-0.5">
+                                                    <button type="button" onclick="assignPaymentMethod(<?= $sale['id'] ?>, 'efectivo', this)" title="Asignar Efectivo"
                                                             class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-200">
                                                         💵 Efectivo
                                                     </button>
-                                                    <button type="submit" name="payment_method" value="qr" title="Asignar QR"
+                                                    <button type="button" onclick="assignPaymentMethod(<?= $sale['id'] ?>, 'qr', this)" title="Asignar QR"
                                                             class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-200">
                                                         📱 QR
                                                     </button>
-                                                </form>
+                                                </div>
                                             </div>
                                         <?php else: ?>
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold <?= $isQr ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200' ?>">
@@ -412,3 +410,33 @@
     <?php endif; ?>
 </div>
 
+<script>
+function assignPaymentMethod(saleId, method, btnElement) {
+    fetch(`${window.BASE_URL}/sales/update-payment-method`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: `sale_id=${saleId}&payment_method=${method}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const container = btnElement.closest('td');
+            if (method === 'efectivo') {
+                container.innerHTML = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">💵 Efectivo</span>`;
+            } else {
+                container.innerHTML = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">📱 QR</span>`;
+            }
+        } else {
+            alert(data.message || 'Error al asignar método de pago');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error de conexión al asignar el método de pago');
+    });
+}
+</script>
