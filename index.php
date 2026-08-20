@@ -97,6 +97,7 @@ $routes = [
         '/admin-expenses' => [\App\Controllers\AdminExpenseController::class, 'index'],
         '/reports' => [\App\Controllers\AdminExpenseController::class, 'reports'],
         '/reports/print' => [\App\Controllers\AdminExpenseController::class, 'printReport'],
+        '/reports/backup' => [\App\Controllers\AdminExpenseController::class, 'backup'],
 
         // Export routes
         '/sales/export-csv'   => [\App\Controllers\SaleController::class, 'exportCsv'],

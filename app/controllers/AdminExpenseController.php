@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use Core\Auth;
+use Core\Database;
 use App\Models\GastoFijo;
 use App\Models\Compra;
 use App\Models\RawMaterial;
@@ -251,5 +252,80 @@ class AdminExpenseController {
             'sales' => $sales,
             'revenueByCategory' => $revenueByCategory
         ]);
+    }
+
+    /**
+     * Generate and download a full SQL backup of the database via PDO.
+     * Does not require mysqldump binary (compatible with shared hosting).
+     */
+    public function backup() {
+        $db = Database::getConnection();
+        $dbName = $_ENV['DB_NAME'] ?? 'dukes_cakes_venta';
+        $filename = 'backup_' . $dbName . '_' . date('Y-m-d_His') . '.sql';
+
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $output = fopen('php://output', 'w');
+
+        // Header comment
+        $header = "-- ============================================\n";
+        $header .= "-- Backup de Base de Datos: {$dbName}\n";
+        $header .= "-- Generado: " . date('d/m/Y H:i:s') . "\n";
+        $header .= "-- Sistema: Dukes Cakes POS\n";
+        $header .= "-- ============================================\n\n";
+        $header .= "SET FOREIGN_KEY_CHECKS=0;\n";
+        $header .= "SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';\n";
+        $header .= "SET NAMES utf8mb4;\n\n";
+        fwrite($output, $header);
+
+        // Get all tables
+        $tablesStmt = $db->query("SHOW TABLES");
+        $tables = $tablesStmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        foreach ($tables as $table) {
+            // DROP + CREATE TABLE
+            fwrite($output, "-- -------------------------------------------\n");
+            fwrite($output, "-- Tabla: `{$table}`\n");
+            fwrite($output, "-- -------------------------------------------\n");
+            fwrite($output, "DROP TABLE IF EXISTS `{$table}`;\n");
+
+            $createStmt = $db->query("SHOW CREATE TABLE `{$table}`");
+            $createRow  = $createStmt->fetch(\PDO::FETCH_ASSOC);
+            $createSql  = $createRow['Create Table'] ?? '';
+            fwrite($output, $createSql . ";\n\n");
+
+            // Row data
+            $rowsStmt = $db->query("SELECT * FROM `{$table}`");
+            $rows = $rowsStmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            if (!empty($rows)) {
+                // Build column list
+                $columns = array_keys($rows[0]);
+                $colList = '`' . implode('`, `', $columns) . '`';
+
+                fwrite($output, "INSERT INTO `{$table}` ({$colList}) VALUES\n");
+
+                $rowCount = count($rows);
+                foreach ($rows as $i => $row) {
+                    $values = array_map(function($val) use ($db) {
+                        if ($val === null) return 'NULL';
+                        return $db->quote((string)$val);
+                    }, array_values($row));
+
+                    $comma = ($i < $rowCount - 1) ? ',' : ';';
+                    fwrite($output, '(' . implode(', ', $values) . ")" . $comma . "\n");
+                }
+                fwrite($output, "\n");
+            }
+        }
+
+        fwrite($output, "\nSET FOREIGN_KEY_CHECKS=1;\n");
+        fwrite($output, "-- Fin del backup.\n");
+        fclose($output);
+        exit;
     }
 }

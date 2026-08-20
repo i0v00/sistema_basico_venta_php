@@ -7,12 +7,34 @@
                 Período: <span class="font-extrabold text-coffee-dark bg-cream border border-cream-dark px-2.5 py-0.5 rounded-lg">Del <?= date('d/m/Y', strtotime($startDate)) ?> al <?= date('d/m/Y', strtotime($endDate)) ?></span>
             </p>
         </div>
-        <div>
+        <div class="flex flex-wrap items-center gap-3">
             <a href="<?= BASE_URL ?>/reports/print?filter_mode=<?= e($filterMode) ?>&date=<?= isset($_GET['date']) ? e($_GET['date']) : date('Y-m-d') ?>&month=<?= e($selectedMonth ?? date('m')) ?>&year=<?= e($selectedYear ?? date('Y')) ?>&start_date=<?= e($startDate) ?>&end_date=<?= e($endDate) ?>" target="_blank"
                class="inline-flex items-center gap-2 bg-coffee-dark hover:bg-coffee-medium text-white px-5 py-3 rounded-xl font-extrabold shadow-md transition duration-200 active:scale-95 text-sm">
                 🖨️ Imprimir PDF / A4
             </a>
+            <!-- Backup DB Button -->
+            <a href="<?= BASE_URL ?>/reports/backup"
+               id="btn-backup-db"
+               onclick="return confirmBackup(this)"
+               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-extrabold shadow-md transition duration-200 active:scale-95 text-sm">
+                💾 Backup BD
+            </a>
         </div>
+        <script>
+        function confirmBackup(el) {
+            if (!confirm('¿Deseas descargar un backup completo de la base de datos?\n\nEsto generará un archivo .sql con todos los datos actuales.')) {
+                return false;
+            }
+            el.textContent = '⏳ Generando...';
+            el.classList.add('opacity-70', 'pointer-events-none');
+            // Re-enable after 5 s in case user stays on page
+            setTimeout(function() {
+                el.innerHTML = '💾 Backup BD';
+                el.classList.remove('opacity-70', 'pointer-events-none');
+            }, 5000);
+            return true;
+        }
+        </script>
     </div>
 
     <!-- Period Filters Section -->
