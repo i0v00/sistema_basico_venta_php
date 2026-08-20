@@ -495,25 +495,12 @@ $userRole = Auth::role();
     <!-- Main Content -->
     <main class="flex-grow max-w-[70%] w-full mx-auto p-4 sm:p-6 lg:p-8">
         
-        <!-- Flash Messages -->
+        <!-- Flash Messages (now rendered as toasts via JS) -->
         <?php if ($success = Auth::getFlash('success')): ?>
-            <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 rounded-r-xl flex items-center justify-between shadow-sm animate-fade-in">
-                <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span class="font-medium"><?= e($success) ?></span>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700 font-bold">&times;</button>
-            </div>
+        <script>document.addEventListener('DOMContentLoaded',()=>showToast(<?= json_encode($success) ?>,'success'));</script>
         <?php endif; ?>
-
         <?php if ($error = Auth::getFlash('error')): ?>
-            <div class="mb-6 p-4 bg-rose-50 border-l-4 border-rose-500 text-rose-800 rounded-r-xl flex items-center justify-between shadow-sm animate-fade-in">
-                <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <span class="font-medium"><?= e($error) ?></span>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 font-bold">&times;</button>
-            </div>
+        <script>document.addEventListener('DOMContentLoaded',()=>showToast(<?= json_encode($error) ?>,'error'));</script>
         <?php endif; ?>
 
         <!-- Child View Content -->
@@ -650,6 +637,129 @@ $userRole = Auth::role();
                 currentPanel = null;
             });
         })();
+    </script>
+
+    <!-- ═══════════════════════════════════════════════
+         GLOBAL TOAST NOTIFICATION SYSTEM
+    ═══════════════════════════════════════════════ -->
+    <div id="toast-container"
+         style="position:fixed;top:76px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;pointer-events:none;width:340px;max-width:calc(100vw - 32px);"
+         aria-live="polite" aria-atomic="false">
+    </div>
+
+    <style>
+        @keyframes toastIn {
+            from { opacity:0; transform: translateX(110%) scale(0.95); }
+            to   { opacity:1; transform: translateX(0)   scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity:1; transform: translateX(0)   scale(1);    max-height:120px; margin-bottom:0; }
+            to   { opacity:0; transform: translateX(110%) scale(0.94); max-height:0;    margin-bottom:-10px; }
+        }
+        @keyframes toastProgress {
+            from { width: 100%; }
+            to   { width: 0%; }
+        }
+        .toast-item {
+            animation: toastIn 0.38s cubic-bezier(0.16,1,0.3,1) both;
+            pointer-events: auto;
+        }
+        .toast-item.removing {
+            animation: toastOut 0.3s cubic-bezier(0.7,0,0.84,0) forwards;
+        }
+        .toast-progress-bar {
+            animation: toastProgress linear forwards;
+        }
+    </style>
+
+    <script>
+    (function() {
+        const TOAST_VARIANTS = {
+            success: {
+                bg:     'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
+                border: 'rgba(52,211,153,0.35)',
+                icon:   '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+                accent: '#34d399',
+                label:  '✅ Éxito',
+            },
+            error: {
+                bg:     'linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%)',
+                border: 'rgba(248,113,113,0.35)',
+                icon:   '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                accent: '#f87171',
+                label:  '❌ Error',
+            },
+            warning: {
+                bg:     'linear-gradient(135deg, #451a03 0%, #78350f 100%)',
+                border: 'rgba(251,191,36,0.35)',
+                icon:   '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                accent: '#fbbf24',
+                label:  '⚠️ Atención',
+            },
+            info: {
+                bg:     'linear-gradient(135deg, #0c1a4a 0%, #1e3a8a 100%)',
+                border: 'rgba(96,165,250,0.35)',
+                icon:   '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+                accent: '#60a5fa',
+                label:  'ℹ️ Info',
+            },
+        };
+
+        window.showToast = function(message, type = 'info', duration = 5000) {
+            const v = TOAST_VARIANTS[type] || TOAST_VARIANTS.info;
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const id = 'toast-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+
+            const el = document.createElement('div');
+            el.id = id;
+            el.className = 'toast-item';
+            el.style.cssText = `
+                background: ${v.bg};
+                border: 1px solid ${v.border};
+                border-radius: 16px;
+                padding: 14px 14px 12px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                overflow: hidden;
+                position: relative;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            `;
+
+            el.innerHTML = `
+                <div style="display:flex;align-items:flex-start;gap:11px;">
+                    <div style="flex-shrink:0;width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">
+                        ${v.icon}
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <p style="font-size:11px;font-weight:800;color:${v.accent};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;font-family:'Outfit',sans-serif;">${v.label}</p>
+                        <p style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.92);line-height:1.45;word-break:break-word;">${message}</p>
+                    </div>
+                    <button onclick="removeToast('${id}')" style="flex-shrink:0;width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.55);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,0.18)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">&times;</button>
+                </div>
+                <div style="height:3px;background:rgba(255,255,255,0.10);border-radius:999px;overflow:hidden;">
+                    <div class="toast-progress-bar" style="height:100%;background:${v.accent};border-radius:999px;animation-duration:${duration}ms;"></div>
+                </div>
+            `;
+
+            container.appendChild(el);
+
+            const timer = setTimeout(() => removeToast(id), duration);
+            el._toastTimer = timer;
+        };
+
+        window.removeToast = function(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (el._toastTimer) clearTimeout(el._toastTimer);
+            el.classList.add('removing');
+            setTimeout(() => el.remove(), 320);
+        };
+    })();
     </script>
 </body>
 </html>

@@ -227,7 +227,7 @@ class Sale {
             $params[] = $endDate;
         }
 
-        $query .= " ORDER BY s.sale_date DESC";
+        $query .= " ORDER BY s.id DESC";
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll();

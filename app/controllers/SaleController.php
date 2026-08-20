@@ -173,13 +173,15 @@ class SaleController {
      */
     public function createManualForm() {
         Auth::requireRole(['caja']);
+        $categories = Product::getCategories();
         $products = Product::all();
         // filter active products
         $products = array_filter($products, function($p) {
             return (int)$p['active'] === 1;
         });
         view('sales/create_manual', [
-            'products' => $products
+            'categories' => $categories,
+            'products'   => $products
         ]);
     }
 
@@ -189,6 +191,7 @@ class SaleController {
     public function saveManual() {
         Auth::requireRole(['caja']);
         $saleDate = $_POST['sale_date'] ?? null;
+        $paymentMethod = $_POST['payment_method'] ?? null;
         $itemsRaw = $_POST['items'] ?? [];
         
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
@@ -200,6 +203,16 @@ class SaleController {
                 exit;
             }
             setFlash('error', 'Por favor complete todos los datos del pedido.');
+            redirect('/sales/create-manual');
+        }
+
+        if (empty($paymentMethod) || !in_array($paymentMethod, ['efectivo', 'qr'], true)) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Debes seleccionar obligatoriamente un tipo de pago (Efectivo o QR).']);
+                exit;
+            }
+            setFlash('error', 'Debes seleccionar obligatoriamente un tipo de pago (Efectivo o QR).');
             redirect('/sales/create-manual');
         }
 
@@ -234,7 +247,7 @@ class SaleController {
             $cashierId = $user ? (int)$user['id'] : 0;
 
             // Save sale with custom date and status finalizado so it doesn't clutter live active orders screen
-            Sale::createSale($cartItems, $cashierId, $saleDate, 'finalizado');
+            Sale::createSale($cartItems, $cashierId, $saleDate, 'finalizado', $paymentMethod);
             
             if ($isAjax) {
                 header('Content-Type: application/json');
