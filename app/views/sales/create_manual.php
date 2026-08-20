@@ -324,6 +324,7 @@ $categoriesList = $categories ?? [];
 const HPOS_PRODUCTS = <?= json_encode(array_values($products)) ?>;
 const HPOS_ICONS    = <?= json_encode($posCatIcons) ?>;
 const HPOS_BASE     = '<?= BASE_URL ?>';
+const HPOS_PRICE_HISTORIES = <?= json_encode($priceHistories ?? []) ?>;
 
 const HCAT_COLORS = {
     'hamburger':   { bg:'#FEF3C7', text:'#B45309', border:'#FCD34D' },
@@ -344,6 +345,24 @@ const HCAT_COLORS = {
 let hcart = {};        // { productId: quantity }
 let hCurrentCat = null;
 let hSelectedPM = null;
+
+// Resolve historical price for a product according to currently chosen date
+function hposGetProductPrice(productId) {
+    const rawVal = document.getElementById('sale_date')?.value || document.getElementById('sale_date_mob')?.value;
+    let saleDay = rawVal ? rawVal.split('T')[0] : (new Date().toISOString().split('T')[0]);
+    const history = HPOS_PRICE_HISTORIES[productId];
+    if (history && history.length > 0) {
+        let resolved = null;
+        for (const h of history) {
+            if (h.effective_date <= saleDay) {
+                resolved = parseFloat(h.price);
+            }
+        }
+        if (resolved !== null) return resolved;
+    }
+    const p = HPOS_PRODUCTS.find(x => x.id == productId);
+    return p ? parseFloat(p.price) : 0;
+}
 
 // ── Icon Badge ─────────────────────────────────────────────────────
 function hposIconBadge(iconKey, size = 36) {
@@ -374,6 +393,7 @@ function hposRenderGrid() {
 
     filtered.forEach(p => {
         const inCart = hcart[p.id] > 0;
+        const currentUnitPrice = hposGetProductPrice(p.id);
         const col = HCAT_COLORS[p.category_icon] || { bg:'#F5F5F4', text:'#57534E', border:'#E7E5E4' };
         const card = document.createElement('div');
         card.className = 'prod-card-anim relative bg-white rounded-2xl border-2 border-cream-dark overflow-hidden cursor-pointer transition-all duration-200 select-none';
@@ -396,7 +416,7 @@ function hposRenderGrid() {
             <div style="padding:14px 10px 10px;text-align:center;">
                 ${iconHtml}
                 <p style="font-size:12px;font-weight:800;color:#2C1810;line-height:1.3;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${p.name}</p>
-                <p style="font-size:13px;font-weight:900;color:#E07B39;font-family:var(--font-heading,sans-serif);">Bs. ${parseFloat(p.price).toFixed(2)}</p>
+                <p style="font-size:13px;font-weight:900;color:#E07B39;font-family:var(--font-heading,sans-serif);">Bs. ${currentUnitPrice.toFixed(2)}</p>
             </div>
         `;
 
@@ -477,7 +497,8 @@ function hposRenderCart() {
         const p = HPOS_PRODUCTS.find(x => x.id == id);
         if (!p) return;
         const qty = hcart[id];
-        const subtotal = parseFloat(p.price) * qty;
+        const unitPrice = hposGetProductPrice(p.id);
+        const subtotal = unitPrice * qty;
         total += subtotal;
 
         const col = HCAT_COLORS[p.category_icon] || { bg:'#F5F5F4', text:'#57534E', border:'#E7E5E4' };
@@ -496,7 +517,7 @@ function hposRenderCart() {
                 ${iconHtml}
                 <div class="flex-1 min-w-0">
                     <p class="text-xs font-extrabold text-coffee-dark leading-tight truncate">${p.name}</p>
-                    <p class="text-[11px] text-coffee-light font-semibold">Bs. ${parseFloat(p.price).toFixed(2)} c/u</p>
+                    <p class="text-[11px] text-coffee-light font-semibold">Bs. ${unitPrice.toFixed(2)} c/u</p>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
                     <button type="button" onclick="hposChangeQty(${id}, -1)"
@@ -582,6 +603,24 @@ function hposMobileSubmit() {
 // ── Form submit (AJAX) ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     hposRenderGrid();
+
+    // Re-render prices when date changes
+    const dateInput = document.getElementById('sale_date');
+    const dateMobInput = document.getElementById('sale_date_mob');
+    if (dateInput) {
+        dateInput.addEventListener('change', () => {
+            if (dateMobInput) dateMobInput.value = dateInput.value;
+            hposRenderGrid();
+            hposRenderCart();
+        });
+    }
+    if (dateMobInput) {
+        dateMobInput.addEventListener('change', () => {
+            if (dateInput) dateInput.value = dateMobInput.value;
+            hposRenderGrid();
+            hposRenderCart();
+        });
+    }
 
     document.getElementById('manual-sale-form').addEventListener('submit', function(e) {
         e.preventDefault();

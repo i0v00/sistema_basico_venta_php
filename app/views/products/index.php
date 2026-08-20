@@ -5,7 +5,10 @@
             <h1 class="text-3xl font-heading font-extrabold text-coffee-dark">Gestión de Productos</h1>
             <p class="text-coffee-light">Crea, edita y administra el menú de comidas y bebidas</p>
         </div>
-        <div class="flex gap-3">
+        <div class="flex flex-wrap gap-3">
+            <a href="<?= BASE_URL ?>/sales/price-history" class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 rounded-xl font-bold shadow-md transition duration-200">
+                <span>💰</span> Precios Históricos
+            </a>
             <a href="<?= BASE_URL ?>/categories" class="inline-flex items-center gap-2 bg-white border border-cream-dark text-coffee-dark hover:bg-cream hover:text-accent px-5 py-3 rounded-xl font-bold shadow-sm transition duration-200">
                 <span>📁</span> Categorías
             </a>

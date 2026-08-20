@@ -176,12 +176,20 @@ class SaleController {
         $categories = Product::getCategories();
         $products = Product::all();
         // filter active products
-        $products = array_filter($products, function($p) {
+        $products = array_values(array_filter($products, function($p) {
             return (int)$p['active'] === 1;
-        });
+        }));
+
+        // Fetch price histories for each product
+        $priceHistories = [];
+        foreach ($products as $prod) {
+            $priceHistories[$prod['id']] = Product::getPriceHistory((int)$prod['id']);
+        }
+
         view('sales/create_manual', [
-            'categories' => $categories,
-            'products'   => $products
+            'categories'     => $categories,
+            'products'       => $products,
+            'priceHistories' => $priceHistories
         ]);
     }
 
@@ -191,7 +199,7 @@ class SaleController {
     public function saveManual() {
         Auth::requireRole(['caja']);
         $saleDate = $_POST['sale_date'] ?? null;
-        $paymentMethod = $_POST['payment_method'] ?? null;
+        $paymentMethod = $_POST['payment_method'] ?? '';
         $itemsRaw = $_POST['items'] ?? [];
         
         $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
@@ -216,7 +224,9 @@ class SaleController {
             redirect('/sales/create-manual');
         }
 
-        // Format items from form to cartItems format
+        $saleDay = date('Y-m-d', strtotime($saleDate));
+
+        // Format items from form to cartItems format with historically resolved prices
         $cartItems = [];
         foreach ($itemsRaw as $productId => $qty) {
             $qty = (int)$qty;
@@ -224,9 +234,10 @@ class SaleController {
 
             $product = Product::find($productId);
             if ($product) {
+                $historicalPrice = Product::getPriceForDate((int)$product['id'], $saleDay);
                 $cartItems[] = [
                     'id' => (int)$product['id'],
-                    'price' => (float)$product['price'],
+                    'price' => $historicalPrice,
                     'quantity' => $qty
                 ];
             }

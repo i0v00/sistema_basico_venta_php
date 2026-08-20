@@ -41,8 +41,11 @@ foreach ($sales as $s) {
             <h1 class="text-3xl font-heading font-extrabold text-coffee-dark">Historial de Ventas</h1>
             <p class="text-coffee-light mt-0.5">Consulta y revisa las transacciones y pedidos registrados en el restaurante</p>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="<?= BASE_URL ?>/sales/create-manual" class="bg-accent hover:bg-accent-dark text-white font-bold py-2.5 px-5 rounded-xl text-sm transition inline-flex items-center gap-1.5 active:scale-95 shadow-md shadow-accent/20">
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="<?= BASE_URL ?>/sales/price-history" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition inline-flex items-center gap-1.5 active:scale-95 shadow-md shadow-amber-600/20">
+                <span>💰</span> Precios Históricos
+            </a>
+            <a href="<?= BASE_URL ?>/sales/create-manual" class="bg-accent hover:bg-accent-dark text-white font-bold py-2.5 px-4 rounded-xl text-sm transition inline-flex items-center gap-1.5 active:scale-95 shadow-md shadow-accent/20">
                 <span>📜</span> Registrar Pedido Histórico
             </a>
         </div>

@@ -4,6 +4,7 @@ namespace App\Controllers;
 use Core\Auth;
 use App\Models\Product;
 use App\Models\RawMaterial;
+use App\Models\Category;
 
 class ProductController {
     public function __construct() {
@@ -161,5 +162,93 @@ class ProductController {
             }
         }
         redirect('/products');
+    }
+
+    /**
+     * Show the dedicated Price History management page.
+     * Lists all products with their price histories.
+     */
+    public function priceHistory() {
+        $search = $_GET['search'] ?? '';
+        $products = Product::all($search);
+        $priceHistories = [];
+        foreach ($products as $prod) {
+            $priceHistories[$prod['id']] = Product::getPriceHistory((int)$prod['id']);
+        }
+        view('sales/price_history', [
+            'products'      => $products,
+            'priceHistories'=> $priceHistories,
+            'search'        => $search
+        ]);
+    }
+
+    /**
+     * Add or update a price history record (AJAX/JSON).
+     * POST: product_id, price, effective_date, [history_id] (for edit)
+     */
+    public function savePriceHistory() {
+        header('Content-Type: application/json');
+        $productId     = (int)($_POST['product_id'] ?? 0);
+        $price         = (float)($_POST['price'] ?? 0);
+        $effectiveDate = trim($_POST['effective_date'] ?? '');
+        $historyId     = (int)($_POST['history_id'] ?? 0);
+
+        if ($productId <= 0 || $price <= 0 || empty($effectiveDate)) {
+            echo json_encode(['success' => false, 'message' => 'Datos inválidos. Producto, precio y fecha son requeridos.']);
+            exit;
+        }
+
+        if (!Product::find($productId)) {
+            echo json_encode(['success' => false, 'message' => 'Producto no encontrado.']);
+            exit;
+        }
+
+        try {
+            if ($historyId > 0) {
+                // Edit existing
+                $ok = Product::updatePriceHistory($historyId, $price, $effectiveDate);
+                if (!$ok) {
+                    echo json_encode(['success' => false, 'message' => 'No se pudo actualizar el precio histórico.']);
+                    exit;
+                }
+                $msg = 'Precio histórico actualizado correctamente.';
+            } else {
+                // Add new
+                Product::addPriceHistory($productId, $price, $effectiveDate);
+                $msg = 'Precio histórico agregado correctamente.';
+            }
+
+            // Return updated history for this product
+            $history = Product::getPriceHistory($productId);
+            echo json_encode(['success' => true, 'message' => $msg, 'history' => $history]);
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /**
+     * Delete a price history record (AJAX/JSON).
+     * POST: history_id, product_id
+     */
+    public function deletePriceHistory() {
+        header('Content-Type: application/json');
+        $historyId = (int)($_POST['history_id'] ?? 0);
+        $productId = (int)($_POST['product_id'] ?? 0);
+
+        if ($historyId <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID de registro inválido.']);
+            exit;
+        }
+
+        $ok = Product::deletePriceHistory($historyId);
+        if (!$ok) {
+            echo json_encode(['success' => false, 'message' => 'No se puede eliminar el precio base (primer precio registrado).']);
+            exit;
+        }
+
+        $history = Product::getPriceHistory($productId);
+        echo json_encode(['success' => true, 'message' => 'Precio eliminado.', 'history' => $history]);
+        exit;
     }
 }

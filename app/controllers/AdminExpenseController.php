@@ -132,6 +132,9 @@ class AdminExpenseController {
             $endDate   = $startDate;
         }
 
+        // Ensure all sales prices in range are synchronized with historical prices
+        Sale::syncAllSalesPricesForRange($startDate, $endDate);
+
         // Revenue (Ingresos por ventas)
         $totalRevenue = Sale::getTotalRevenueForRange($startDate, $endDate);
         $revenueByPayment = Sale::getRevenueByPaymentMethodForRange($startDate, $endDate);
@@ -164,6 +167,9 @@ class AdminExpenseController {
         // Revenue by category
         $revenueByCategory = Sale::getRevenueByCategory($startDate, $endDate);
 
+        // Historical price report
+        $priceRangeReport = Sale::getProductPriceRangeReport($startDate, $endDate);
+
         view('reports/reports', [
             'filterMode' => $filterMode,
             'selectedMonth' => $selectedMonth,
@@ -181,7 +187,8 @@ class AdminExpenseController {
             'gastosFijos' => $gastosFijos,
             'compras' => $compras,
             'sales' => $sales,
-            'revenueByCategory' => $revenueByCategory
+            'revenueByCategory' => $revenueByCategory,
+            'priceRangeReport' => $priceRangeReport
         ]);
     }
 
@@ -203,6 +210,9 @@ class AdminExpenseController {
             $startDate = $_GET['date'] ?? date('Y-m-d');
             $endDate   = $startDate;
         }
+
+        // Ensure all sales prices in range are synchronized with historical prices
+        Sale::syncAllSalesPricesForRange($startDate, $endDate);
 
         $totalRevenue = Sale::getTotalRevenueForRange($startDate, $endDate);
         $revenueByPayment = Sale::getRevenueByPaymentMethodForRange($startDate, $endDate);
@@ -233,6 +243,9 @@ class AdminExpenseController {
         // Revenue by category for print report
         $revenueByCategory = Sale::getRevenueByCategory($startDate, $endDate);
 
+        // Historical price report
+        $priceRangeReport = Sale::getProductPriceRangeReport($startDate, $endDate);
+
         viewRaw('reports/print', [
             'filterMode' => $filterMode,
             'selectedMonth' => $selectedMonth,
@@ -250,7 +263,8 @@ class AdminExpenseController {
             'gastosFijos' => $gastosFijos,
             'compras' => $compras,
             'sales' => $sales,
-            'revenueByCategory' => $revenueByCategory
+            'revenueByCategory' => $revenueByCategory,
+            'priceRangeReport' => $priceRangeReport
         ]);
     }
 

@@ -37,11 +37,17 @@ class Sale {
                 }
             }
 
-            // Calculate total
-            foreach ($cartItems as $item) {
+            // Determine the sale date string for price resolution
+            $saleDateForPrice = $saleDate ? date('Y-m-d', strtotime($saleDate)) : date('Y-m-d');
+
+            // Calculate total using historically resolved prices
+            foreach ($cartItems as &$item) {
+                // Resolve the correct historical price for the sale date
+                $item['price'] = Product::getPriceForDate((int)$item['id'], $saleDateForPrice);
                 $total += $item['price'] * $item['quantity'];
                 $itemsCount += $item['quantity'];
             }
+            unset($item);
 
             // 2. Insert into sales
             if ($saleDate) {
@@ -65,7 +71,7 @@ class Sale {
                 $detailStmt->execute([
                     $saleId,
                     $item['id'],
-                    $item['price'],
+                    $item['price'],   // historically resolved price
                     $item['quantity']
                 ]);
 
@@ -482,6 +488,158 @@ class Sale {
         ");
         $stmt->execute([$startDate, $endDate]);
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Ensure all sales in the given range have their prices accurately matched
+     * against the product_price_history table before generating reports.
+     */
+    public static function syncAllSalesPricesForRange(string $startDate, string $endDate): void {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("
+            SELECT DISTINCT sd.product_id
+            FROM sale_details sd
+            JOIN sales s ON sd.sale_id = s.id
+            WHERE DATE(s.sale_date) >= ? AND DATE(s.sale_date) <= ? AND s.deleted = 0
+        ");
+        $stmt->execute([$startDate, $endDate]);
+        $productIds = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        foreach ($productIds as $pid) {
+            Product::syncAllSalesPricesForProduct((int)$pid);
+        }
+    }
+
+    /**
+     * For the reports section: group sales by product and price,
+     * showing the date ranges in which each price was applied.
+     * Only returns products that had more than one distinct price in the period.
+     */
+    public static function getProductPriceRangeReport(string $startDate, string $endDate): array {
+        $db = Database::getConnection();
+
+        // 1. Ensure all sales prices in range are synchronized with history
+        self::syncAllSalesPricesForRange($startDate, $endDate);
+
+        // 2. Query all sale_details in range
+        $stmt = $db->prepare("
+            SELECT
+                p.id            AS product_id,
+                p.name          AS product_name,
+                c.icon          AS product_icon,
+                sd.price        AS price,
+                DATE(s.sale_date) AS sale_day,
+                sd.quantity     AS quantity
+            FROM sale_details sd
+            JOIN sales s    ON sd.sale_id = s.id
+            JOIN products p ON sd.product_id = p.id
+            JOIN categories c ON p.category_id = c.id
+            WHERE DATE(s.sale_date) >= ? AND DATE(s.sale_date) <= ? AND s.deleted = 0
+            ORDER BY p.name ASC, DATE(s.sale_date) ASC
+        ");
+        $stmt->execute([$startDate, $endDate]);
+        $rows = $stmt->fetchAll();
+
+        // Group by product
+        $byProduct = [];
+        foreach ($rows as $r) {
+            $pid   = (int)$r['product_id'];
+            $price = number_format((float)$r['price'], 2, '.', '');
+
+            if (!isset($byProduct[$pid])) {
+                $byProduct[$pid] = [
+                    'product_id'   => $pid,
+                    'product_name' => $r['product_name'],
+                    'product_icon' => $r['product_icon'],
+                    'price_stats'  => []
+                ];
+            }
+            if (!isset($byProduct[$pid]['price_stats'][$price])) {
+                $byProduct[$pid]['price_stats'][$price] = [
+                    'price'     => (float)$r['price'],
+                    'qty'       => 0,
+                    'total'     => 0.0,
+                    'min_sale'  => $r['sale_day'],
+                    'max_sale'  => $r['sale_day']
+                ];
+            }
+            $byProduct[$pid]['price_stats'][$price]['qty']   += (int)$r['quantity'];
+            $byProduct[$pid]['price_stats'][$price]['total'] += (float)$r['price'] * (int)$r['quantity'];
+            if ($r['sale_day'] < $byProduct[$pid]['price_stats'][$price]['min_sale']) {
+                $byProduct[$pid]['price_stats'][$price]['min_sale'] = $r['sale_day'];
+            }
+            if ($r['sale_day'] > $byProduct[$pid]['price_stats'][$price]['max_sale']) {
+                $byProduct[$pid]['price_stats'][$price]['max_sale'] = $r['sale_day'];
+            }
+        }
+
+        $result = [];
+        foreach ($byProduct as $pid => $prod) {
+            // Only show products that have 2 or more distinct prices in this period
+            if (count($prod['price_stats']) < 2) {
+                continue;
+            }
+
+            $history = Product::getPriceHistory($pid);
+            $priceTiers = [];
+
+            // Iterate over each distinct price charged in this period (ensures NO duplicate rows)
+            foreach ($prod['price_stats'] as $priceKey => $stat) {
+                $targetPrice = (float)$stat['price'];
+
+                // Find earliest history record with this price
+                $matchedHist = null;
+                $nextDiffHist = null;
+
+                for ($i = 0; $i < count($history); $i++) {
+                    if (abs((float)$history[$i]['price'] - $targetPrice) < 0.001) {
+                        if ($matchedHist === null) {
+                            $matchedHist = $history[$i];
+                        }
+                    } elseif ($matchedHist !== null && $nextDiffHist === null) {
+                        $nextDiffHist = $history[$i];
+                        break;
+                    }
+                }
+
+                // Compute Vigencia Desde
+                if ($matchedHist && $matchedHist['effective_date'] > '2000-01-01' && $matchedHist['effective_date'] > $startDate) {
+                    $vDesde = $matchedHist['effective_date'];
+                } else {
+                    $vDesde = $startDate;
+                }
+
+                // Compute Vigencia Hasta
+                if ($nextDiffHist && $nextDiffHist['effective_date'] <= $endDate && $nextDiffHist['effective_date'] > '2000-01-01') {
+                    $d = new \DateTime($nextDiffHist['effective_date']);
+                    $d->modify('-1 day');
+                    $vHasta = $d->format('Y-m-d');
+                } else {
+                    $vHasta = $endDate;
+                }
+
+                if ($vHasta < $vDesde) {
+                    $vHasta = $endDate;
+                }
+
+                $priceTiers[] = [
+                    'price'          => $stat['price'],
+                    'vigencia_desde' => $vDesde,
+                    'vigencia_hasta' => $vHasta,
+                    'date_from'      => $stat['min_sale'],
+                    'date_to'        => $stat['max_sale'],
+                    'qty'            => $stat['qty'],
+                    'total'          => $stat['total']
+                ];
+            }
+
+            usort($priceTiers, fn($a, $b) => strcmp($a['vigencia_desde'], $b['vigencia_desde']));
+            $prod['prices'] = $priceTiers;
+            unset($prod['price_stats']);
+            $result[] = $prod;
+        }
+
+        return $result;
     }
 }
 

@@ -379,6 +379,54 @@
                 </div>
             </div>
 
+            <!-- Historical Prices Section in Print View -->
+            <?php if (!empty($priceRangeReport)): ?>
+            <div class="space-y-3 page-break-inside-avoid">
+                <h3 class="text-sm font-heading font-extrabold uppercase tracking-wider text-slate-800 flex items-center gap-2 border-b-2 border-amber-300 pb-2">
+                    <span style="display:inline-block;width:1.1rem;height:1.1rem;vertical-align:middle;">💰</span>
+                    Análisis de Precios Históricos por Producto
+                </h3>
+
+                <div class="space-y-4">
+                    <?php foreach ($priceRangeReport as $prodData): ?>
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <div class="bg-amber-50/50 px-3 py-2 border-b border-slate-200 flex items-center justify-between">
+                            <span class="font-bold text-xs text-slate-800"><?= e($prodData['product_icon']) ?> <?= e($prodData['product_name']) ?></span>
+                            <span class="text-[10px] font-bold text-amber-700 bg-white border border-amber-200 px-2 py-0.5 rounded">
+                                <?= count($prodData['prices']) ?> precios distintos
+                            </span>
+                        </div>
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-700 font-bold uppercase text-[9px]">
+                                    <th class="p-2 pl-3">Precio Unitario</th>
+                                    <th class="p-2">Vigente Desde</th>
+                                    <th class="p-2">Vigente Hasta</th>
+                                    <th class="p-2 text-center">Unidades Vendidas</th>
+                                    <th class="p-2 pr-3 text-right">Subtotal Recaudado</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <?php foreach ($prodData['prices'] as $pr): 
+                                    $vDesde = !empty($pr['vigencia_desde']) ? $pr['vigencia_desde'] : $pr['date_from'];
+                                    $vHasta = !empty($pr['vigencia_hasta']) ? $pr['vigencia_hasta'] : $pr['date_to'];
+                                ?>
+                                <tr>
+                                    <td class="p-2 pl-3 font-extrabold text-emerald-700"><?= formatMoney($pr['price']) ?> c/u</td>
+                                    <td class="p-2 text-slate-600 font-medium"><?= date('d/m/Y', strtotime($vDesde)) ?></td>
+                                    <td class="p-2 text-slate-600 font-medium"><?= date('d/m/Y', strtotime($vHasta)) ?></td>
+                                    <td class="p-2 text-center font-semibold text-slate-700"><?= number_format($pr['qty']) ?> unidades</td>
+                                    <td class="p-2 pr-3 text-right font-extrabold text-slate-800"><?= formatMoney($pr['total']) ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Footer Signatures & Disclaimer -->
             <div class="pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-end gap-6 text-xs text-slate-400 page-break-inside-avoid">
                 <div>

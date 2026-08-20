@@ -430,6 +430,96 @@
         </div>
     </div>
     <?php endif; ?>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECCIÓN: ANÁLISIS DE PRECIOS HISTÓRICOS POR PRODUCTO
+    ═══════════════════════════════════════════════════════════ -->
+    <?php if (!empty($priceRangeReport)): ?>
+    <div class="bg-white rounded-2xl border border-cream-dark shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-cream-dark flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl border border-amber-200">💰</div>
+            <div>
+                <h2 class="font-heading font-extrabold text-coffee-dark text-lg">Análisis de Precios Históricos por Producto</h2>
+                <p class="text-xs text-coffee-light mt-0.5">Productos que se vendieron con diferentes precios en el período seleccionado</p>
+            </div>
+        </div>
+
+        <div class="p-5 space-y-5">
+            <?php foreach ($priceRangeReport as $prodData): ?>
+            <div class="border border-cream-dark rounded-xl overflow-hidden">
+                <!-- Product header -->
+                <div class="bg-cream/60 px-4 py-3 flex items-center gap-3 border-b border-cream-dark">
+                    <span class="text-lg"><?= e($prodData['product_icon']) ?></span>
+                    <span class="font-heading font-extrabold text-coffee-dark text-sm"><?= e($prodData['product_name']) ?></span>
+                    <span class="ml-auto text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                        <?= count($prodData['prices']) ?> precios distintos
+                    </span>
+                </div>
+                <!-- Price rows table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-50 text-xs font-extrabold text-coffee-medium uppercase tracking-wide border-b border-cream-dark">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Precio Unitario</th>
+                                <th class="px-4 py-3 text-left">Vigente Desde</th>
+                                <th class="px-4 py-3 text-left">Vigente Hasta</th>
+                                <th class="px-4 py-3 text-center">Unidades Vendidas</th>
+                                <th class="px-4 py-3 text-right">Subtotal Recaudado</th>
+                                <th class="px-4 py-3 text-left">Comparativa</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-cream-dark">
+                            <?php 
+                            $totalProdQty = array_sum(array_column($prodData['prices'], 'qty'));
+                            foreach ($prodData['prices'] as $pr): 
+                                $pctQty = $totalProdQty > 0 ? round(($pr['qty'] / $totalProdQty) * 100) : 0;
+                                $vDesde = !empty($pr['vigencia_desde']) ? $pr['vigencia_desde'] : $pr['date_from'];
+                                $vHasta = !empty($pr['vigencia_hasta']) ? $pr['vigencia_hasta'] : $pr['date_to'];
+                            ?>
+                            <tr class="hover:bg-cream/30 transition-colors">
+                                <td class="px-4 py-3">
+                                    <span class="text-sm font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                                        <?= formatMoney($pr['price']) ?> c/u
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-700 font-bold"><?= date('d/m/Y', strtotime($vDesde)) ?></td>
+                                <td class="px-4 py-3 text-xs text-slate-700 font-bold"><?= date('d/m/Y', strtotime($vHasta)) ?></td>
+                                <td class="px-4 py-3 text-center font-extrabold text-coffee-dark">
+                                    <span class="bg-coffee-dark/10 text-coffee-dark px-2.5 py-0.5 rounded-full text-xs">
+                                        <?= number_format($pr['qty']) ?> unidad<?= $pr['qty'] != 1 ? 'es' : '' ?>
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-right font-extrabold text-coffee-dark text-sm"><?= formatMoney($pr['total']) ?></td>
+                                <td class="px-4 py-3 w-40">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                                            <div class="bg-amber-500 h-2 rounded-full" style="width: <?= $pctQty ?>%"></div>
+                                        </div>
+                                        <span class="text-[10px] font-bold text-slate-500"><?= $pctQty ?>%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot class="bg-coffee-dark/5 border-t border-cream-dark">
+                            <tr>
+                                <td colspan="3" class="px-4 py-3 text-xs font-extrabold text-coffee-dark uppercase">Total Vendido del Producto</td>
+                                <td class="px-4 py-3 text-center font-extrabold text-coffee-dark text-sm">
+                                    <?= number_format($totalProdQty) ?> unidades
+                                </td>
+                                <td class="px-4 py-3 text-right font-extrabold text-emerald-700 text-sm">
+                                    <?= formatMoney(array_sum(array_column($prodData['prices'], 'total'))) ?>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <script>

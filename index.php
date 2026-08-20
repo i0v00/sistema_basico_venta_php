@@ -80,6 +80,7 @@ $routes = [
         '/pos' => [\App\Controllers\SaleController::class, 'pos'],
         '/sales/history' => [\App\Controllers\SaleController::class, 'history'],
         '/sales/details' => [\App\Controllers\SaleController::class, 'details'],
+        '/sales/price-history' => [\App\Controllers\ProductController::class, 'priceHistory'],
         '/settings' => [\App\Controllers\SettingsController::class, 'index'],
         
         // Users routes
@@ -118,6 +119,8 @@ $routes = [
         '/sales/save-manual' => [\App\Controllers\SaleController::class, 'saveManual'],
         '/sales/delete' => [\App\Controllers\SaleController::class, 'deleteSale'],
         '/sales/update-payment-method' => [\App\Controllers\SaleController::class, 'updatePaymentMethod'],
+        '/products/price-history/save'   => [\App\Controllers\ProductController::class, 'savePriceHistory'],
+        '/products/price-history/delete' => [\App\Controllers\ProductController::class, 'deletePriceHistory'],
 
         // Users CRUD save & delete
         '/users/save' => [\App\Controllers\UserController::class, 'save'],

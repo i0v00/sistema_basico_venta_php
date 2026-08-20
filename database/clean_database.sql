@@ -118,6 +118,17 @@ INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('track_raw_materials', '0')
 ON DUPLICATE KEY UPDATE `setting_value`=VALUES(`setting_value`);
 
+-- 11. Product Price History (Historial de Precios por Producto)
+CREATE TABLE IF NOT EXISTS `product_price_history` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `product_id` INT NOT NULL,
+  `price` DECIMAL(10,2) NOT NULL,
+  `effective_date` DATE NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  INDEX `idx_pph_product_date` (`product_id`, `effective_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Índices de optimización
 CREATE INDEX `idx_sales_date_status` ON `sales` (`sale_date`, `status`);
 CREATE INDEX `idx_compras_fecha` ON `compras` (`fecha`);
